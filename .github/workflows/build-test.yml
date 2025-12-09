@@ -5,11 +5,15 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
-  workflow_dispatch:  # 수동 실행 버튼 추가
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: RouteRecipt   # <<<<<< 핵심!!!!! gradlew 있는 폴더
 
     steps:
       - name: Checkout source
@@ -32,4 +36,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-report
-          path: build/reports/tests/test
+          path: RouteRecipt/build/reports/tests/test
