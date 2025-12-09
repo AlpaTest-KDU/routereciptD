@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class MainController {
 	
+	// Branch Test
 	// 메인 화면
 	@GetMapping("/")
 	public String mainPage() {
