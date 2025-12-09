@@ -2,10 +2,16 @@ name: Build & Test (routereciptD)
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
+      - develop
+      - controller/*
   pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
+    branches:
+      - main
+      - develop
+      - controller/*
+  workflow_dispatch:    # 수동 실행 버튼
 
 jobs:
   build:
