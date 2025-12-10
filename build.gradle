@@ -39,6 +39,7 @@ dependencies {
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
 
 }
 
