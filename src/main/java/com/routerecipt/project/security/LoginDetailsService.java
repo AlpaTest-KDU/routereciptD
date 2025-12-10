@@ -19,7 +19,7 @@ public class LoginDetailsService implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Userdto user = userMapper.UserFind(username);
+		Userdto user = userMapper.loadUserByUsername(username);
 		
 		if (user == null) {
 			throw new UsernameNotFoundException("유저를 찾을 수 없습니다" + username);
