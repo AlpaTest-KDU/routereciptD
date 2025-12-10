@@ -26,8 +26,8 @@ public class UserServiceImp implements UserService {
 	
 	// 계정 찾기
 	@Override
-	public Userdto UserFind(Map<String, Object> map) {
-		return userMapper.UserFind(map);
+	public Userdto UserFind(String u_eamil) {
+		return userMapper.UserFind(u_eamil);
 	}
 	
 	// 회원 탈퇴
