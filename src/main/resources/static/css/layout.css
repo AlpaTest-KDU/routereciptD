@@ -1,0 +1,65 @@
+@charset "UTF-8";
+
+.header {
+	display: flex;								
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	padding: 16px 40px;
+	justify-content: space-between;				
+	align-items: center;
+	z-index: 999;
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(15px);		
+  	border: none;
+}
+
+header nav a {
+	margin: 15px;
+	font-weight: 500;
+	color: #333;
+}
+
+header .btn {
+	padding: 8px 16px;
+    background: #5054ef;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.navbar {
+	display: block;
+}
+
+.logo {
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.menu:hover {
+	border-radius: 8px;
+	background: rgba(2,32,71,0.05);
+}
+
+#routeceipt {
+	color: #c7d2fe;
+}
+
+.footer {
+	background: linear-gradient(to bottom, #0f172a, #1e1b4b);
+	color: white;
+	padding: 16px 40px;
+	align-items: center;
+}
+
+.footer-iner {
+	text-align: center;
+	font-size: 15px;
+}
+
+.footer li {
+	list-style-type: none;
+}

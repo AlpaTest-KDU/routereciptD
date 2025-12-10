@@ -1,0 +1,92 @@
+@charset "UTF-8";
+
+.signup-page {
+    min-height: 100vh;
+}
+
+.signup-page .page-content {
+    flex: 1;
+    background: #f7f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;          
+    padding: 120px 16px 40px;     
+}
+
+.signup-card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px 24px 28px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.kakao_login {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btnKakao {
+    display: inline-block;
+    width: 100%;
+    background-color: #FEE500;
+    color: #3A1D1D;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px 0;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btnKakao:hover {
+    background-color: #f7d800;
+}
+
+.signup-card form > div {
+    margin-bottom: 14px;
+}
+
+.signup-card label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2d36;
+}
+
+.signup-card input[type="text"],
+.signup-card input[type="password"] {
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid #d0d3d8;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border .2s, box-shadow .2s;
+}
+
+.signup-card input:focus {
+    border-color: #5054ef;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(80, 84, 239, 0.16);
+}
+
+.signup-card button[type="submit"] {
+    width: 100%;
+    margin-top: 6px;
+    background-color: #5054ef;
+    color: white;
+    border: none;
+    padding: 11px 0;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.signup-card button[type="submit"]:hover {
+    background-color: #3b40dd;
+}
