@@ -3,7 +3,6 @@ package com.routerecipt.project.security;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -29,7 +28,7 @@ public class LoginDetails implements UserDetails{
 	}
 	
 	@Override
-	public @Nullable String getPassword() {
+	public String getPassword() {
 		return this.userdto.getU_pw();
 	}
 	
