@@ -36,7 +36,7 @@ public class UserController {
 	}
 	
 	// 회원 삭제 기능
-	@DeleteMapping("userInfoShowPage/userInfoDelete/{id}")
+	@DeleteMapping("/userInfoShowPage/userInfoDelete/{id}")
 	public String userInfoDelete(@PathVariable(value="id") String id) {
 		return "index";
 	}
