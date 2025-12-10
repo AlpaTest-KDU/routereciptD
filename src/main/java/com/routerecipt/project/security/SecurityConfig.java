@@ -21,7 +21,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChan(HttpSecurity http, RedirectLoggonFilter redirectLoggonFilter, AuthenticationProvider authenticationProvider) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/","index","/user/UserSignUpPage").permitAll()
+					.requestMatchers("/","index","/user/UserSignUpPage","/user/UserLoginPage").permitAll()
 					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					)
