@@ -12,7 +12,7 @@ import com.routerecipt.project.dto.Userdto;
 public interface UserMapper {
 	void UserSignUp(Userdto u);
 	Userdto loadUserByUsername(String u_id);
-	Userdto UserFind(Map<String, Object> map);
+	Userdto UserFind(String u_email);
 	List<Userdto> UserInfoShow();
 	void UserInfoUpdate(Userdto u);
 	void UserInfoDelete(Userdto u);

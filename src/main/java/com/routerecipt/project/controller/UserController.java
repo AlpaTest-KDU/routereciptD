@@ -31,8 +31,8 @@ public class UserController {
 	// 아이디,비번 찾기 기능
 	// 파라미터 명 = email
 	@GetMapping("/userFindPage/userfind")
-	public String userfind(@RequestParam(value="email") String email,Map<String, Object>map) {
-		userServiceImp.UserFind(map);
+	public String userfind(@RequestParam(value="email") String u_email) {
+		userServiceImp.UserFind(u_email);
 		return "index";
 	}
 	
@@ -69,8 +69,8 @@ public class UserController {
 	}
 	
 	// 회원 삭제 기능
-	@DeleteMapping("/userInfoShowPage/userInfoDelete/{id}")
-	public String userInfoDelete(@PathVariable(value="id") String id, Userdto u) {
+	@DeleteMapping("/userInfoShowPage/userInfoDelete")
+	public String userInfoDelete(Userdto u) {
 		userServiceImp.UserInfoDelete(u);
 		return "index";
 	}
