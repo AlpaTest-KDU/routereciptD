@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/base}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div layout:fragment="content">
+	    
+	    <div class="signUpArea">
+	        <form th:action="@{/userSignUpPage/userSignUp}" method="post">
+	            <div>
+	                <label for="u_id">아이디</label>
+	                <input id="u_id" type="text" name="u_id">
+	            </div>
+	            <div>
+	                <label for="u_pw">비밀번호</label>
+	                <input id="u_pw" type="password" name="u_pw">
+	            </div>
+	            <div>
+	                <label for="u_pw_confirm">비밀번호 확인</label>
+	                <input id="u_pw_confirm" type="password" name="u_pw_confirm">
+	            </div>
+	            <div>
+	                <label for="u_name">이름</label>
+	                <input id="u_name" type="text" name="u_name">
+	            </div>
+	            <div>
+	                <label for="u_birthday">생년월일</label>
+	                <input id="u_birthday" type="date" name="u_birthday">
+	            </div>
+            	<div>
+                	<label for="u_email">이메일</label>
+                	<div>
+                    	<input id="u_email" type="text" name="u_email">
+                    	<span>@</span>
+                    	<select name="emailDomain" required>
+                       	 <option value="naver.com">naver.com</option>
+                        	<option value="daum.net">daum.net</option>
+                        	<option value="gmail.com">gmail.com</option>
+                        	<option value="kakao.com">kakao.com</option>
+                       	 <option value="etc">직접입력</option>
+                    	</select>
+                	</div>
+                	<input id="emailCustom" type="text" name="emailDomainCustom">
+            	</div>
+	            <div>
+	            	<span>성별</span>
+	                <label for="gender">
+	                	<input type="radio" name="gender" value="M">
+	                	남성
+	                </label>
+	                <label for="gender">
+	                	<input type="radio" name="gender" value="F">
+	                	여성
+	                </label>
+	            </div>
+	            <div>
+	            	개인 정보 약관 동의 내용 들어갈 예정
+	            </div>
+	            <button type="submit" class="">회원가입</button>		
+	        </form>
+	    </div>
+	    
+	</div>
+</body>
+</html>
