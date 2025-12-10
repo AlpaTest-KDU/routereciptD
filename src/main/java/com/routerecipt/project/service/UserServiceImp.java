@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.UserMapper;
 
+@Service
 public class UserServiceImp implements UserService {
 	
 	@Autowired
