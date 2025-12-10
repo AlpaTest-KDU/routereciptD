@@ -1,5 +1,11 @@
 package com.routerecipt.project.mapper;
 
-public interface UserMapper {
+import org.apache.ibatis.annotations.Mapper;
 
+import com.routerecipt.project.dto.Userdto;
+
+@Mapper
+public interface UserMapper {
+	
+	Userdto UserFind(String u_name);
 }
