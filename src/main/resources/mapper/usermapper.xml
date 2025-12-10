@@ -4,6 +4,7 @@
 	<resultMap type="com.routerecipt.project.dto.Userdto" id="UserMap">
 		<id property="u_id" column="u_id"/>
 		<result property="u_pw" column="u_pw"/>
+		<result property="u_name" column="u_name"/>
 		<result property="u_birthday" column="u_birthday"/>
 		<result property="u_email" column="u_email"/>
 		<result property="u_date" column="u_date"/>
@@ -13,19 +14,21 @@
 	
 	<!-- 회원가입 -->
 	<insert id="UserSignUp" parameterType="com.routerecipt.project.dto.Userdto">
-		insert into routereciptdb.user values (
-			#{u_id}, #{u_pw}, #{u_name}, #{u_birthday}, #{u_email}, NOW(), #{gender}, #{role}
+		insert into routereciptdb.user
+		(u_id, u_pw, u_name, u_birthday, u_email, u_date, gender, role)
+		values (
+			#{u_id}, #{u_pw}, #{u_name}, #{u_birthday}, #{u_email}, NOW(), #{gender}, #{role.role}
 		)
 	</insert>
 	
 	<!-- Security 로그인에 필요한 기능 -->
 	<select id="loadUserByUsername" parameterType="string" resultMap="UserMap">
-		select * from routereciptdb.user where u_id = #{u_id}
+		select * from routereciptdb.user where u_id = #{value}
 	</select>
 	
 	<!-- 아이디 비밀번호 찾기 -->
 	<select id="UserFind" parameterType="string" resultMap="UserMap">
-		select u_id, u_pw from routereciptdb.user where u_email = #{u_email}
+		select u_id, u_pw from routereciptdb.user where u_email = #{value}
 	</select>
 	
 	<!-- 회원정보보기 -->
@@ -35,7 +38,7 @@
 	
 	<!-- 회원정보수정 -->
 	<update id="UserInfoUpdate" parameterType="com.routerecipt.project.dto.Userdto">
-		update routereciptdb.user set u_name = #{u_name}, u_pw = #{u_pw}, u_email = #{u_email}	
+		update routereciptdb.user set u_name = #{u_name}, u_pw = #{u_pw}, u_email = #{u_email}	where u_id = #{u_id}
 	</update>
 	
 	<!-- 회원탈퇴 -->

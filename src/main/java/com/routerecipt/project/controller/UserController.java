@@ -46,26 +46,39 @@ public class UserController {
 	
 	// 회원가입 기능
 	@PostMapping("/userSignUp")
-	public String userSignUp(@Valid @ModelAttribute("userdto") Userdto u, Errors errors, Model model) {
+	public String userSignUp(@Valid @ModelAttribute("userdto") Userdto u, Model model,@RequestParam(name = "emailDomain") String emailDomain,@RequestParam(name = "emailDomainCustom",required = false) String emailDomainCustom) {
+		String domain = emailDomain.equals("etc") ? emailDomainCustom : emailDomain;
+		u.setU_email(u.getU_email() + "@" + domain);
+		
+		System.out.println("===== userSignUp 호출됨 =====");
+		System.out.println("u_id=" + u.getU_id());
+		System.out.println("u_pw=" + u.getU_pw());
+		System.out.println("u_name=" + u.getU_name());
+		System.out.println("u_email=" + u.getU_email());
+		System.out.println("u_birthday=" + u.getU_birthday());
+		System.out.println("gender=" + u.getGender());
+		System.out.println("role=" + u.getRole());
+		
+		if (u.getU_birthday() == null) {
+			model.addAttribute("birthdayError", "생년월일을 입력하세요");
+			return "user/userSignUpPage";
+		}
+		
+
 		// 주입받은 PasswordEncoder 인스턴스로 암호화
 		u.setU_pw(passwordEncoder.encode(u.getU_pw()));
 		
 		u.setRole(Role.ROLE_USER);
 		
-		if (errors.hasErrors()) {
-			// 회원가입 실패시 입력 데이터 값을 유지
-			model.addAttribute("userdto",u);
-			return "user/userSignUpPage";
-		}
-		try {
-			userServiceImp.UserSignUp(u);
-			
-		} catch (Exception e) {
-			model.addAttribute("dupilcateError", e.getMessage());
-			model.addAttribute("userdto", u);
-			
-			return "user/userSignUpPage";
-		}
+		userServiceImp.UserSignUp(u);
+//		try {
+//			
+//		} catch (Exception e) {
+//			model.addAttribute("dupilcateError", e.getMessage());
+//			model.addAttribute("userdto", u);
+//			
+//			return "user/userSignUpPage";
+//		}
 		
 		return "index";
 	}
