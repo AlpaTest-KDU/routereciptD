@@ -107,3 +107,9 @@ log/
 
 # Spring Boot devtools
 .restart
+
+############################
+# Secrets / Config #
+############################
+
+config/secrets.properties
