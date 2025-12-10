@@ -19,12 +19,13 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChan(HttpSecurity http, RedirectLoggonFilter redirectLoggonFilter) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/","/index","/user/UserSignUpPage","/user/UserLoginPage").permitAll()
+					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage", "/user/userSignUp").permitAll()
+					.requestMatchers("/error").permitAll()
 					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					)
 			.formLogin(form -> form
-					.loginPage("/user/UserLoginPage")
+					.loginPage("/user/userLoginPage")
 					.loginProcessingUrl("/login")
 					.usernameParameter("u_id")
 					.passwordParameter("u_pw")

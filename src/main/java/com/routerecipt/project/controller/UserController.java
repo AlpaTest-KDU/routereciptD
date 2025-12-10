@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.routerecipt.project.dto.Role;
@@ -20,7 +22,8 @@ import com.routerecipt.project.service.UserServiceImp;
 
 import jakarta.validation.Valid;
 
-@Service
+@Controller
+@RequestMapping("/user")
 public class UserController {
 	
 	@Autowired
@@ -29,20 +32,20 @@ public class UserController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@GetMapping("/user/UserLoginPage")
+	@GetMapping("/userLogin")
 	public String userLoginPage() {
-		return "redirect:/";
+		return "index";
 	}
 	// 아이디,비번 찾기 기능
 	// 파라미터 명 = email
-	@GetMapping("/userFindPage/userfind")
+	@GetMapping("/userfind")
 	public String userfind(@RequestParam(value="email") String u_email) {
 		userServiceImp.UserFind(u_email);
 		return "index";
 	}
 	
 	// 회원가입 기능
-	@PostMapping("/userSignUpPage/userSignUp")
+	@PostMapping("/userSignUp")
 	public String userSignUp(@Valid @ModelAttribute("userdto") Userdto u, Errors errors, Model model) {
 		// 주입받은 PasswordEncoder 인스턴스로 암호화
 		u.setU_pw(passwordEncoder.encode(u.getU_pw()));
@@ -52,6 +55,7 @@ public class UserController {
 		if (errors.hasErrors()) {
 			// 회원가입 실패시 입력 데이터 값을 유지
 			model.addAttribute("userdto",u);
+			return "user/userSignUpPage";
 		}
 		try {
 			userServiceImp.UserSignUp(u);
@@ -60,21 +64,21 @@ public class UserController {
 			model.addAttribute("dupilcateError", e.getMessage());
 			model.addAttribute("userdto", u);
 			
-			return "/userSignUpPage/userSignUp";
+			return "user/userSignUpPage";
 		}
 		
 		return "index";
 	}
 	
 	// 정보 수정 기능
-	@PostMapping("/userInfoShowPage/userInfoUpdate")
+	@PostMapping("/userInfoUpdate")
 	public String userInfoUpdate(Userdto u) {
 		userServiceImp.UserInfoUpdate(u);
 		return "userInfoShowPage";
 	}
 	
 	// 회원 삭제 기능
-	@DeleteMapping("/userInfoShowPage/userInfoDelete")
+	@DeleteMapping("/userInfoDelete")
 	public String userInfoDelete(Userdto u) {
 		userServiceImp.UserInfoDelete(u);
 		return "index";

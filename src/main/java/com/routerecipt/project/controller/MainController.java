@@ -19,7 +19,7 @@ public class MainController {
 	}
 	
 	// 로그인 화면
-	@GetMapping("/UserLoginPage")
+	@GetMapping("/userLoginPage")
 	public String userLoginPage() {
 		return "user/userLoginPage";
 	}
