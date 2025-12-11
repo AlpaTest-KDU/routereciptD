@@ -1,13 +1,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <header th:fragment="header" class="header">
 	<div class="logo">
-		<a th:href="@{/}">Routeceipt</a>
+	<a th:href="@{/}">Routeceipt</a>
 	</div>
 	<nav class="navbar">
 		<a th:href="@{/recepit/ReceiptRegisterPage}" class="navbarMenu">영수증 등록</a>
 		<a th:href="@{/user/analysisPage}" class="navbarMenu">지출 분석</a>
 		<a th:href="@{/notice/noticePage}" class="navbarMenu">공지 사항</a>
-		<a th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
-		<a th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
-	</nav>
+		<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
+		<a sec:authorize="isAuthenticated()" sec:authentication="name" th:href="@{/user/userInfoShowPage}" class="navbarBtn"></a>
+		<a sec:authorize="isAnonymous()" th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
+</nav>
 </header>
