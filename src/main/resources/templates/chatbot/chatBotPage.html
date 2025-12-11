@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>routerecipt 챗봇 | OpenAI 문의</title>
+    <!-- 이 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/chatbot.css}">
+</head>
+<body>
+
+<div class="openai-wrap">
+
+    <!-- 상단 헤더 -->
+    <header class="openai-header">
+        <div>
+            <div class="openai-header-title">
+                routereceipt 고객센터
+            </div>
+            <div class="openai-header-sub">
+                영수증 업로드, 지출 분석, 캘린더, 마이페이지 등 서비스 사용 방법이 궁금할 때 챗봇에게 물어보세요.
+            </div>
+        </div>
+
+        <div class="openai-header-actions">
+            <a th:href="@{/}">
+                ⬅ 메인으로 돌아가기
+            </a>
+        </div>
+    </header>
+
+    <!-- 메인 레이아웃: 왼쪽 안내 카드 + 오른쪽 챗봇 카드 -->
+    <section class="openai-layout">
+
+        <!-- ▽ 왼쪽: 안내 카드 -->
+        <article class="info-card">
+            <h2 th:if="${session.loginUser != null}">
+                <span>고객</span>님, 무엇이 궁금하세요?
+            </h2>
+            <h2 th:if="${session.loginUser == null}">
+                routereceipt 이용이 처음이신가요?
+            </h2>
+
+            <p>
+                이 챗봇은 <strong>routereceipt</strong> 팀 프로젝트의 안내용 챗봇입니다.
+                아래와 같은 내용을 자연어로 편하게 질문하실 수 있어요.
+            </p>
+
+            <ul class="info-list">
+                <li>영수증은 어디서 업로드하나요?</li>
+                <li>일/주/월별 지출 그래프는 어떻게 보는 건가요?</li>
+                <li>마이페이지에서 어떤 정보들을 확인할 수 있나요?</li>
+                <li>버그제보 사용 방법을 알려주세요.</li>
+            </ul>
+
+            <div class="info-highlight">
+                예시 질문) “이번 달 지출 분석 그래프는 어디서 볼 수 있어?”<br/>
+                예시 질문) “영수증을 잘못 올렸을 때 수정할 수 있어?”
+            </div>
+
+            <p class="info-footer">
+                로그인 정보가 있을 경우, 챗봇이 <strong>현재 로그인된 사용자 기준</strong>으로
+                페이지 위치나 기능을 더 정확히 안내해 줄 수 있습니다.
+            </p>
+        </article>
+
+        <!-- ▽ 오른쪽: 챗봇 카드 -->
+        <article class="chat-card">
+            <!-- 챗봇 카드 헤더 -->
+            <div class="chat-header">
+                <div>
+                    <div class="chat-header-title">
+                        <span class="emoji">🤖</span>
+                        <span>routereceipt 챗봇</span>
+                    </div>
+                    <div class="chat-header-sub">
+                        OpenAI 기반으로 서비스 사용 방법을 안내해 드립니다.
+                    </div>
+                </div>
+                <div class="chat-header-right">
+                    24시간 문의 가능
+                </div>
+            </div>
+
+            <!-- 메시지 영역 -->
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-msg-system">
+                    안녕하세요, routereceipt 안내 챗봇입니다 😊<br/>
+                    영수증 AI 분석, 나의 영수증 분석, 게시판, 문의 방법 등 궁금한 점을 물어보세요.
+                </div>
+            </div>
+
+            <!-- 입력 영역 -->
+            <div class="chat-input-area">
+                <div class="chat-input-row">
+                    <input type="text"
+                           id="chat-input-text"
+                           placeholder="예: 영수증 업로드는 어디서 하나요? (Enter로 전송)" />
+                    <button id="chat-send-btn">
+                        전송
+                    </button>
+                </div>
+                <div class="chat-help">
+                    Enter 키로도 전송할 수 있습니다.
+                </div>
+            </div>
+        </article>
+
+    </section>
+
+</div>
+
+<!-- 챗봇 동작용 JS (OpenAI API 연동) -->
+<script th:src="@{/js/chatbot.js}"></script>
+</body>
+</html>
