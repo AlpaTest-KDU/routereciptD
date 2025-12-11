@@ -19,7 +19,8 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChan(HttpSecurity http, RedirectLoggonFilter redirectLoggonFilter) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage","/error").permitAll()
+					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage", "/user/userSignUp").permitAll()
+					.requestMatchers("/error").permitAll()
 					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					)
