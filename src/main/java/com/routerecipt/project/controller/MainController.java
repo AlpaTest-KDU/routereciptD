@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/user")
 public class MainController {
 	
 	// Branch Test
@@ -19,43 +18,43 @@ public class MainController {
 	}
 	
 	// 로그인 화면
-	@GetMapping("/userLoginPage")
+	@GetMapping("user/userLoginPage")
 	public String userLoginPage() {
 		return "user/userLoginPage";
 	}
 	
 	// 아이디, 비밀번호 찾기 화면
-	@GetMapping("/userFindPage")
+	@GetMapping("user/userFindPage")
 	public String userFindPage() {
 		return "user/userFindPage";
 	}
 	
 	// 회원가입 화면
-	@GetMapping("/userSignUpPage")
+	@GetMapping("user/userSignUpPage")
 	public String userSignUpPage() {
 		return "user/userSignUpPage";
 	}
 	
 	// 마이페이지 화면
-	@GetMapping("/userInfoShowPage")
+	@GetMapping("user/userInfoShowPage")
 	public String userInfoShowPage() {
 		return "user/userInfoShowPage";
 	}
 	
 	// 공지사항 화면
-	@GetMapping("/noticePage")
+	@GetMapping("notice/noticePage")
 	public String noticePage() {
 		return "notice/noticePage";
 	}
 	
 	// 지출분석 화면
-	@GetMapping("/analysisPage")
+	@GetMapping("user/analysisPage")
 	public String analysisPage() {
 		return "user/analysisPage";
 	}
 	
 	// 영수증 등록 화면
-	@GetMapping("/receiptRegisterPage")
+	@GetMapping("recepit/receiptRegisterPage")
 	public String receiptRegisterPage() {
 		return "receipt/receiptRegisterPage";
 	}
@@ -67,14 +66,14 @@ public class MainController {
 	}
 	
 	// 운영자 관리 화면 (관리자만 접근 가능)
-	@GetMapping("/adminPage")
+	@GetMapping("admin/adminPage")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String adminPage() {
 		return "admin/adminPage";
 	}
 	
 	// 유저 영수증 관리 화면 (관리자만 접근 가능)
-	@GetMapping("/userReceiptInfoPage")
+	@GetMapping("admin/userReceiptInfoPage")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String userReceiptInfoPage() {
 		return "admin/userReceiptInfoPage";
