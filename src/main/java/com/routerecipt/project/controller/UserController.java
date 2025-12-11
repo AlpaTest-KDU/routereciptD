@@ -29,7 +29,7 @@ public class UserController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@GetMapping("/user/UserLoginPage")
+	@GetMapping("/user/userLoginPage")
 	public String userLoginPage() {
 		return "redirect:/";
 	}
