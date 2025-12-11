@@ -13,27 +13,26 @@
 	
 		<div class="loginArea">
 			
-			<h2 class="">로그인</h2>
+			<h2 class="loginTitle">로그인</h2>
 
-			<form action="/userLoginPage/userLogin" method="post" class="">
-				<div class="">
+			<form action="/userLoginPage/userLogin" method="post" class="loginForm">
+				<div class="formRow">
 					<label for="u_id">아이디</label>
 					<input id="u_id" type="text" name="u_id">
 				</div>
 				
-				<div class="">
+				<div class="formRow">
 					<label for="u_pw">비밀번호</label>
 					<input id="u_pw" type="password" name="u_pw">
 				</div>
 
-				<button type="submit" class="">로그인</button>
+				<button type="submit" class="loginBtn">로그인</button>
 			</form>
 
-			<div class="">
-				<a th:href="@{/userFindPage/userFind}" class="">아이디 찾기</a>
-				<a th:href="@{/userFindPage/userFind}" class="">비밀번호 찾기</a>
-				<a th:href="@{/userSignUpPage}">회원가입하기</a>
-				<a th:href="@{/}" class="">메인으로 돌아가기</a>
+			<div class="loginBottom">
+				<a th:href="@{/userFindPage}">아이디 찾기</a>
+				<a th:href="@{/userFindPage}">비밀번호 찾기</a>
+				<a th:href="@{/}">메인으로 돌아가기</a>
 			</div>
 			
 		</div>
