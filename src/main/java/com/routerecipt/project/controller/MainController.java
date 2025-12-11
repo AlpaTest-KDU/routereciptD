@@ -59,7 +59,7 @@ public class MainController {
 	// 챗봇 화면
 	@GetMapping("chatbot/chatBotPage")
 	public String chatBotPage() {
-		return "chatBotPage";
+		return "chatbot/chatBotPage";
 	}
 	
 	// 운영자 관리 화면 (관리자만 접근 가능)
