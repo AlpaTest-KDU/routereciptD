@@ -12,7 +12,7 @@
 	<div layout:fragment="content">
 	    
 	    <div class="signUpArea">
-	        <form th:action="@{/userSignUpPage/userSignUp}" method="post">
+	        <form th:action="@{/user/userSignUp}" method="post">
 	            <div>
 	                <label for="u_id">아이디</label>
 	                <input id="u_id" type="text" name="u_id">
@@ -51,11 +51,11 @@
 	            <div>
 	            	<span>성별</span>
 	                <label for="gender">
-	                	<input type="radio" name="gender" value="M">
+	                	<input type="radio" name="gender" value="MALE">
 	                	남성
 	                </label>
 	                <label for="gender">
-	                	<input type="radio" name="gender" value="F">
+	                	<input type="radio" name="gender" value="FEMALE">
 	                	여성
 	                </label>
 	            </div>

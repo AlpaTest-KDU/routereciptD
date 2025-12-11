@@ -17,6 +17,7 @@
 
 			<form action="/userLoginPage/userLogin" method="post" class="loginForm">
 				<div class="formRow">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 					<label for="u_id">아이디</label>
 					<input id="u_id" type="text" name="u_id">
 				</div>
@@ -30,9 +31,10 @@
 			</form>
 
 			<div class="loginBottom">
-				<a th:href="@{/userFindPage}">아이디 찾기</a>
-				<a th:href="@{/userFindPage}">비밀번호 찾기</a>
-				<a th:href="@{/}">메인으로 돌아가기</a>
+				<a th:href="@{/user/userFindPage/userFind}" class="">아이디 찾기</a>
+				<a th:href="@{/user/userFindPage/userFind}" class="">비밀번호 찾기</a>
+				<a th:href="@{/user/userSignUpPage}">회원가입하기</a>
+				<a th:href="@{/}" class="">메인으로 돌아가기</a>
 			</div>
 			
 		</div>

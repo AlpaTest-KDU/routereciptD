@@ -5,12 +5,12 @@ on:
     branches:
       - main
       - develop
-      - controller/*
+      - "*Controller"
   pull_request:
     branches:
       - main
       - develop
-      - controller/*
+      - "*Controller"
   workflow_dispatch:    # 수동 실행 버튼
 
 jobs:

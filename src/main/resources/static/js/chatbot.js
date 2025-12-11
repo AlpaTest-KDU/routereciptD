@@ -1,0 +1,60 @@
+// src/main/resources/static/js/chat/openai.js
+
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("chat-input-text");
+    const sendBtn = document.getElementById("chat-send-btn");
+    const messages = document.getElementById("chat-messages");
+
+    function addMessage(role, text) {
+        const div = document.createElement("div");
+        div.classList.add("chat-msg");
+        if (role === "user") {
+            div.classList.add("chat-msg-user");
+        } else if (role === "bot") {
+            div.classList.add("chat-msg-bot");
+        } else {
+            div.classList.add("chat-msg-system");
+        }
+        div.textContent = text;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage("user", text);
+        input.value = "";
+        input.focus();
+        sendBtn.disabled = true;
+
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+
+            if (!res.ok) {
+                addMessage("bot", "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            } else {
+                const data = await res.json();
+                addMessage("bot", data.reply || "답변을 가져오지 못했어요.");
+            }
+        } catch (e) {
+            console.error(e);
+            addMessage("bot", "네트워크 오류가 발생했습니다.");
+        } finally {
+            sendBtn.disabled = false;
+        }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+});

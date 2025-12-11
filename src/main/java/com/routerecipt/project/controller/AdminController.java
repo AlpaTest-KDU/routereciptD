@@ -15,6 +15,8 @@ public class AdminController {
 	
 	@Autowired
 	private UserServiceImp userServiceImp;
+	
+	@Autowired
 	private ReceiptServiceImp receiptServiceImp;
 	
 	@DeleteMapping("adminPage/userInfoDelete/{id}")
