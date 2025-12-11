@@ -15,7 +15,8 @@
 			
 			<h2 class="">로그인</h2>
 
-			<form th:action="@{/userLogin}" method="post" class="">
+			<form action="/login" method="post" class="">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 				<div class="">
 					<label for="u_id">아이디</label>
 					<input id="u_id" type="text" name="u_id">

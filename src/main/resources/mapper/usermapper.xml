@@ -9,7 +9,7 @@
 		<result property="u_email" column="u_email"/>
 		<result property="u_date" column="u_date"/>
 		<result property="gender" column="gender" javaType="com.routerecipt.project.dto.Userdto$Gender"/>
-		<result property="role" column="role"/>
+		<result property="role" column="role" typeHandler="com.routerecipt.project.config.RoleTypeHandler"/>
 	</resultMap>
 	
 	<!-- 회원가입 -->
@@ -45,5 +45,7 @@
 	<delete id="UserInfoDelete" parameterType="com.routerecipt.project.dto.Userdto">
 		delete from routereciptdb.user where u_id = #{u_id}
 	</delete>
+	
+	
 	
 </mapper>
