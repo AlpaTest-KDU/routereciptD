@@ -27,10 +27,6 @@ public class UserController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@GetMapping("/user/userLoginPage")
-	public String userLoginPage() {
-		return "index";
-	}
 	// 아이디,비번 찾기 기능
 	// 파라미터 명 = email
 	@GetMapping("/userfind")
