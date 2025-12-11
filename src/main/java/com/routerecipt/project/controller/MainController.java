@@ -57,7 +57,7 @@ public class MainController {
 	}
 	
 	// 챗봇 화면
-	@GetMapping("/chatBotPage")
+	@GetMapping("chatbot/chatBotPage")
 	public String chatBotPage() {
 		return "chatBotPage";
 	}
