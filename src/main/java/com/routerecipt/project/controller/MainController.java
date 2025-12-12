@@ -44,9 +44,10 @@ public class MainController {
 		return "notice/noticePage";
 	}
 
+	// 회원정보수정 화면
 	@GetMapping("user/userInfoUpdatePage")
 	public String getMethodName() {
-		return "user/userInfoUpdatePage";
+		return "user/userInfoUpdate";
 	}
 	
 	// 지출분석 화면
