@@ -30,8 +30,14 @@ public class UserServiceImp implements UserService {
 	
 	// 계정 찾기
 	@Override
-	public Userdto UserFind(String u_eamil) {
-		return userMapper.UserFind(u_eamil);
+	public Userdto UserFindID(String u_email) {
+		return userMapper.UserFindID(u_email);
+	}
+	
+	// 비밀번호 변경
+	@Override
+	public void UserUpdatePW(Userdto u) {
+		userMapper.UserUpdatePW(u);
 	}
 	
 	// 회원 탈퇴

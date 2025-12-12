@@ -26,11 +26,16 @@
 		select * from routereciptdb.user where u_id = #{value}
 	</select>
 	
-	<!-- 아이디 비밀번호 찾기 -->
-	<select id="UserFind" parameterType="string" resultMap="UserMap">
-		select u_id, u_pw from routereciptdb.user where u_email = #{value}
+	<!-- 아이디 찾기 -->
+	<select id="UserFindID" parameterType="string" resultMap="UserMap">
+		select u_id from routereciptdb.user where u_email = #{value}
 	</select>
 	
+	<!-- 비밀번호 변경 -->
+	<update id="UserUpdatePW" parameterType="com.routerecipt.project.dto.Userdto">
+		update routerreciptdb.user set u_pw = #{value}
+	</update>
+		
 	<!-- 회원정보보기 -->
 	<select id="UserInfoShow" parameterType="com.routerecipt.project.dto.Userdto" resultMap="UserMap">
 		select * from routereciptdb.user where u_id = #{_parameter}
