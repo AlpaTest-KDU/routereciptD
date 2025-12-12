@@ -30,7 +30,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/routereciptdb
       SPRING_DATASOURCE_USERNAME: Receiptbaack
-      SPRING_DATASOURCE_PASSWORD: Rainbow77&&**
+      SPRING_DATASOURCE_PASSWORD: Tkrhk150630!
       SPRING_DATA_REDIS_HOST: redis-bloom
       SPRING_DATA_REDIS_PORT: 6379
       OPENAI_API_KEY: "${OPENAI_API_KEY}"
