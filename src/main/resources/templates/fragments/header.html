@@ -10,7 +10,7 @@
 		<a th:href="@{/user/noticePage}" class="navbarMenu">공지 사항</a>
 		<a sec:authorize="isAuthenticated()" th:href="@{/user/userInfoShowPage}" class="navbarBtn">마이페이지</a>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
-		<p sec:authorize="isAuthenticated()" sec:authentication="name"></p>
+		<span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
 		<form sec:authorize="isAuthenticated()" id="logoutForm" th:action="@{/logout}" method="post"></form>
 		<a sec:authorize="isAuthenticated()" href="#" onclick="document.getElementById('logoutForm').submit();" class="mypageMenuLink">로그아웃</a>
