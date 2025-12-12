@@ -24,9 +24,10 @@
 	                    </a>
 	                </li>
 	                <li>
-	                    <a th:href="@{/logout}" class="mypageMenuLink">
-	                        로그아웃
-	                    </a>
+						<form id="logoutForm" th:action="@{/logout}" method="post"></form>
+						<a href="#" onclick="document.getElementById('logoutForm').submit();" class="mypageMenuLink">
+    						로그아웃
+						</a>
 	                </li>
 	                <li>
 	                    <a th:href="@{/userInfoShowPage/userInfoDelete}" class="mypageMenuLink">
