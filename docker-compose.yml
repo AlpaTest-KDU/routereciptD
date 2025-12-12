@@ -11,22 +11,39 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    restart: always
 
   redis-bloom:
     image: redislabs/rebloom:latest
     container_name: redis-bloom
     ports:
       - "6379:6379"
-    restart: unless-stopped
+    restart: always
 
-  springboot:
+  springboot-blue:
     build: .
-    container_name: springboot
+    container_name: springboot-blue
     depends_on:
       - mariadb
       - redis-bloom
     ports:
-      - "8081:8081"
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/routereciptdb
+      SPRING_DATASOURCE_USERNAME: Receiptbaack
+      SPRING_DATASOURCE_PASSWORD: Tkrhk150630!
+      SPRING_DATA_REDIS_HOST: redis-bloom
+      SPRING_DATA_REDIS_PORT: 6379
+    restart: always
+
+  springboot-green:
+    build: .
+    container_name: springboot-green
+    depends_on:
+      - mariadb
+      - redis-bloom
+    ports:
+      - "8082:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/routereciptdb
       SPRING_DATASOURCE_USERNAME: Receiptbaack
@@ -40,7 +57,8 @@ services:
     image: nginx:latest
     container_name: nginx
     depends_on:
-      - springboot
+      - springboot-blue
+      - springboot-green
     ports:
       - "80:80"
       - "443:443"
