@@ -1,16 +1,16 @@
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <header th:fragment="header" class="header">
 	<div class="logo">
 	<a th:href="@{/}">Routeceipt</a>
 	</div>
 	<nav class="navbar">
-		<a th:href="@{/ReceiptRegisterPage}" class="navbarMenu">영수증 등록</a>
-		<a th:href="@{/analysisPage}" class="navbarMenu">지출 분석</a>
-		<a th:href="@{/noticePage}" class="navbarMenu">공지 사항</a>
-		<a th:href="@{/userInfoShowPage}">마이페이지</a>
+		<a th:href="@{/user/ReceiptRegisterPage}" class="navbarMenu">영수증 등록</a>
+		<a th:href="@{/user/analysisPage}" class="navbarMenu">지출 분석</a>
+		<a th:href="@{/user/noticePage}" class="navbarMenu">공지 사항</a>
+		<a sec:authorize="isAuthenticated()" th:href="@{/user/userInfoShowPage}" class="navbarBtn">마이페이지</a>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
-		<a sec:authorize="isAuthenticated()" sec:authentication="name" th:href="@{/user/userInfoShowPage}" class="navbarBtn"></a>
+		<p sec:authorize="isAuthenticated()" sec:authentication="name"></p>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
 	</nav>
 </header>
-
