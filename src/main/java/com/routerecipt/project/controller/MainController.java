@@ -43,6 +43,11 @@ public class MainController {
 	public String noticePage() {
 		return "notice/noticePage";
 	}
+
+	@GetMapping("user/userInfoUpdatePage")
+	public String getMethodName() {
+		return "user/userInfoUpdatePage";
+	}
 	
 	// 지출분석 화면
 	@GetMapping("user/analysisPage")
