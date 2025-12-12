@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -90,6 +91,13 @@ public class UserController {
 		
 		return "index";
 	}
+	
+	// 회원정보수정 화면
+	@GetMapping("/userInfoUpdatePage")
+	public String userInfoUpdatePage() {
+		return "user/userInfoUpdate";
+	}
+	
 	
 	// 정보 수정 기능
 	@PostMapping("/userInfoUpdate")

@@ -43,12 +43,6 @@ public class MainController {
 	public String noticePage() {
 		return "notice/noticePage";
 	}
-
-	// 회원정보수정 화면
-	@GetMapping("user/userInfoUpdatePage")
-	public String userInfoUpdatePage() {
-		return "user/userInfoUpdate";
-	}
 	
 	// 지출분석 화면
 	@GetMapping("user/analysisPage")
