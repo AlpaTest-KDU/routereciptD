@@ -46,7 +46,7 @@ public class MainController {
 
 	// 회원정보수정 화면
 	@GetMapping("user/userInfoUpdatePage")
-	public String getMethodName() {
+	public String userInfoUpdatePage() {
 		return "user/userInfoUpdate";
 	}
 	
