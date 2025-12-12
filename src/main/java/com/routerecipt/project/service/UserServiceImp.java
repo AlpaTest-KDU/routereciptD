@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.UserMapper;
-import com.routerecipt.project.redis.RedisBloomService;
+import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 
 @Service
 public class UserServiceImp implements UserService {

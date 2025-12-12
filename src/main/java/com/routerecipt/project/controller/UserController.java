@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
-import com.routerecipt.project.redis.RedisBloomService;
+import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.service.UserServiceImp;
 
 import jakarta.validation.Valid;

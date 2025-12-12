@@ -1,4 +1,4 @@
-package com.routerecipt.project.redis;
+package com.routerecipt.project.redis.BloomFilter;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
