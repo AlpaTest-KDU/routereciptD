@@ -1,6 +1,13 @@
 package com.routerecipt.project.chatbot;
 
-import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/chatbot")
@@ -19,8 +26,10 @@ public class ChatBotController {
     }
 
     // POST
+    // CSRF 토큰으로 인해서 JSON 데이터를 받아와야 해서 RequestBody로 변경
     @PostMapping("/ask")
-    public String askPost(@RequestParam("question") String question) {
-        return chatBotService.ask(question);
+    public Map<String, String> askPost(@RequestBody ChatRequest request) {
+        String answer = chatBotService.ask(request.getMessage());
+        return Map.of("reply", answer);
     }
 }
