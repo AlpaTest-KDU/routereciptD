@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>routerecipt 챗봇 | OpenAI 문의</title>
     <!-- 이 페이지 전용 스타일 -->
     <link rel="stylesheet" th:href="@{/css/chatbot.css}">
