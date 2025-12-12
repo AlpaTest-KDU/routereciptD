@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("chat-input-text");
     const sendBtn = document.getElementById("chat-send-btn");
     const messages = document.getElementById("chat-messages");
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
     function addMessage(role, text) {
         const div = document.createElement("div");
@@ -32,7 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch("/api/chat", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    [csrfHeader]: csrfToken
+                },
                 body: JSON.stringify({ message: text })
             });
 
