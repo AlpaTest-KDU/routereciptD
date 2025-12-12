@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.redis.RedisBloomService;
 import com.routerecipt.project.service.UserServiceImp;
 
 import jakarta.validation.Valid;
@@ -26,6 +28,9 @@ public class UserController {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private RedisBloomService bloomService;
 	
 	// 아이디 찾기 기능
 	// 파라미터 = email
@@ -69,15 +74,19 @@ public class UserController {
 		
 		u.setRole(Role.ROLE_USER);
 		
-		userServiceImp.UserSignUp(u);
-//		try {
-//			
-//		} catch (Exception e) {
-//			model.addAttribute("dupilcateError", e.getMessage());
-//			model.addAttribute("userdto", u);
-//			
-//			return "user/userSignUpPage";
-//		}
+		try {
+			// 회원가입 처리
+			userServiceImp.UserSignUp(u);
+			
+			// Bloom Filter에 ID 추가
+			bloomService.addUserId(u.getU_id());
+			
+		} catch (Exception e) {
+			model.addAttribute("dupilcateError", e.getMessage());
+			model.addAttribute("userdto", u);
+			
+			return "user/userSignUpPage";
+		}
 		
 		return "index";
 	}
@@ -94,5 +103,12 @@ public class UserController {
 	public String userInfoDelete(Userdto u) {
 		userServiceImp.UserInfoDelete(u);
 		return "index";
+	}
+	
+	// 중복검사
+	@PostMapping("/checkUserId")
+	@ResponseBody
+	public boolean checkUserId(@RequestParam String userId) {
+		return userServiceImp.checkDuplicateUserId(userId); // true면 중복
 	}
 }

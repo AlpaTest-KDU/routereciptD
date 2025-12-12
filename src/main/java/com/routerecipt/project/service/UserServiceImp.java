@@ -9,12 +9,39 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.UserMapper;
+import com.routerecipt.project.redis.RedisBloomService;
 
 @Service
 public class UserServiceImp implements UserService {
 	
 	@Autowired
 	private UserMapper userMapper;
+	
+	@Autowired
+	private RedisBloomService bloomService;
+	
+	public boolean checkDuplicateUserId(String userId) {
+		
+		//1단계: Bloom Filter 판단
+		if (bloomService.existsUserId(userId)) {
+			// Bloom Filter는 false positive가 가능하므로 DB 확정 확인
+			Userdto user = userMapper.UserFindID(userId);
+			return user != null; //true면 중복
+		}
+		
+		// 2단계: Bloom Filter에는 없다 -> DB 확인
+		
+		Userdto user = userMapper.UserFindID(userId);
+		
+		if (user == null) {
+			// DB에도 없으면 Bloom Filter에 저장
+			bloomService.addUserId(userId);
+			return false; // 중복 없음
+		}
+		
+		return true;
+		
+	}
 	
 	// Security 로그인 전용
 	@Override
