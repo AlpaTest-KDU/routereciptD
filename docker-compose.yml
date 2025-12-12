@@ -26,14 +26,14 @@ services:
       - mariadb
       - redis-bloom
     ports:
-      - "8081:8080"
-      - "8443:443"
+      - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/routereciptdb
       SPRING_DATASOURCE_USERNAME: Receiptbaack
       SPRING_DATASOURCE_PASSWORD: Rainbow77&&**
       SPRING_DATA_REDIS_HOST: redis-bloom
       SPRING_DATA_REDIS_PORT: 6379
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
     restart: always
 
   nginx:
