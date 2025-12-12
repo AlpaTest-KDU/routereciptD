@@ -33,7 +33,7 @@
 	
 	<!-- 비밀번호 변경 -->
 	<update id="UserUpdatePW" parameterType="com.routerecipt.project.dto.Userdto">
-		update routerreciptdb.user set u_pw = #{value}
+		update routerreciptdb.user set u_pw = #{value} where u_id = #{u_id}
 	</update>
 		
 	<!-- 회원정보보기 -->
