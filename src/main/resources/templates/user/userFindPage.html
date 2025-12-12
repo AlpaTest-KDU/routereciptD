@@ -12,7 +12,7 @@
 	<div layout:fragment="content">
 	
 		<div class="userFindArea">
-			<form th:action="@{/userFindPage/userFind/findId}" method="post">
+			<form th:action="@{/user/userFindId}" method="post">
 				<div class="userFindId">
 					<div>
 						<label for="findId_name">이름</label>
@@ -39,7 +39,7 @@
 				</div>
 			</form>
 			
-			<form th:action="@{/userFindPage/userFind/findPw}" method="post">
+			<form th:action="@{/user/userFindPw}" method="post">
 				<div class="userFindPw">
 					<div>
 						<label for="findPw_id">아이디</label>
