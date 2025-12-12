@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sendBtn.disabled = true;
 
         try {
-            const res = await fetch("/api/chat", {
+            const res = await fetch("/chatbot/ask", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
