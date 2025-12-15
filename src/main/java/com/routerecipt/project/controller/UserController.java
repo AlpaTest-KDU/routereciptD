@@ -95,6 +95,7 @@ public class UserController {
 	// 회원정보수정 화면
 	@GetMapping("/userInfoUpdatePage")
 	public String userInfoUpdatePage() {
+		userServiceImp.UserInfoShow();
 		return "user/userInfoUpdate";
 	}
 	
