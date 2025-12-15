@@ -1,6 +1,7 @@
 package com.routerecipt.project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
+import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.UserServiceImp;
 
 import jakarta.validation.Valid;
@@ -95,8 +98,17 @@ public class UserController {
 	
 	// 회원정보수정 화면
 	@GetMapping("/userInfoUpdatePage")
-	public String userInfoUpdatePage() {
+	public String userInfoUpdatePage(Authentication authentication, Model model) {
 		userServiceImp.UserInfoShow();
+		
+		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+		Userdto user = loginDetails.getUser();
+
+    	model.addAttribute("u_id", user.getU_id());
+    	model.addAttribute("u_name", user.getU_name());
+    	model.addAttribute("u_email", user.getU_email());
+    	model.addAttribute("u_birthday", user.getU_birthday());
+    	model.addAttribute("gender", user.getGender());
 		return "user/userInfoUpdate";
 	}
 	
