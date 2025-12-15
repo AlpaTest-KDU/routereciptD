@@ -22,8 +22,9 @@ import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.UserServiceImp;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -83,8 +84,6 @@ public class UserController {
 			// 회원가입 처리
 			userServiceImp.UserSignUp(u);
 			
-			// Bloom Filter에 ID 추가
-			bloomService.addUserId(u.getU_id());
 			
 		} catch (DataIntegrityViolationException e) {
 			model.addAttribute("dupilcateError", "이미 사용 중인 아이디입니다.");
@@ -102,9 +101,10 @@ public class UserController {
 		try {
 			bloomService.addUserId(u.getU_id());
 		} catch (Exception e) {
+			log.warn("Bloom Filter 등록 실패: {}",u.getU_id(),e);
 		}
 		
-		return "index";
+		return "redirect:/";
 	}
 	
 	// 회원정보수정 화면
