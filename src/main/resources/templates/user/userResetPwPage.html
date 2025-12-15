@@ -60,9 +60,9 @@
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 <!--│				               비밀번호 변경 화면							      │ -->
 <!--└─────────────────────────────────────────────────────────────────────────────┘ -->
-			<form th:action="@{/userFindPage/userFind/resetPw}" method="post" th:if="${}">
+			<form th:action="@{/userFindPage/userFind/resetPw}" method="post">
 				<div class="findResult">
-					<input type="hidden" name="u_id" th:value="${}">
+					<input type="hidden" name="u_id">
 					<label for="new_pw">새 비밀번호</label>
 					<input id="new_pw" type="password" name="new_pw">
 					<label for="new_pw_confirm">새 비밀번호 확인</label>
