@@ -5,7 +5,6 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" th:href="@{/css/index.css}">
-<link rel="stylesheet" th:href="@{/css/userInfoUpdate.css}">
 <script th:src="@{/js/userInfoUpdate.js}" defer></script>
 <title>Insert title here</title>
 </head>
@@ -16,6 +15,7 @@
 		<div class="userInfoUpdateArea">
 	    	<h2>회원정보 수정</h2>
 	    	<form th:action="@{/user/userInfoUpdate}" method="post">
+	    	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 				<div class="infoRow">
 	        		<label>아이디</label>
 	        		<span th:text="${u_id}"></span>
@@ -47,6 +47,15 @@
 				<input type="hidden" id="currentUserId" th:value="${u_id}">
 	      		<button type="button" class="deleteBtn" onclick="confirmDelete()">회원 탈퇴</button>
 	    	</form>
+	    	
+	    	<div style="border:2px solid red; padding:10px; margin-bottom:20px;">
+    			<h3>DEBUG - USER MODEL CHECK</h3>
+    			<p>u_id: <span th:text="${u_id}">없음</span></p>
+    			<p>u_name: <span th:text="${u_name}">없음</span></p>
+    			<p>u_email: <span th:text="${u_email}">없음</span></p>
+    			<p>u_birthday: <span th:text="${u_birthday}">없음</span></p>
+    			<p>gender: <span th:text="${gender}">없음</span></p>
+		</div>
 		</div>
 	</div>
 </body>
