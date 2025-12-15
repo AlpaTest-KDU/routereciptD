@@ -100,7 +100,7 @@ public class UserController {
 	@GetMapping("/userInfoUpdatePage")
 	public String userInfoUpdatePage(Authentication authentication, Model model) {
 		userServiceImp.UserInfoShow();
-		
+		System.out.println("🔥 userInfoUpdatePage CONTROLLER HIT 🔥");
 		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
 		Userdto user = loginDetails.getUser();
 

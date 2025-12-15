@@ -20,25 +20,25 @@ public class MainController {
 	}
 	
 	// 로그인 화면
-	@GetMapping("user/userLoginPage")
+	@GetMapping("/user/userLoginPage")
 	public String userLoginPage() {
 		return "user/userLoginPage";
 	}
 	
 	// 아이디, 비밀번호 찾기 화면
-	@GetMapping("user/userFindPage")
+	@GetMapping("/user/userFindPage")
 	public String userFindPage() {
 		return "user/userFindPage";
 	}
 	
 	// 회원가입 화면
-	@GetMapping("user/userSignUpPage")
+	@GetMapping("/user/userSignUpPage")
 	public String userSignUpPage() {
 		return "user/userSignUpPage";
 	}
 	
 	// 마이페이지 화면
-	@GetMapping("user/userInfoShowPage")
+	@GetMapping("/user/userInfoShowPage")
 	public String userInfoShowPage(Authentication authentication, Model model) {
 		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
 		Userdto user = loginDetails.getUser();
@@ -52,38 +52,38 @@ public class MainController {
 	}
 	
 	// 공지사항 화면
-	@GetMapping("notice/noticePage")
+	@GetMapping("/notice/noticePage")
 	public String noticePage() {
 		return "notice/noticePage";
 	}
 	
 	// 지출분석 화면
-	@GetMapping("user/analysisPage")
+	@GetMapping("/user/analysisPage")
 	public String analysisPage() {
 		return "user/analysisPage";
 	}
 	
 	// 영수증 등록 화면
-	@GetMapping("recepit/receiptRegisterPage")
+	@GetMapping("/recepit/receiptRegisterPage")
 	public String receiptRegisterPage() {
 		return "receipt/receiptRegisterPage";
 	}
 	
 	// 챗봇 화면
-	@GetMapping("chatbot/chatBotPage")
+	@GetMapping("/chatbot/chatBotPage")
 	public String chatBotPage() {
 		return "chatbot/chatBotPage";
 	}
 	
 	// 운영자 관리 화면 (관리자만 접근 가능)
-	@GetMapping("admin/adminPage")
+	@GetMapping("/admin/adminPage")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String adminPage() {
 		return "admin/adminPage";
 	}
 	
 	// 유저 영수증 관리 화면 (관리자만 접근 가능)
-	@GetMapping("admin/userReceiptInfoPage")
+	@GetMapping("/admin/userReceiptInfoPage")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String userReceiptInfoPage() {
 		return "admin/userReceiptInfoPage";
