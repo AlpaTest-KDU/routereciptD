@@ -21,6 +21,7 @@ import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.UserServiceImp;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -133,9 +134,15 @@ public class UserController {
 	
 	// 회원 삭제 기능
 	@PostMapping("/userInfoDelete")
-	public String userInfoDelete(Userdto u) {
-		userServiceImp.UserInfoDelete(u);
-		return "index";
+	public String userInfoDelete(Authentication authentication, HttpServletRequest req) {
+		
+		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+		String loginUserId = loginDetails.getUser().getU_id();
+		
+		userServiceImp.UserInfoDelete(loginUserId);
+		
+		req.getSession().invalidate();
+		return "redirect:/";
 	}
 	
 	// 중복검사

@@ -47,7 +47,7 @@
 	</update>
 	
 	<!-- 회원탈퇴 -->
-	<delete id="UserInfoDelete" parameterType="com.routerecipt.project.dto.Userdto">
+	<delete id="UserInfoDelete" parameterType="string">
 		delete from routereciptdb.user where u_id = #{u_id}
 	</delete>
 	

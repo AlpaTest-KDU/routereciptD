@@ -12,6 +12,6 @@ public interface UserService {
 	void UserUpdatePW (Userdto u);
 	List<Userdto> UserInfoShow();
 	void UserInfoUpdate(Userdto u);
-	void UserInfoDelete(Userdto u);
+	void UserInfoDelete(String u_id);
 	
 }

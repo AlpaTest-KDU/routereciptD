@@ -69,8 +69,8 @@ public class UserServiceImp implements UserService {
 	
 	// 회원 탈퇴
 	@Override
-	public void UserInfoDelete(Userdto u) {
-		userMapper.UserInfoDelete(u);
+	public void UserInfoDelete(String u_id) {
+		userMapper.UserInfoDelete(u_id);
 	}
 	
 	// 회원 정보 보기
