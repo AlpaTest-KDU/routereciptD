@@ -3,6 +3,8 @@ package com.routerecipt.project.security;
 import java.io.IOException;
 
 import org.springframework.core.annotation.Order;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,27 +18,38 @@ import jakarta.servlet.http.HttpServletResponse;
 public class RedirectLoggonFilter extends OncePerRequestFilter {
 	
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		
-		if ("/login".equals(request.getRequestURI()) && request.getMethod().equalsIgnoreCase("POST")) {
-			
-			String username = request.getParameter("u_id");
-			String password = request.getParameter("u_pw");
-			
-			System.out.println("====로그인 요청 발생====");
-			System.out.println("입력한 ID" + username);
-			System.out.println("입력한 PW" + (password != null ? "*".repeat(password.length()) : null));
-			System.out.println("===================");
-			
-		}
-		
-		filterChain.doFilter(request, response);
-		
-		int status = response.getStatus();
-		if (status == HttpServletResponse.SC_FOUND) {
-			
-		}
-		
+	protected void doFilterInternal(HttpServletRequest request,
+	                                HttpServletResponse response,
+	                                FilterChain filterChain)
+	        throws ServletException, IOException {
+
+	    String uri = request.getRequestURI();
+
+	    // 🔒 비로그인 접근 허용 페이지
+	    if (
+	        uri.equals("/") ||
+	        uri.startsWith("/css") ||
+	        uri.startsWith("/js") ||
+	        uri.equals("/user/userLoginPage") ||
+	        uri.equals("/user/userSignUpPage") ||
+	        uri.equals("/user/userFindIdPage") ||
+	        uri.equals("/user/userResetPwPage")
+	    ) {
+	        filterChain.doFilter(request, response);
+	        return;
+	    }
+
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+	    // 로그인 상태인데 로그인 페이지 접근하면 메인으로
+	    if (auth != null && auth.isAuthenticated()
+	        && auth.getPrincipal() instanceof LoginDetails
+	        && uri.equals("/user/userLoginPage")) {
+
+	        response.sendRedirect("/");
+	        return;
+	    }
+
+	    filterChain.doFilter(request, response);
 	}
 }
