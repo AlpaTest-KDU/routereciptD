@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/base}">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/noticepage.css}">
+<title>Insert title here</title>
+</head>
+<body>
+	<div layout:fragment="content">
+	
+		<section class="noticeContainer">
+			<div class="noticeHeader">
+				<div>
+					<h2 class="noticeTitle">공지사항</h2>
+					<p>Routeceipt 서비스 이용과 관련된 주요 안내사항입니다.</p>
+				</div>
+				
+<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+<!--│				           관리자 - 공지 사항 작성 버튼							  │ -->
+<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+      			<div sec:authorize="hasAuthority('ROLE_ADMIN')">
+        			<a class="btnWrite" th:href="@{/notice/noticeRegister}">공지 작성</a>
+      			</div>
+<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+<!--│				           관리자 - 공지 사항 작성 버튼							  │ -->
+<!--└─────────────────────────────────────────────────────────────────────────────┘ -->				 
+			
+			</div>
+			
+			<table class="noticeTable">
+				<thead>
+					<tr>
+						<th>번호</th>
+						<th>제목</th>
+						<th>작성자</th>
+						<th>작성일</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+					<tr th:each="notice : ${noticeList}">
+						<td class="tdNo" th:text="${notice.n_id}">1</td>
+						<td class="tdTitle">
+							<a th:href="@{/notice/noticeDetailPage(n_id=${notice.n_id})}" th:text="${notice.n_title}">공지사항입니다.</a>
+						</td>
+						<td class="tdWriter" th:text="${notice.n_writer}">관리자</td>
+						<td th:text="${#temporals.format(notice.n_create, 'yyyy-MM-dd')}">2025.12.24</td>
+					</tr>
+					<tr th:if="${#lists.isEmpty(noticeList)}">
+						<td class="empty" colspan="4">등록된 공지사항이 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+		
+	</div>
+</body>
+</html>
