@@ -132,7 +132,7 @@ public class UserController {
 	}
 	
 	// 회원 삭제 기능
-	@DeleteMapping("/userInfoDelete")
+	@PostMapping("/userInfoDelete")
 	public String userInfoDelete(Userdto u) {
 		userServiceImp.UserInfoDelete(u);
 		return "index";
