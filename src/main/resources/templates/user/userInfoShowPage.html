@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link rel="stylesheet" th:href="@{/css/mypage.css}">
+<script th:src="@{/js/userInfoUpdate.js}" defer></script>
 </head>
 <body>
 
@@ -32,7 +33,12 @@
 						</a>
 	                </li>
 	                <li>
-	                    <a th:href="@{/user/userInfoDelete}" class="mypageMenuLink">
+						<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
+							<input type="hidden" id="currentUserId" th:value="${u_id}">
+							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+						</form>
+
+	                    <a href="javascript:void(0);" onclick="confirmDelete()" class="mypageMenuLink">
 	                        회원 탈퇴
 	                    </a>
 	                </li>
