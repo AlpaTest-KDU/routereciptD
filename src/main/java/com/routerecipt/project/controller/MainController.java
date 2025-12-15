@@ -1,10 +1,10 @@
 package com.routerecipt.project.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.security.core.Authentication;
 
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.security.LoginDetails;
@@ -25,10 +25,16 @@ public class MainController {
 		return "user/userLoginPage";
 	}
 	
-	// 아이디, 비밀번호 찾기 화면
-	@GetMapping("/user/userFindPage")
-	public String userFindPage() {
-		return "user/userFindPage";
+	// 아이디 찾기 화면
+	@GetMapping("/user/userFindIdPage")
+	public String userFindIdPage() {
+		return "user/userFindIdPage";
+	}
+
+	// 비밀번호 재설정 화면
+	@GetMapping("/user/userResetPwPage")
+	public String userResetPwPage() {
+		return "user/userResetPwPage";
 	}
 	
 	// 회원가입 화면

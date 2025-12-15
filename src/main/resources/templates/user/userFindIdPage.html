@@ -15,10 +15,6 @@
 			<form th:action="@{/user/userFindId}" method="post">
 				<div class="userFindId">
 					<div>
-						<label for="findId_name">이름</label>
-						<input id="findId_name" type="text" name="u_name">
-					</div>
-					<div>
 						<label for="findId_email">이메일</label>
 						<input id="findId_email" type="text" name="u_email">
 					</div>
@@ -49,33 +45,10 @@
 						<label for="findPw_email">이메일</label>
 						<input id="findPw_email" type="text" name="u_email">
 					</div>
-					<div>
-						<label for="findPw_name">이름</label>
-						<input id="findPw_name" type="text" name="u_name">
-					</div>
 					<button type="submit" class="findBtn">비밀번호 찾기</button>
 				</div>
 			</form>
-					
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				               비밀번호 변경 화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
-			<form th:action="@{/userFindPage/userFind/resetPw}" method="post" th:if="${}">
-				<div class="findResult">
-					<input type="hidden" name="u_id" th:value="${}">
-					<label for="new_pw">새 비밀번호</label>
-					<input id="new_pw" type="password" name="new_pw">
-					<label for="new_pw_confirm">새 비밀번호 확인</label>
-					<input id="new_pw_confirm" type="password" name="new_pw_confirm">
-					<button type="submit" class="findBtn">비밀번호 변경</button>
-				</div>
-			</form>
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				               비밀번호 변경 화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->			
-			
 		</div>
-	
 	</div>
 </body>
 </html>
