@@ -3,6 +3,7 @@ function confirmDelete() {
     if (!userIdElement) return;
 
     const currentUserId = userIdElement.value;
+    console.log("가져온 아이디 : ", currentUserId);
     const userInput = prompt("삭제하시려면 아이디('" + currentUserId + "')를 입력하세요.");
     
     if (userInput === null) {
