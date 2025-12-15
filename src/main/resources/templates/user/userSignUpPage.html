@@ -64,8 +64,11 @@
 	            </div>
 	            <button type="submit" class="">회원가입</button>		
 	        </form>
+	        
+		    <script th:inline="javascript" th:if="${message}">
+		    	alert(/*[[${message}]]*/ '메시지');
+		    </script>
 	    </div>
-	    
 	</div>
 </body>
 </html>

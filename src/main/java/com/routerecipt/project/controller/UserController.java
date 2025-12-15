@@ -84,6 +84,7 @@ public class UserController {
 			
 		} catch (Exception e) {
 			model.addAttribute("dupilcateError", e.getMessage());
+			model.addAttribute("message", "회원가입 실패: " + e.getMessage());
 			model.addAttribute("userdto", u);
 			
 			return "user/userSignUpPage";

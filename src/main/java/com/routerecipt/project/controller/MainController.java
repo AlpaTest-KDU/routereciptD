@@ -2,7 +2,12 @@ package com.routerecipt.project.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.Authentication;
+
+import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.security.LoginDetails;
 
 @Controller
 public class MainController {
@@ -34,7 +39,15 @@ public class MainController {
 	
 	// 마이페이지 화면
 	@GetMapping("user/userInfoShowPage")
-	public String userInfoShowPage() {
+	public String userInfoShowPage(Authentication authentication, Model model) {
+		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+		Userdto user = loginDetails.getUser();
+
+    	model.addAttribute("u_id", user.getU_id());
+    	model.addAttribute("u_name", user.getU_name());
+    	model.addAttribute("u_email", user.getU_email());
+    	model.addAttribute("u_birthday", user.getU_birthday());
+    	model.addAttribute("gender", user.getGender());
 		return "user/userInfoShowPage";
 	}
 	

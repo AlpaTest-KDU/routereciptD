@@ -17,6 +17,10 @@ public class LoginDetails implements UserDetails{
 	public LoginDetails(Userdto userdto) {
 		this.userdto = userdto;
 	}
+
+	public Userdto getUser() {
+		return userdto;
+	}
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
