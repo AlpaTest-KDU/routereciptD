@@ -1,6 +1,7 @@
 package com.routerecipt.project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -85,12 +86,22 @@ public class UserController {
 			// Bloom Filter에 ID 추가
 			bloomService.addUserId(u.getU_id());
 			
-		} catch (Exception e) {
-			model.addAttribute("dupilcateError", e.getMessage());
+		} catch (DataIntegrityViolationException e) {
+			model.addAttribute("dupilcateError", "이미 사용 중인 아이디입니다.");
 			model.addAttribute("message", "회원가입 실패: " + e.getMessage());
 			model.addAttribute("userdto", u);
 			
 			return "user/userSignUpPage";
+		} catch (Exception e) {
+			model.addAttribute("message", "회원가입 중 오류가 발생했습니다.");
+			model.addAttribute("userdto",u);
+			return "user/userSignUpPage";
+		}
+		
+		// bloom Filter 등록 (실패해도 회원가입은 성공)
+		try {
+			bloomService.addUserId(u.getU_id());
+		} catch (Exception e) {
 		}
 		
 		return "index";
