@@ -17,4 +17,6 @@ function confirmDelete() {
     } else {
         alert("아이디가 일치하지 않습니다.");
     }
+    
+    console.log("🔥 userInfoDelete.js 최신 버전 로드됨");
 }
