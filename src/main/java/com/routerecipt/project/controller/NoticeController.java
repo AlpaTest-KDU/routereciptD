@@ -1,6 +1,9 @@
 package com.routerecipt.project.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.routerecipt.project.dto.Noticedto;
+import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.NoticeServiceImp;
 
 @Controller
@@ -21,15 +25,18 @@ public class NoticeController {
 	// 공지사항 등록 화면
 	@GetMapping("/noticeRegisterPage")
 	public String noticeRegisterPage() {
-		noticeServiceImp.NoticeShow();
 		return "notice/noticeRegisterPage";
 	}
 
 	// 공지사항 등록 기능
 	@PostMapping("/noticeRegist")
-	public String noticeRegist(Noticedto n) {
+	public String noticeRegist(Noticedto n, Authentication authentication) {
+		LoginDetails principal = (LoginDetails) authentication.getPrincipal();
+		
+		n.setN_writer(principal.getUser().getU_id());
+		
 		noticeServiceImp.NoticeRegister(n);
-		return "notice/noticePage";
+		return "redirect:/notice/noticePage";
 	}
 	
 	// 공지사항 검색 기능

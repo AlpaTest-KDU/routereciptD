@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	  layout:decorate="~{layout/base}">
 <head>
 <meta charset="UTF-8">
@@ -45,7 +46,7 @@
 						<td class="tdTitle">
 							<a th:href="@{/notice/noticeDetailPage(n_id=${notice.n_id})}" th:text="${notice.n_title}"></a>
 						</td>
-						<td th:text="${#temporals.format(notice.n_create, 'yyyy-MM-dd')}"></td>
+						<td th:text="${#dates.format(notice.n_create, 'yyyy-MM-dd')}"></td>
 					</tr>
 					<tr th:if="${#lists.isEmpty(noticeList)}">
 						<td class="empty" colspan="4">등록된 공지사항이 없습니다.</td>

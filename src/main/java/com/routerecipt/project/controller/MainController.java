@@ -1,17 +1,24 @@
 package com.routerecipt.project.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.routerecipt.project.dto.Noticedto;
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.security.LoginDetails;
+import com.routerecipt.project.service.NoticeServiceImp;
 
 @Controller
 public class MainController {
 	
+	@Autowired
+	private NoticeServiceImp noticeServiceImp;
 	// Branch Test
 	// 메인 화면
 	@GetMapping("/")
@@ -59,9 +66,12 @@ public class MainController {
 	
 	// 공지사항 화면
 	@GetMapping("/notice/noticePage")
-	public String noticePage() {
+	public String noticePage(Model model) {
+		List<Noticedto> noticeList = noticeServiceImp.NoticeShow();
+		model.addAttribute("noticeList", noticeList);
 		return "notice/noticePage";
 	}
+		
 	
 	// 지출분석 화면
 	@GetMapping("/user/analysisPage")

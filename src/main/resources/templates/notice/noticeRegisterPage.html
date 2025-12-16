@@ -17,7 +17,8 @@
 	            </div>
 	        </div>
 	
-	        <form th:action="@{/noticePage/noticeRegister}" method="post" class="noticeWriteForm">
+	        <form th:action="@{/notice/noticeRegist}" method="post" class="noticeWriteForm">
+	        	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 	            <div class="writeRow">
 	                <label for="n_title">제목</label>
 	                <input type="text" id="n_title" name="n_title">

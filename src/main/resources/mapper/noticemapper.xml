@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.routerecipt.project.mapper">
+<mapper namespace="com.routerecipt.project.mapper.NoticeMapper">
 	<resultMap type="com.routerecipt.project.dto.Noticedto" id="noticeMap">
 		<id property="n_id" column="n_id"/>
 		<result property="n_title" column="n_title"/>	
