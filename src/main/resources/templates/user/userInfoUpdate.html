@@ -18,7 +18,7 @@
 	    		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 				<div class="infoRow">
 	        		<label>아이디</label>
-	        		<span th:text="${u_id}"></span>
+	        		<input type="hidden" name="u_id" th:value="${u_id}">
 	      		</div>
 	      		<div class="infoRow">
 					<a th:href="@{/user/userResetPwPage}">비밀번호 재설정</a>

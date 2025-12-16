@@ -114,7 +114,7 @@ public class UserController {
 	@PostMapping("/userInfoUpdate")
 	public String userInfoUpdate(Userdto u) {
 		userServiceImp.UserInfoUpdate(u);
-		return "userInfoShowPage";
+		return "redirect:/user/userInfoShowPage";
 	}
 	
 	// 회원 삭제 기능
