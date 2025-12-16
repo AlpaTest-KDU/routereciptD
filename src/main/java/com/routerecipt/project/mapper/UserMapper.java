@@ -13,6 +13,7 @@ public interface UserMapper {
 	void UserSignUp(Userdto u);
 	Userdto loadUserByUsername(String u_id);
 	Userdto UserFindID (String u_email);
+	Userdto UserCheckID (String u_id, String u_email);
 	void UserUpdatePW (Userdto u);
 	List<Userdto> UserInfoShow();
 	void UserInfoUpdate(Userdto u);

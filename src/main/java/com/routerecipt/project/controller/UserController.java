@@ -40,22 +40,6 @@ public class UserController {
 	@Autowired
 	private RedisBloomService bloomService;
 	
-	// 아이디 찾기 기능
-	// 파라미터 = email
-	@PostMapping("/userFindId")
-	public String userFindId(@RequestParam(value="email") String u_email) {
-		userServiceImp.UserFindID(u_email);
-		return "userFindPage";
-	}
-
-	// 비밀번호 찾기 기능
-	// 파라미터 = Userdto
-	@PostMapping("/userFindPw")
-	public String userUpdatePw(@ModelAttribute Userdto user) {
-		userServiceImp.UserUpdatePW(user);
-		return "index";
-	}
-	
 	// 회원가입 기능
 	@PostMapping("/userSignUp")
 	public String userSignUp(@Valid @ModelAttribute("userdto") Userdto u, Model model,@RequestParam(name = "emailDomain") String emailDomain,@RequestParam(name = "emailDomainCustom",required = false) String emailDomainCustom) {

@@ -60,6 +60,12 @@ public class UserServiceImp implements UserService {
 	public Userdto UserFindID(String u_email) {
 		return userMapper.UserFindID(u_email);
 	}
+
+	// 비밀번호 변경 전 계정 확인
+	@Override
+	public Userdto UserCheckID(String u_id, String u_email) {
+		return userMapper.UserCheckID(u_id, u_email);
+	}
 	
 	// 비밀번호 변경
 	@Override

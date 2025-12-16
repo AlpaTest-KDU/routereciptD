@@ -30,6 +30,11 @@
 	<select id="UserFindID" parameterType="string" resultMap="UserMap">
 		select u_id from routereciptdb.user where u_email = #{value}
 	</select>
+
+	<!-- 비밀번호 변경 전 아이디, 이메일 체크 -->
+	<select id="UserCheckID" parameterType="string" resultMap="UserMap">
+		select u_id from routereciptdb.user where u_email = #{value} and u_id = #{value}
+	</select>
 	
 	<!-- 비밀번호 변경 -->
 	<update id="UserUpdatePW" parameterType="com.routerecipt.project.dto.Userdto">
