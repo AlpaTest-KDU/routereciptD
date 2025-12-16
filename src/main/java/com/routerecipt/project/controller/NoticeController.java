@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.routerecipt.project.dto.Noticedto;
 import com.routerecipt.project.service.NoticeServiceImp;
 
 @Controller
@@ -20,12 +21,14 @@ public class NoticeController {
 	// 공지사항 등록 화면
 	@GetMapping("/noticeRegisterPage")
 	public String noticeRegisterPage() {
+		noticeServiceImp.NoticeShow();
 		return "notice/noticeRegisterPage";
 	}
 
 	// 공지사항 등록 기능
 	@PostMapping("/noticeRegist")
-	public String noticeRegist() {
+	public String noticeRegist(Noticedto n) {
+		noticeServiceImp.NoticeRegister(n);
 		return "notice/noticePage";
 	}
 	
