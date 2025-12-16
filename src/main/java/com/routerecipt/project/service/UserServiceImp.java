@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,9 @@ public class UserServiceImp implements UserService {
 	
 	@Autowired
 	private RedisBloomService bloomService;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	public boolean checkDuplicateUserId(String userId) {
 		
@@ -70,6 +74,8 @@ public class UserServiceImp implements UserService {
 	// 비밀번호 변경
 	@Override
 	public void UserUpdatePW(Userdto u) {
+		String encodedPw = passwordEncoder.encode(u.getU_pw());
+		u.setU_pw(encodedPw);
 		userMapper.UserUpdatePW(u);
 	}
 	
