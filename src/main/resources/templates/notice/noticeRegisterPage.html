@@ -5,30 +5,30 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<link rel="stylesheet" th:href="@{/css/noticepage.css}">
+<link rel="stylesheet" th:href="@{/css/noticePage.css}">
 </head>
 <body>
 	<div layout:fragment="content">
 	
 	    <section class="noticeContainer">
-	        <div class="noticeHeader">
+	        <div class="noticeWriteHeader">
 	            <div>
-	                <h2 class="noticeTitle">공지사항 작성</h2>
+	                <h2 class="noticeWriteTitle">공지사항 작성</h2>
 	            </div>
 	        </div>
 	
-	        <form th:action="@{/noticePage/noticeRegister}" method="post" class="noticeForm">
-	            <div class="formRow">
+	        <form th:action="@{/noticePage/noticeRegister}" method="post" class="noticeWriteForm">
+	            <div class="writeRow">
 	                <label for="n_title">제목</label>
 	                <input type="text" id="n_title" name="n_title">
 	            </div>
 	            
-	            <div class="formRow">
+	            <div class="writeRow">
 	                <label for="n_content">내용</label>
 	                <textarea id="n_content" name="n_content" rows="10"></textarea>
 	            </div>
 	
-	            <div class="formActions">
+	            <div class="writeActions">
 	                <button type="submit" class="btnSubmit">등록</button>
 	            </div>
 	        </form>

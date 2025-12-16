@@ -1,0 +1,250 @@
+@charset "UTF-8";
+
+/* noticePage */
+.noticeContainer {
+  	width: min(1040px, calc(100% - 40px));
+  	margin: 40px auto 80px;
+  	background: #ffffff;
+  	border: 1px solid #e5e7eb;
+  	border-radius: 18px;
+  	box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+  	overflow: hidden;
+}
+
+.noticeHeader {
+  	display: flex;
+  	justify-content: space-between;
+  	align-items: flex-start;
+  	gap: 16px;
+  	padding: 26px 26px 18px;
+  	border-bottom: 1px solid #e5e7eb;
+  	background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.noticeTitle {
+  	margin: 0;
+  	font-size: 22px;
+  	font-weight: 800;
+  	letter-spacing: -0.3px;
+  	color: #111827;
+}
+
+.noticeHeader p {
+  	margin: 6px 0 0;
+  	font-size: 14px;
+  	color: #6b7280;
+}
+
+.btnWrite {
+  	display: inline-flex;
+  	align-items: center;
+  	justify-content: center;
+  	padding: 10px 14px;
+  	border-radius: 12px;
+  	border: 1px solid rgba(229, 231, 235, 0.9);
+  	background: #111827;
+  	color: #ffffff;
+  	font-size: 14px;
+  	font-weight: 700;
+  	text-decoration: none;
+  	white-space: nowrap;
+  	transition: opacity .15s ease, transform .15s ease;
+}
+
+.btnWrite:hover {
+  	opacity: 0.92;
+  	transform: translateY(-1px);
+}
+
+.noticeTable {
+  	width: 100%;
+  	border-collapse: separate;
+  	border-spacing: 0;
+}
+
+.noticeTable thead th {
+  	font-size: 13px;
+  	color: #6b7280;
+  	font-weight: 800;
+  	padding: 14px 16px;
+  	border-bottom: 1px solid #e5e7eb;
+  	background: rgba(249, 250, 251, 0.7);
+}
+
+.noticeTable tbody td {
+  	padding: 14px 16px;
+  	border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+  	font-size: 14px;
+  	color: #111827;
+  	vertical-align: middle;
+}
+
+.noticeTable tbody tr:hover {
+  	background: rgba(59, 130, 246, 0.04);
+}
+
+.noticeTable thead th:nth-child(1),
+.noticeTable tbody td:nth-child(1) {
+  	text-align: center;
+  	width: 90px;
+}
+
+.noticeTable thead th:nth-child(2),
+.noticeTable tbody td:nth-child(2) {
+  	text-align: center;
+}
+
+.noticeTable thead th:nth-child(3),
+.noticeTable tbody td:nth-child(3) {
+  	text-align: right;
+  	width: 160px;
+}
+
+.tdTitle {
+  	font-weight: 800;
+}
+
+.tdTitle a {
+  	color: #111827;
+  	text-decoration: none;
+}
+
+.tdTitle a:hover {
+  	text-decoration: underline;
+  	text-underline-offset: 3px;
+}
+
+.empty {
+  	text-align: center;
+  	color: #6b7280;
+  	padding: 28px 16px;
+}
+
+/* noticeDetaliPage */
+.noticeDetailHeader {
+  	padding: 26px 26px 18px;
+  	border-bottom: 1px solid #e5e7eb;
+  	background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.noticeDetailTitle {
+  	margin: 0;
+  	font-size: 22px;
+  	font-weight: 800;
+  	color: #111827;
+}
+
+.noticeDetailInfo {
+  	margin-top: 8px;
+  	display: flex;
+  	justify-content: flex-end;
+  	gap: 12px;
+  	font-size: 13px;
+  	color: #6b7280;
+}
+
+.noticeDetailContent {
+  	padding: 28px 26px;
+  	font-size: 15px;
+  	line-height: 1.7;
+  	color: #111827;
+  	white-space: pre-wrap;
+  	border-bottom: 1px solid #e5e7eb;
+}
+
+.noticeDetailActions {
+  	display: flex;
+  	justify-content: flex-end;
+  	padding: 18px 26px 26px;
+}
+
+.btnBack {
+  	padding: 10px 16px;
+  	border-radius: 12px;
+  	border: 1px solid #d1d5db;
+  	background: #ffffff;
+  	color: #374151;
+  	font-size: 14px;
+  	font-weight: 600;
+  	text-decoration: none;
+}
+
+.btnBack:hover {
+  	background: #f9fafb;
+}
+
+/* noticeRegisterPage */
+.noticeWriteHeader {
+  	padding: 26px 26px 18px;
+  	border-bottom: 1px solid #e5e7eb;
+  	background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.noticeWriteTitle {
+  	margin: 0;
+  	font-size: 22px;
+  	font-weight: 800;
+  	color: #111827;
+}
+
+.noticeWriteForm {
+  	padding: 28px 26px 32px;
+  	display: flex;
+  	flex-direction: column;
+  	gap: 24px;
+}
+
+.writeRow {
+	width: 97%;
+ 	display: flex;
+  	flex-direction: column;
+  	gap: 8px;
+}
+
+.writeRow label {
+  	font-size: 14px;
+  	font-weight: 700;
+  	color: #111827;
+}
+
+.writeRow input,
+.writeRow textarea {
+  	width: 100%;
+  	padding: 12px 14px;
+  	font-size: 14px;
+  	border-radius: 12px;
+  	border: 1px solid #d1d5db;
+  	outline: none;
+  	font-family: inherit;
+}
+
+.writeRow textarea {
+  	min-height: 220px;
+  	resize: vertical;
+}
+
+.writeRow input:focus,
+.writeRow textarea:focus {
+  	border-color: #2563eb;
+  	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.writeActions {
+  	display: flex;
+  	justify-content: flex-end;
+}
+
+.btnSubmit {
+  	padding: 10px 18px;
+  	border-radius: 12px;
+  	border: none;
+  	background: #111827;
+  	color: #ffffff;
+  	font-size: 14px;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+.btnSubmit:hover {
+	opacity: 0.92;
+}

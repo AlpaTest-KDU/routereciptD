@@ -4,7 +4,7 @@
 	  layout:decorate="~{layout/base}">
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/noticepage.css}">
+<link rel="stylesheet" th:href="@{/css/noticePage.css}">
 <title>Insert title here</title>
 </head>
 <body>
@@ -41,12 +41,11 @@
 				
 				<tbody>
 					<tr th:each="notice : ${noticeList}">
-						<td class="tdNo" th:text="${notice.n_id}">1</td>
+						<td class="tdNo" th:text="${notice.n_id}"></td>
 						<td class="tdTitle">
-							<a th:href="@{/notice/noticeDetailPage(n_id=${notice.n_id})}" th:text="${notice.n_title}">공지사항입니다.</a>
+							<a th:href="@{/notice/noticeDetailPage(n_id=${notice.n_id})}" th:text="${notice.n_title}"></a>
 						</td>
-						<td class="tdWriter" th:text="${notice.n_writer}">관리자</td>
-						<td th:text="${#temporals.format(notice.n_create, 'yyyy-MM-dd')}">2025.12.24</td>
+						<td th:text="${#temporals.format(notice.n_create, 'yyyy-MM-dd')}"></td>
 					</tr>
 					<tr th:if="${#lists.isEmpty(noticeList)}">
 						<td class="empty" colspan="4">등록된 공지사항이 없습니다.</td>

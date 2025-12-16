@@ -5,31 +5,31 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<link rel="stylesheet" th:href="@{/css/noticepage.css}">
+<link rel="stylesheet" th:href="@{/css/noticePage.css}">
 </head>
 <body>
 
 	<div layout:fragment="content">
 	
 	    <section class="noticeContainer">
-	        <div class="noticeHeader">
+	        <div class="noticeDetailHeader">
 	            <div>
-	                <h2 class="noticeTitle" th:text="${notice.n_title}">
+	                <h2 class="noticeDetailTitle" th:text="${notice.n_title}">
 	                    공지사항 제목
 	                </h2>
-	                <p class="noticeInfo">
+	                <p class="noticeDetailInfo">
 	                	<span th:text="${notice.n_writer}">관리자</span>
 	                	<span th:text="${#temporals.format(notice.n_create, 'yyyy-MM-dd')}">2025.12.24</span>
 	                </p>
 	            </div>
 	        </div>
 	
-	        <div class="noticeContent"
+	        <div class="noticeDetailContent"
 	             th:text="${notice.n_content}">
 	            공지사항 내용
 	        </div>
 	
-	        <div class="noticeActions">
+	        <div class="noticeDetailActions">
 	            <a class="btnBack" th:href="@{/notice/noticePage}">목록으로</a>
 	        </div>
 	    </section>
