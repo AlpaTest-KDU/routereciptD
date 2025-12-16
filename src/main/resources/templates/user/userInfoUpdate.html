@@ -15,14 +15,13 @@
 		<div class="userInfoUpdateArea">
 	    	<h2>회원정보 수정</h2>
 	    	<form th:action="@{/user/userInfoUpdate}" method="post">
-	    	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+	    		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 				<div class="infoRow">
 	        		<label>아이디</label>
 	        		<span th:text="${u_id}"></span>
 	      		</div>
 	      		<div class="infoRow">
-	        		<label for="new_pw">비밀번호</label>
-	        		<input id="new_pw" type="password" name="u_pw">
+					<a th:href="@{/user/userResetPwPage}">비밀번호 재설정</a>
 	      		</div>
 	      		<div class="infoRow">
 	        		<label for="u_name">이름</label>
