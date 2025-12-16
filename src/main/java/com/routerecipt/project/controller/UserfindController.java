@@ -3,7 +3,6 @@ package com.routerecipt.project.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +35,10 @@ public class UserfindController {
 	// 파라미터 = u_id, u_email
 	@PostMapping("/userCheckId")
 	public String userCheckId(Model model, @RequestParam(value="u_id") String u_id, @RequestParam(value="u_email") String u_email) {
-		Userdto user = userServiceImp.UserCheckID(u_id, u_email);
-		if (user != null) {
+		int result = userServiceImp.UserCheckID(u_id, u_email);
+
+		if (result == 1) {
+			Userdto user = userServiceImp.UserFindID(u_email);
 			model.addAttribute("verifiedId", user.getU_id());
 		} else {
 			model.addAttribute("idError", "존재하지 않는 회원입니다.");
