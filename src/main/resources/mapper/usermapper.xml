@@ -48,7 +48,7 @@
 	
 	<!-- 회원정보수정 -->
 	<update id="UserInfoUpdate" parameterType="com.routerecipt.project.dto.Userdto">
-		update routereciptdb.user set u_name = #{u_name}, u_pw = #{u_pw}, u_email = #{u_email}	where u_id = #{u_id}
+		update routereciptdb.user set u_name = #{u_name}, u_email = #{u_email}	where u_id = #{u_id}
 	</update>
 	
 	<!-- 회원탈퇴 -->

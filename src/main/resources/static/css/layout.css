@@ -31,7 +31,9 @@ header .btn {
 }
 
 .navbar {
-	display: block;
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
 }
 
 .logo {
@@ -62,4 +64,25 @@ header .btn {
 
 .footer li {
 	list-style-type: none;
+}
+
+.userArea {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.username {
+    font-weight: 500;
+    color: #333;
+}
+
+.logoutBtn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #5054ef;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
 }
