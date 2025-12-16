@@ -7,7 +7,7 @@
 	<nav class="navbar">
 		<a th:href="@{/user/ReceiptRegisterPage}" class="navbarMenu">영수증 등록</a>
 		<a th:href="@{/user/analysisPage}" class="navbarMenu">지출 분석</a>
-		<a th:href="@{/user/noticePage}" class="navbarMenu">공지 사항</a>
+		<a th:href="@{/notice/noticePage}" class="navbarMenu">공지 사항</a>
 		<a sec:authorize="isAuthenticated()" th:href="@{/user/userInfoShowPage}" class="navbarBtn">마이페이지</a>
 	</nav>
 	<div class="userArea">
