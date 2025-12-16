@@ -12,12 +12,19 @@
 	<div layout:fragment="content">
 	
 		<div class="userFindArea">
+			<div>
+				<p class="routeceipt">Routeceipt</p>
+			</div>
 			<form th:action="@{/user/userFindId}" method="post">
 				<div class="userFindId">
+					<div>
+						<h3>아이디 찾기</h3>
+						<h5>이메일을 입력해주세요.</h5>
+					</div>
 					<div th:unless="${foundId}">
 						<div>
-							<label for="findId_email">이메일</label>
-							<input id="findId_email" type="text" name="u_email">
+							<label for="findId_email"></label>
+							<input id="findId_email" type="text" name="u_email" placeholder="이메일" required>
 						</div>
 						<button type="submit" class="findBtn">아이디 찾기</button>
 						<div class="findError" th:if="${idError}">

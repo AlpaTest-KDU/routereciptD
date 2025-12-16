@@ -1,32 +1,78 @@
 @charset "UTF-8";
 
 .userFindArea {
-	width: 100%;
-    margin: 0;
-    padding: 140px 40px 120px;   
-    background: linear-gradient(to bottom, #0f172a, #1e1b4b);
-    color: white;
-    text-align: left;
-    min-height: 100vh;           
-    box-sizing: border-box;
-    display: flex;
-    align-items: center; 
+    max-width: 520px;
+    margin: 140px auto 80px;
+    padding: 40px 34px;
+    border-radius: 20px;
+}
+
+.routeceipt {
+	text-align: center;
+	font-size: 48px;
+	font-weight: 900;
+	color: #623597;
+}
+
+.userFindArea h3 {
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 32px;
+}
+
+.userFindArea h5 {
+	font-weight: 350;
 }
 
 .userFindId {
-	
+  	background: #ffffff;
+  	border: 1px solid #e5e7eb;
+  	border-radius: 18px;
+  	box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+  	padding: 26px 26px 22px;
 }
 
-.findResult {
-	
+input {
+  	width: 90%;
+  	height: 44px;
+  	padding: 0 14px;
+  	border: 1px solid #d1d5db;
+  	border-radius: 12px;
+  	font-size: 14px;
+  	color: #111827;
+  	outline: none;
+  	background: #ffffff;
+}
+
+.findBtn {
+	margin-top: 20px;
+	margin-left: 350px;
+	padding: 10px 16px;
+    background: #5054ef;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+}
+
+.findBtn:hover {
+  	opacity: 0.92;
+  	transform: translateY(-1px);
 }
 
 .findError {
-	
+  	margin-top: 12px;
+  	padding: 12px 14px;
+  	border-radius: 12px;
+  	border: 1px solid rgba(239, 68, 68, 0.25);
+  	background: rgba(239, 68, 68, 0.06);
 }
 
-
-
-
+.findError p {
+  	margin: 0;
+  	font-size: 13px;
+  	font-weight: 700;
+  	color: #b91c1c;
+}
 
 
