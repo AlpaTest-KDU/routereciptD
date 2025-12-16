@@ -31,7 +31,9 @@ header .btn {
 }
 
 .navbar {
-	display: block;
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
 }
 
 .logo {
