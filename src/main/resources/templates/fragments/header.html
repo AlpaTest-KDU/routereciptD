@@ -9,12 +9,10 @@
 		<a th:href="@{/user/analysisPage}" class="navbarMenu">지출 분석</a>
 		<a th:href="@{/notice/noticePage}" class="navbarMenu">공지 사항</a>
 		<a sec:authorize="isAuthenticated()" th:href="@{/user/userInfoShowPage}" class="navbarBtn">마이페이지</a>
-	</nav>
-	<div class="userArea">
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
 		<span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
 		<form sec:authorize="isAuthenticated()" id="logoutForm" th:action="@{/logout}" method="post" style="display:none;"></form>
 		<a sec:authorize="isAuthenticated()" href="#" onclick="document.getElementById('logoutForm').submit();" class="mypageMenuLink">로그아웃</a>
-	</div>
+	</nav>
 </header>
