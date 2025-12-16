@@ -43,7 +43,8 @@ public class UserfindController {
 		} else {
 			model.addAttribute("idError", "존재하지 않는 회원입니다.");
 		}
-		return "redirect:/user/ResetPwPage";
+		// redirect: 사용시 Model 데이터가 사라지기 때문에 사용 X
+		return "user/userResetPwPage";
 	}
 
 	// 비밀번호 찾기 기능

@@ -32,13 +32,13 @@
 	</select>
 
 	<!-- 비밀번호 변경 전 아이디, 이메일 체크 -->
-	<select id="UserCheckID" parameterType="int" resultMap="UserMap">
-		select count(*) from routerecpitdb.user where u_id = #{u_id} and u_email = #{u_email}
+	<select id="UserCheckID" resultType="int">
+		select count(*) from routereciptdb.user where u_id = #{u_id} and u_email = #{u_email}
 	</select>
 	
 	<!-- 비밀번호 변경 -->
 	<update id="UserUpdatePW" parameterType="com.routerecipt.project.dto.Userdto">
-		update routerreciptdb.user set u_pw = #{value} where u_id = #{u_id}
+		update routereciptdb.user set u_pw = #{u_pw} where u_id = #{u_id}
 	</update>
 		
 	<!-- 회원정보보기 -->
