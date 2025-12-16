@@ -14,5 +14,7 @@
 		<span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
 		<form sec:authorize="isAuthenticated()" id="logoutForm" th:action="@{/logout}" method="post" style="display:none;"></form>
 		<a sec:authorize="isAuthenticated()" href="#" onclick="document.getElementById('logoutForm').submit();" class="mypageMenuLink">로그아웃</a>
+
 	</nav>
+
 </header>
