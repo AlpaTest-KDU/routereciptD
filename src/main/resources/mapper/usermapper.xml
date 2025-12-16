@@ -42,8 +42,8 @@
 	</update>
 		
 	<!-- 회원정보보기 -->
-	<select id="UserInfoShow" parameterType="com.routerecipt.project.dto.Userdto" resultMap="UserMap">
-		select * from routereciptdb.user where u_id = #{_parameter}
+	<select id="UserInfoShow" parameterType="string" resultMap="UserMap">
+		select * from routereciptdb.user where u_id = #{u_id}
 	</select>
 	
 	<!-- 회원정보수정 -->

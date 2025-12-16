@@ -22,14 +22,18 @@ public class LoginDetails implements UserDetails{
 		return userdto;
 	}
 	
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Collection<GrantedAuthority> collections = new ArrayList<>();
-		collections.add(()->{
-			return this.userdto.getRole().name();
-		});
-		return collections;
+	public void setUser(Userdto userdto) {
+		this.userdto = userdto;
 	}
+	
+	@Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        if (userdto != null && userdto.getRole() != null) {
+            authorities.add(() -> userdto.getRole().name());
+        }
+        return authorities;
+    }
 	
 	@Override
 	public String getPassword() {
@@ -38,7 +42,7 @@ public class LoginDetails implements UserDetails{
 	
 	@Override
 	public String getUsername() {
-		return this.userdto.getU_id();
+		return userdto != null ? userdto.getU_id() : "";
 	}
 	
 	@Override

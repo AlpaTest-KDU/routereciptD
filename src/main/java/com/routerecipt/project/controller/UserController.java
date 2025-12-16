@@ -2,7 +2,9 @@ package com.routerecipt.project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +23,7 @@ import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.UserServiceImp;
 
+import groovyjarjarantlr4.v4.parse.ANTLRParser.throwsSpec_return;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -97,10 +100,12 @@ public class UserController {
 	@GetMapping("/userInfoUpdatePage")
 	public String userInfoUpdatePage(Authentication authentication, Model model) {
 		userServiceImp.UserInfoShow();
-		System.out.println("🔥 userInfoUpdatePage CONTROLLER HIT 🔥");
-		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
-		Userdto user = loginDetails.getUser();
-
+		LoginDetails principal = (LoginDetails) authentication.getPrincipal();
+		String loginUserId = principal.getUser().getU_id();
+		
+		Userdto user = userServiceImp.loadUserByUsername(loginUserId);
+		
+		
     	model.addAttribute("u_id", user.getU_id());
     	model.addAttribute("u_name", user.getU_name());
     	model.addAttribute("u_email", user.getU_email());
@@ -112,8 +117,18 @@ public class UserController {
 	
 	// 정보 수정 기능
 	@PostMapping("/userInfoUpdate")
-	public String userInfoUpdate(Userdto u) {
+	public String userInfoUpdate(Userdto u, Authentication authentication) {
+		LoginDetails principal = (LoginDetails) authentication.getPrincipal();
+	    String loginUserId = principal.getUser().getU_id();
+	    
+	    u.setU_id(loginUserId);
+		
+		// 1. DB업데이트
 		userServiceImp.UserInfoUpdate(u);
+		
+		
+		
+		
 		return "redirect:/user/userInfoShowPage";
 	}
 	
