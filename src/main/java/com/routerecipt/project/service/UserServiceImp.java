@@ -63,8 +63,8 @@ public class UserServiceImp implements UserService {
 
 	// 비밀번호 변경 전 계정 확인
 	@Override
-	public Userdto UserCheckID(String u_id, String u_email) {
-		return userMapper.UserCheckID(u_id, u_email);
+	public int UserCheckID(String u_id, String email) {
+		return userMapper.UserCheckID(u_id, email);
 	}
 	
 	// 비밀번호 변경

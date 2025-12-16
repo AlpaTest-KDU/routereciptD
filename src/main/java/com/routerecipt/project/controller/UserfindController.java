@@ -42,21 +42,14 @@ public class UserfindController {
 		} else {
 			model.addAttribute("idError", "존재하지 않는 회원입니다.");
 		}
-		return "index";
+		return "redirect:/user/ResetPwPage";
 	}
 
 	// 비밀번호 찾기 기능
 	// 파라미터 = Userdto
 	@PostMapping("/userUpdatePw")
 	public String userUpdatePw(@ModelAttribute Userdto user) {
-		Userdto user = userServiceImp.UserUpdatePW(user);
-		return "index";
-	}
-	
-	@GetMapping("/userPasswordChangePage")
-	public String userPasswordChangePage(
-			@RequestParam(value = "id") String id,
-			@RequestParam(value = "email") String email) {
-		return "userPasswordChagePage";
+		userServiceImp.UserUpdatePW(user);
+		return "redirect:/user/userLoginPage";
 	}
 }

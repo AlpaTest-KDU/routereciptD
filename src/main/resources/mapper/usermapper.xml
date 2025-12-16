@@ -32,8 +32,8 @@
 	</select>
 
 	<!-- 비밀번호 변경 전 아이디, 이메일 체크 -->
-	<select id="UserCheckID" parameterType="string" resultMap="UserMap">
-		select u_id from routereciptdb.user where u_email = #{value} and u_id = #{value}
+	<select id="UserCheckID" parameterType="int" resultMap="UserMap">
+		select count(*) from routerecpitdb.user where u_id = #{u_id} and u_email = #{u_email}
 	</select>
 	
 	<!-- 비밀번호 변경 -->

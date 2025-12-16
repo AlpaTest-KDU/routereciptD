@@ -21,7 +21,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage", "/user/userSignUp","/chatbot/chatBotPage").permitAll()
 					.requestMatchers("/chatbot/ask","/api/chat").permitAll()
-					.requestMatchers("/user/userFindIdPage","/user/userResetPwPage").permitAll()
+					.requestMatchers("/user/userFindIdPage","/user/userResetPwPage","/user/userUpdatePw","/user/userCheckId","/user/userFindId").permitAll()
 					.requestMatchers("/error").permitAll()
 					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
