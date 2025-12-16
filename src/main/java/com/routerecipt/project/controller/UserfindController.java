@@ -21,7 +21,7 @@ public class UserfindController {
 	// 아이디 찾기 기능
 	// 파라미터 = email
 	@PostMapping("/userFindId")
-	public String userFindId(Model model, @RequestParam(value="email") String u_email) {
+	public String userFindId(Model model, @RequestParam(value="u_email") String u_email) {
 		Userdto user = userServiceImp.UserFindID(u_email);
 		if (user != null) {
 			model.addAttribute("foundId", user.getU_id());
