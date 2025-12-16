@@ -1,0 +1,32 @@
+@charset "UTF-8";
+
+.userFindArea {
+	width: 100%;
+    margin: 0;
+    padding: 140px 40px 120px;   
+    background: linear-gradient(to bottom, #0f172a, #1e1b4b);
+    color: white;
+    text-align: left;
+    min-height: 100vh;           
+    box-sizing: border-box;
+    display: flex;
+    align-items: center; 
+}
+
+.userFindId {
+	
+}
+
+.findResult {
+	
+}
+
+.findError {
+	
+}
+
+
+
+
+
+
