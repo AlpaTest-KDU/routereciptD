@@ -1,5 +1,10 @@
 package com.routerecipt.project.service;
 
-public interface NoticeService {
+import java.util.List;
 
+import com.routerecipt.project.dto.Noticedto;
+
+public interface NoticeService {
+	void NoticeRegister (Noticedto n);
+	List<Noticedto>NoticeShow();
 }
