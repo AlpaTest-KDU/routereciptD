@@ -1,6 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <header th:fragment="header" class="header">
+	<script th:src="@{/js/logout.js}" defer></script>
 	<div class="logo">
 	<a th:href="@{/}">Routeceipt</a>
 	</div>
@@ -12,8 +13,8 @@
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
 		<span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
-		<form sec:authorize="isAuthenticated()" id="logoutForm" th:action="@{/logout}" method="post" style="display:none;"></form>
-		<a sec:authorize="isAuthenticated()" href="#" onclick="document.getElementById('logoutForm').submit();" class="mypageMenuLink">로그아웃</a>
+		<form sec:authorize="isAuthenticated()" id="headerLogoutForm" th:action="@{/logout}" method="post" style="display:none;"></form>
+		<a sec:authorize="isAuthenticated()" href="javascript:void(0);" onclick="confirmLogout('headerLogoutForm');" class="mypageMenuLink">로그아웃</a>
 
 	</nav>
 

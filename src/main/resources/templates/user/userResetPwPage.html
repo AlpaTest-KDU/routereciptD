@@ -17,7 +17,7 @@
 			<form th:action="@{/user/userCheckId}" method="post" th:unless="${verifiedId}">
 				<div class="userFindPw">
 					<div>
-						<h3>비밀번호 찾기</h3>
+						<h3>비밀번호 재설정</h3>
 					</div>
 					<div>
 						<label for="findPw_id">아이디</label>
@@ -39,18 +39,41 @@
 <!--└─────────────────────────────────────────────────────────────────────────────┘ -->
 			<form th:action="@{/user/userUpdatePw}" method="post" th:if="${verifiedId}">
 				<div class="findResult">
+					<div>
+						<h3>비밀번호 재설정</h3>
+					</div>
 					<input type="hidden" name="u_id" th:value="${verifiedId}">
 					<label for="new_pw">새 비밀번호</label>
-					<input id="new_pw" type="password" name="u_pw" placeholder="새 비밀번호" required>
+					<input id="new_pw" type="password" name="u_pw" placeholder="새 비밀번호" required oninput="checkPwMatch()">
 					<label for="new_pw_confirm">새 비밀번호 확인</label>
-					<input id="new_pw_confirm" type="password" name="new_pw_confirm" placeholder="새 비밀번호 확인" required>
-					<button type="submit" class="findBtn">비밀번호 변경</button>
+					<input id="new_pw_confirm" type="password" name="new_pw_confirm" placeholder="새 비밀번호 확인" required oninput="checkPwMatch()">
+					<span id="pwMatchMsg" style="display:block; margin-bottom:10px; font-size:14px;"></span>
+					<button type="submit" class="findBtn" id="changePwBtn" disabled>비밀번호 변경</button>
 				</div>
 			</form>
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 <!--│				               비밀번호 변경 화면							      │ -->
 <!--└─────────────────────────────────────────────────────────────────────────────┘ -->			
 		</div>
+		
+		<script th:if="${verifiedId}">
+			function checkPwMatch() {
+				const pw = document.getElementById("new_pw").value;
+				const pwConfirm = document.getElementById("new_pw_confirm").value;
+				const btn = document.getElementById("changePwBtn");
+				const msg = document.getElementById("pwMatchMsg");
+				
+				if(pw != "" && pw == pwConfirm) {
+					btn.disabled = false;
+					msg.innerHTML = "비밀번호가 일치합니다.";
+					msg.style.color = "green";
+				} else {
+					btn.disabled = true;
+					msg.innerHTML = "비밀번호가 일치하지 않습니다.";
+					msg.style.color = "red";
+				}
+			}
+		</script>
 	</div>
 </body>
 </html>
