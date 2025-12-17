@@ -9,6 +9,13 @@
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
+.signUpTitle {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 28px;
+    color: #111827;
+}
+
 .signUpArea form {
     display: flex;
     flex-direction: column;
