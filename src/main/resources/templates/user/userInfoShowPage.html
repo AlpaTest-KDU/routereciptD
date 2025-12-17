@@ -26,10 +26,10 @@
 	                    </a>
 	                </li>
 	                <li>
-						<form id="logoutForm" th:action="@{/logout}" method="post">
+						<form id="mypageLogoutForm" th:action="@{/logout}" method="post">
 							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 						</form>
-						<a href="#" onclick="document.getElementById('logoutForm').submit();" class="mypageMenuLink">
+						<a href="javascript:void(0);" onclick="confirmLogout('mypageLogoutForm');" class="mypageMenuLink">
     						로그아웃
 						</a>
 	                </li>
