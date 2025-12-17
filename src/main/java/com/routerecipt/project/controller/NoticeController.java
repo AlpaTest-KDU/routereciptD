@@ -1,6 +1,5 @@
 package com.routerecipt.project.controller;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -37,6 +36,19 @@ public class NoticeController {
 		
 		noticeServiceImp.NoticeRegister(n);
 		return "redirect:/notice/noticePage";
+	}
+	
+	// 공지사항 내용 화면
+	@GetMapping("/noticeDetailPage")
+	public String noticeDetailPage(@RequestParam("n_id") int n_id, Model model) {
+		Noticedto notice = noticeServiceImp.findById(n_id);
+		
+		if (notice == null) {
+			throw new IllegalArgumentException("존재하지 않는 공지입니다. n_id=" + n_id);
+		}
+		
+		model.addAttribute("notice",notice);
+		return "notice/noticeDetailPage";
 	}
 	
 	// 공지사항 검색 기능

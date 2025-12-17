@@ -10,4 +10,5 @@ import com.routerecipt.project.dto.Noticedto;
 public interface NoticeMapper {
 	void NoticeRegister (Noticedto n);
 	List<Noticedto>NoticeShow();
+	Noticedto findById(int n_id);
 }

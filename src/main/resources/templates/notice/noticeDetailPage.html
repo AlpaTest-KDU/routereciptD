@@ -19,7 +19,7 @@
 	                </h2>
 	                <p class="noticeDetailInfo">
 	                	<span th:text="${notice.n_writer}">관리자</span>
-	                	<span th:text="${#temporals.format(notice.n_create, 'yyyy-MM-dd')}">2025.12.24</span>
+	                	<span th:text="${#dates.format(notice.n_create, 'yyyy-MM-dd')}">2025.12.24</span>
 	                </p>
 	            </div>
 	        </div>

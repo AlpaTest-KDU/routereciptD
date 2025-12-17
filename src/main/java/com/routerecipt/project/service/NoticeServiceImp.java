@@ -23,4 +23,9 @@ public class NoticeServiceImp implements NoticeService{
 	public List<Noticedto> NoticeShow() {
 		return noticeMapper.NoticeShow();
 	}
+	
+	@Override
+	public Noticedto findById(int n_id) {
+		return noticeMapper.findById(n_id);
+	}
 }
