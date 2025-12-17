@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.routerecipt.project.mapper.NoticeMapper">
+	<resultMap type="com.routerecipt.project.dto.Noticedto" id="noticeMap">
+		<id property="n_id" column="n_id"/>
+		<result property="n_title" column="n_title"/>	
+		<result property="n_writer" column="n_writer"/>	
+		<result property="n_content" column="n_content"/>	
+		<result property="n_create" column="n_create"/>	
+	</resultMap>
+	
+	<insert id="NoticeRegister" parameterType="com.routerecipt.project.dto.Noticedto">
+		insert into routereciptdb.notice (n_id, n_title, n_writer, n_content, n_create)
+		values (#{n_id},#{n_title},#{n_writer},#{n_content},NOW())
+	</insert>
+	<select id="NoticeShow" resultMap="noticeMap">
+		select * from routereciptdb.notice
+	</select>
+	<select id="findById" parameterType="int" resultMap="noticeMap">
+		select * from routereciptdb.notice where n_id = #{n_id}	
+	</select>
+
+	<select id="getTotalNoticeCount" resultType="int">
+		select count(*) from routereciptdb.notice
+	</select>
+
+	<select id="NoticeShowWithPage" resultMap="noticeMap">
+		select * from routereciptdb.notice order by n_id desc limit #{skip}, #{amount}
+	</select>
+</mapper>
