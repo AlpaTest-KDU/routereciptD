@@ -15,30 +15,31 @@
 	        <form th:action="@{/user/userSignUp}" method="post">
 	            <div>
 	                <label for="u_id">아이디</label>
-	                <input id="u_id" type="text" name="u_id">
+	                <input id="u_id" type="text" name="u_id" required oninput="checkUserInfo()">
 	            </div>
 	            <div>
 	                <label for="u_pw">비밀번호</label>
-	                <input id="u_pw" type="password" name="u_pw">
+	                <input id="u_pw" type="password" name="u_pw" required oninput="checkUserInfo()">
 	            </div>
 	            <div>
 	                <label for="u_pw_confirm">비밀번호 확인</label>
-	                <input id="u_pw_confirm" type="password" name="u_pw_confirm">
+	                <input id="u_pw_confirm" type="password" name="u_pw_confirm" required oninput="checkUserInfo()">
 	            </div>
+				<span id="isValidMsg" style="display:block; margin-bottom:10px; font-size:14px;"></span>
 	            <div>
 	                <label for="u_name">이름</label>
-	                <input id="u_name" type="text" name="u_name">
+	                <input id="u_name" type="text" name="u_name" required oninput="checkUserInfo()">
 	            </div>
 	            <div>
 	                <label for="u_birthday">생년월일</label>
-	                <input id="u_birthday" type="date" name="u_birthday">
+	                <input id="u_birthday" type="date" name="u_birthday" required oninput="checkUserInfo()">
 	            </div>
             	<div>
                 	<label for="u_email">이메일</label>
                 	<div>
-                    	<input id="u_email" type="text" name="u_email">
+                    	<input id="u_email" type="text" name="u_email" required oninput="checkUserInfo()">
                     	<span>@</span>
-                    	<select name="emailDomain" required>
+                    	<select name="emailDomain" required onchange="checkUserInfo()">
                        		<option value="naver.com">naver.com</option>
                         	<option value="daum.net">daum.net</option>
                         	<option value="gmail.com">gmail.com</option>
@@ -46,29 +47,89 @@
                        	 	<option value="etc">직접입력</option>
                     	</select>
                 	</div>
-                	<input id="emailCustom" type="text" name="emailDomainCustom">
+                	<input id="emailCustom" type="text" name="emailDomainCustom" required oninput="checkUserInfo()">
             	</div>
 	            <div>
 	            	<span>성별</span>
 	                <label for="gender">
-	                	<input type="radio" name="gender" value="MALE">
+	                	<input type="radio" name="gender" value="MALE" required onchange="checkUserInfo()">
 	                	남성
 	                </label>
 	                <label for="gender">
-	                	<input type="radio" name="gender" value="FEMALE">
+	                	<input type="radio" name="gender" value="FEMALE" required onchange="checkUserInfo()">
 	                	여성
 	                </label>
 	            </div>
 	            <div>
 	            	 저희는 개인정보를 무단으로 사용하지 않습니다.
 	            </div>
-	            <button type="submit" class="">회원가입</button>		
+	            <button type="submit" class="" id="signUpBtn" disabled>회원가입</button>		
 	        </form>
 	        
 		    <script th:inline="javascript" th:if="${message}">
 		    	alert(/*[[${message}]]*/ '메시지');
 		    </script>
 	    </div>
+
+		<script>
+			function checkUserInfo() {
+				const id = document.getElementById("u_id");
+				const pw = document.getElementById("u_pw");
+				const pwConfirm = document.getElementById("u_pw_confirm");
+				const name = document.getElementById("u_name");
+				const birthday = document.getElementById("u_birthday");
+				const email = document.getElementById("u_email");
+				const emailDomain = document.querySelector('select[name="emailDomain"]');
+				const emailCustom = document.getElementById("emailCustom");
+				const gender = document.querySelector('input[name="gender"]:checked');
+				const btn = document.getElementById("signUpBtn");
+				const isValidMsg = document.getElementById("isValidMsg");
+
+				let isValid = true;
+				
+				function validate(input, msg) {
+					if(input.value.trim() === "") {
+						input.placeholder = msg;
+						input.style.borderColor = "red";
+						isValid = false;
+					} else {
+						input.style.borderColor = "";
+					}
+				}
+
+				validate(id, "아이디를 입력해주세요.");
+				validate(pw, "비밀번호를 입력해주세요.");
+				validate(pwConfirm, "비밀번호 확인을 입력해주세요.");
+				validate(name, "이름을 입력해주세요.");
+				validate(birthday, "생년월일을 입력해주세요.");
+				validate(email, "이메일을 입력해주세요.");
+				
+				if(emailDomain.value === "etc") {
+					validate(emailCustom, "도메인을 입력해주세요.");
+				} else {
+					emailCustom.style.borderColor = "";
+				}
+
+				if(!gender) {
+					isValid = false;
+				}
+
+				if (pw.value !== "" && pwConfirm.value !== "") {
+					if (pw.value !== pwConfirm.value) {
+						isValidMsg.innerText = "비밀번호가 일치하지 않습니다.";
+						isValidMsg.style.color = "red";
+						isValid = false;
+					} else {
+						isValidMsg.innerText = "비밀번호가 일치합니다.";
+						isValidMsg.style.color = "green";
+					}
+				} else {
+					isValidMsg.innerText = "";
+				}
+				
+				btn.disabled = !isValid;
+			}
+		</script>
 	</div>
 </body>
 </html>
