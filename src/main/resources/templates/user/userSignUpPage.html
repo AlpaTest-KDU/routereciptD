@@ -4,7 +4,6 @@
 	  layout:decorate="~{layout/base}">
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/index.css}">
 <link rel="stylesheet" th:href="@{/css/signup.css}">
 <title>Insert title here</title>
 </head>
@@ -12,6 +11,9 @@
 	<div layout:fragment="content">
 	    
 	    <div class="signUpArea">
+	    
+	    	<h2 class="signUpTitle">회원가입</h2>
+	    	
 	        <form th:action="@{/user/userSignUp}" method="post">
 	            <div>
 	                <label for="u_id">아이디</label>
