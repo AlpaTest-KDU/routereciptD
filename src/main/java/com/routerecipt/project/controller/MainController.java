@@ -63,16 +63,7 @@ public class MainController {
     	model.addAttribute("gender", user.getGender());
 		return "user/userInfoShowPage";
 	}
-	
-	// 공지사항 화면
-	@GetMapping("/notice/noticePage")
-	public String noticePage(Model model) {
-		List<Noticedto> noticeList = noticeServiceImp.NoticeShow();
-		model.addAttribute("noticeList", noticeList);
-		return "notice/noticePage";
-	}
 		
-	
 	// 지출분석 화면
 	@GetMapping("/user/analysisPage")
 	public String analysisPage() {

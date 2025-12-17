@@ -55,10 +55,12 @@ public class NoticeController {
 
 	// 공지사항 페이지
 	@GetMapping("/noticePage")
-	public void noticePage(Criteria criteria, Model model) {
+	public String noticePage(Criteria criteria, Model model) {
 		model.addAttribute("noticeList", noticeServiceImp.NoticeShowWithPage(criteria));
 
 		int totalPage = noticeServiceImp.getTotalNoticeCount(criteria);
 		model.addAttribute("page", new Pagedto(criteria, totalPage));
+		return "notice/noticePage";
 	}
+	
 }	
