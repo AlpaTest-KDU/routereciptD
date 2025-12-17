@@ -48,13 +48,35 @@
 							<a th:href="@{/notice/noticeDetailPage(n_id=${notice.n_id})}" th:text="${notice.n_title}"></a>
 						</td>
 						<td class="tdWriter" th:text="${notice.n_writer}"></td>
-						<td th:text="${#dates.format(notice.n_create, 'yyyy-MM-dd')}"></td>
+						<td class="tdCreateTime" th:text="${#dates.format(notice.n_create, 'yyyy-MM-dd')}"></td>
 					</tr>
 					<tr th:if="${#lists.isEmpty(noticeList)}">
 						<td class="empty" colspan="4">등록된 공지사항이 없습니다.</td>
 					</tr>
 				</tbody>
 			</table>
+			
+			<!-- 페이지네이션 추가 -->
+			<div class="pagination" th:if="${page != null and page.total > 0}" style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+				
+				<!-- 이전 버튼 -->
+				<a th:if="${page.prev}" 
+				   th:href="@{/notice/noticePage(pageNum=${page.startPage - 1}, amount=${page.criteria.amount})}" 
+				   class="btnPrev">&lt; 이전</a>
+
+				<!-- 페이지 번호 -->
+				<th:block th:each="num : ${#numbers.sequence(page.startPage, page.endPage)}">
+					<a th:href="@{/notice/noticePage(pageNum=${num}, amount=${page.criteria.amount})}" 
+					   th:text="${num}"
+					   th:style="${page.criteria.pageNum == num ? 'font-weight: bold; text-decoration: underline;' : ''}"></a>
+				</th:block>
+
+				<!-- 다음 버튼 -->
+				<a th:if="${page.next}" 
+				   th:href="@{/notice/noticePage(pageNum=${page.endPage + 1}, amount=${page.criteria.amount})}" 
+				   class="btnNext">다음 &gt;</a>
+			</div>
+			
 		</section>
 		
 	</div>

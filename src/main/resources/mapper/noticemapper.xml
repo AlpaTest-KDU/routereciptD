@@ -19,4 +19,12 @@
 	<select id="findById" parameterType="int" resultMap="noticeMap">
 		select * from routereciptdb.notice where n_id = #{n_id}	
 	</select>
+
+	<select id="getTotalNoticeCount" resultType="int">
+		select count(*) from routereciptdb.notice
+	</select>
+
+	<select id="NoticeShowWithPage" resultMap="noticeMap">
+		select * from routereciptdb.notice order by n_id desc limit #{skip}, #{amount}
+	</select>
 </mapper>

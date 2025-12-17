@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.routerecipt.project.dto.Criteria;
 import com.routerecipt.project.dto.Noticedto;
+import com.routerecipt.project.dto.Pagedto;
 import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.NoticeServiceImp;
 
@@ -50,12 +52,13 @@ public class NoticeController {
 		model.addAttribute("notice",notice);
 		return "notice/noticeDetailPage";
 	}
-	
-	// 공지사항 검색 기능
-	// 1. 검색란이 비어 있으면 모든 공지사항을 보여줌
-	// 2. 검색을 하면 해당하는 단어가 포함된 제목을 가진 공지사항을 보여줌
-	@PostMapping("/noticeSearch")
-	public String noticeSearch(Model model, @RequestParam(value="title", required=false) String title) {
-		return "notice/noticePage";
+
+	// 공지사항 페이지
+	@GetMapping("/noticePage")
+	public void noticePage(Criteria criteria, Model model) {
+		model.addAttribute("noticeList", noticeServiceImp.NoticeShowWithPage(criteria));
+
+		int totalPage = noticeServiceImp.getTotalNoticeCount(criteria);
+		model.addAttribute("page", new Pagedto(criteria, totalPage));
 	}
 }	
