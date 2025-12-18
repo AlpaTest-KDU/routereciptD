@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" th:href="@{/css/adminPage.css}">
+<title>Insert title here</title>
+</head>
+<body>
+	
+	<div layout:fragment="content">
+	
+		<section class="adminContainer">
+		
+			<div class="adminHeader">
+		    	<h3>관리자 페이지</h3>
+		  	</div>
+		
+		  	<div class="userInfoSelect">
+		    	<h4 class="searchTitle">회원 검색</h4>
+		    	<form th:action="@{/userReceiptInfoPage/userInfoSelect}" method="get">
+		      		<div class="inputRow">
+		        		<input id="u_infoSearch" type="text" name="u_id" th:value="${param.u_id}" 
+		        		placeholder="회원 아이디">
+		        		<button type="submit">검색</button>
+		      		</div>
+		      		
+		      		<div th:if="${param.u_id != null and userInfo == null}" class="userError">
+		      			<p>해당 회원은 존재하지 않는 회원입니다.</p>
+		      		</div>
+	
+<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+<!--│				        해당 아이디를 가진 회원이 존재하는 경우				          │ -->
+<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	      		
+		      		<div th:if="${userInfo != null}" class="userInfoShowArea">
+		      			<a th:href="@{/user/userInfoShowPage}">
+		      				<span th:text="${userInfo.u_id}"></span>
+		      			</a>
+		      			<span th:text="${userInfo.u_name}"></span>
+		      			<span th:text="${userInfo.u_birthday}"></span>
+		      			<span th:text="${userInfo.u_email}"></span>
+		      			<span th:text="${userInfo.gender}"></span>
+		      		</div>
+		    	</form>
+<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+<!--│				        해당 아이디를 가진 회원이 존재하는 경우				          │ -->
+<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+		    	
+		    	<form th:if="${userInfo != null}" th:action="@{/adminPage/userInfoDelete}" method="post">
+		    		<input type="hidden" name="u_id" th:value="${userInfo.u_id}">
+		        	<button type="submit"
+		        	onclick="return confirm('삭제하시면 되돌릴 수 없습니다.\n정말 삭제하시겠습니까?')">강제 삭제</button>
+		    	</form>
+		  	</div>
+		    
+		</section>
+	
+	</div>
+	
+</body>
+</html>

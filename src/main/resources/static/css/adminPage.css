@@ -1,0 +1,83 @@
+@charset "UTF-8";
+
+.adminContainer {
+	width: 900px;
+  	margin: 60px auto 100px;
+  	padding: 0 10px;
+}
+
+.adminHeader {
+  	margin-bottom: 28px;
+}
+
+.adminHeader h3 {
+  	font-size: 25px;
+  	font-weight: 700;
+  	color: #111827;
+  	text-align: center;
+}
+
+.userInfoSelect {
+	border: 1px solid #d1d5db;
+	border-radius: 12px;
+	margin: 40px;
+	padding: 40px;
+}
+
+.searchTitle {
+	font-size: 15px;
+	font-weight: 600; 
+}
+
+.inputRow {
+  	display: flex;
+  	align-items: center;
+  	gap: 10px;  	
+}
+
+.inputRow input {
+	flex: 1;
+  	height: 44px;
+  	padding: 0 14px;
+  	border-radius: 12px;
+  	border: 1px solid #d1d5db;
+  	font-size: 14px;
+  	outline: none;
+}
+
+.userInfoSelect button {
+  	height: 44px;
+  	padding: 0 18px;
+  	border-radius: 12px;
+  	border: none;
+  	background: #111827;
+  	color: #ffffff;
+  	font-size: 14px;
+  	cursor: pointer;
+  	white-space: nowrap;	
+}
+
+.userInfoSelect button:hover {
+  	opacity: 0.92;
+  	transform: translateY(-1px);
+  	transition: opacity .15s ease, transform .15s ease;
+}
+
+.userError {
+  	margin-top: 12px;
+  	color: #2f2f2f;
+  	font-size: 14px;
+}
+
+.userInfoShowArea {
+  	margin-top: 16px;
+  	display: grid;
+  	gap: 6px;
+}
+
+.userInfoShowArea a {
+  	text-decoration: none;
+  	font-weight: 600;
+}
+
+
