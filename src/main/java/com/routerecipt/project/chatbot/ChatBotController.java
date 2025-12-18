@@ -1,7 +1,5 @@
 package com.routerecipt.project.chatbot;
 
-import java.util.Map;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +11,7 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
 @RestController
-@RequestMapping("/chatbot")
+@RequestMapping("/api")
 public class ChatBotController {
 
    private final OpenAIClient openAIClient;
@@ -25,7 +23,7 @@ public class ChatBotController {
     }
 
 
-    @PostMapping("/api/chat")
+    @PostMapping("/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) {
         String userMessage = (request == null || request.getMessage() == null) ? "" : request.getMessage().trim();
         
