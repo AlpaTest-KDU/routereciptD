@@ -2,7 +2,6 @@ package com.routerecipt.project.mapper;
 
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -19,4 +18,6 @@ public interface UserMapper {
 	List<Userdto> UserInfoShow();
 	void UserInfoUpdate(Userdto u);
 	void UserInfoDelete(String u_id);
+	List<Userdto> selectUserByName(String u_name);
+	Userdto selectUserById(String u_id);
 }
