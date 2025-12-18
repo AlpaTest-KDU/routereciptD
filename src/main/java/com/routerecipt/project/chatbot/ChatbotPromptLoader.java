@@ -30,7 +30,9 @@ public class ChatbotPromptLoader {
 		    }
 
 		    String result = template.replace("{{ROUTERECEIPT_INFO}}", info);
-	        System.out.println("SYSTEM MESSAGE=\n" + result); // 확인용
+			//---------
+	        System.out.println("SYSTEM MESSAGE=\n" + result); // 확인용 출력 점검이 완료되면 지우면
+			//---------
 	        return result;
 		}
 
