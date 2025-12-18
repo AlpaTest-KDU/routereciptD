@@ -1,12 +1,22 @@
 package com.routerecipt.project.chatbot;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.List;
 
-@Getter
-@AllArgsConstructor
+import lombok.Data;
+
+@Data
 public class ChatResponse {
 
-    // 응답 메세지를 담는 클래스: { "reply": "답변 내용" }
-    private String reply;
+    private List<Choice> choices;
+
+    @Data
+    public static class Choice {
+        private Message message;
+    }
+
+    @Data
+    public static class Message {
+        private String role;
+        private String content;
+    }
 }

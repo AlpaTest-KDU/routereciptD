@@ -33,7 +33,7 @@
     <!-- 메인 레이아웃: 왼쪽 안내 카드 + 오른쪽 챗봇 카드 -->
     <section class="openai-layout">
 
-        <!-- ▽ 왼쪽: 안내 카드 로그인 안한 사람은 처음 인가요, 로그인 한사람은 무엇이 궁금한가요 -->
+        <!-- ▽ 왼쪽: 안내 카드 -->
         <article class="info-card">
             <h2 th:if="${session.loginUser != null}">
                 <span>고객</span>님, 무엇이 궁금하세요?
@@ -44,9 +44,9 @@
 
             <p>
                 이 챗봇은 <strong>routereceipt</strong> 팀 프로젝트의 안내용 챗봇입니다.
-                아래와 같은 내용을 편하게 질문하실 수 있어요.
+                아래와 같은 내용을 자연어로 편하게 질문하실 수 있어요.
             </p>
-				<!-- 예시 질문 -->
+
             <ul class="info-list">
                 <li>영수증은 어디서 업로드하나요?</li>
                 <li>일/주/월별 지출 그래프는 어떻게 보는 건가요?</li>
@@ -91,7 +91,7 @@
                 </div>
             </div>
 
-            <!-- 입력 영역 enter나 버튼으로 전송 -->
+            <!-- 입력 영역 -->
             <div class="chat-input-area">
                 <div class="chat-input-row">
                     <input type="text"
@@ -112,13 +112,6 @@
 </div>
 
 <!-- 챗봇 동작용 JS (OpenAI API 연동) -->
-<!-- 사용자] → 입력 →  /api/chat (요청 보냄)
-              ↓
-   [ChatBotController.java의 chat() 메서드가 받음]
-              ↓
-     OpenAI 서버에 질문 보내고 응답 받음
-              ↓
-[사용자 화면에 챗봇 답변으로 다시 보여줌] -->
 <script th:src="@{/js/chatbot.js}"></script>
 </body>
 </html>
