@@ -1,8 +1,12 @@
 package com.routerecipt.project.chatbot;
 
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openai.client.OpenAIClient;
@@ -10,31 +14,13 @@ import com.openai.models.ChatModel;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
-/**
- * ✅ ChatBotController 역할
- * - 프론트(웹 화면)에서 사용자가 채팅을 입력하면
- * - 서버가 그 질문을 OpenAI에 보내서
- * - OpenAI가 만든 답변을 다시 프론트로 JSON 형태로 돌려주는 컨트롤러
- */
 @RestController
 @RequestMapping("/chatbot")
 public class ChatBotController {
 
-    /**
-     * ✅ OpenAI API를 호출하는 객체(클라이언트)
-     * - ChatBotConfig에서 @Bean으로 만들어둔 OpenAIClient가 여기로 주입됨
-     * - 한 번 생성된 클라이언트를 재사용하는 구조
-     */
-    private final OpenAIClient openAIClient;
-
-    /**
-     * ✅ ROUTERECEIPT_INFO 역할
-     * - "우리 서비스(routereceipt) 안내 챗봇"처럼 답변하게 만드는 설명서
-     * - 서비스 사용 방법 / 문의 방법 / 회사 소개 / 답변 규칙 등이 들어있음
-     * - 이 텍스트를 매번 OpenAI에게 같이 보내서
-     *   사용자가 어떤 질문을 해도 routereceipt 안내 범위 안에서 답하도록 유도함
-     */
-    private static final String ROUTERECEIPT_INFO = """
+   private final OpenAIClient openAIClient;
+   
+    private static final String ROUTERECEIPT_INFO ="""
         [routereceipt 서비스 사용방법]
 
         1) 아이디가 있을 때
@@ -78,11 +64,17 @@ public class ChatBotController {
         - 모르는 내용이나 아직 구현되지 않은 기능은 "추후 구현 예정" 또는 "현재는 지원하지 않습니다"라고 정직하게 답변하세요.
         - 답변은 한국어로 3~6문장 정도로 친절하게 작성하세요.
         """;
-
-    public ChatBotController(OpenAIClient openAIClient) {
+      
+        public ChatBotController(OpenAIClient openAIClient) {
         this.openAIClient = openAIClient;
     }
 
+    @PostMapping("/api/chat")
+    public ChatResponse chat(@RequestBody ChatRequest request) {
+        String userMessage = (request == null || request.getMessage() == null) ? "" : request.getMessage().trim();
+        if (userMessage.isEmpty()) {
+            return new ChatResponse("질문 내용을 입력해 주세요.");
+        }
     /**
      * ✅ 프론트에서 이 API를 호출하는 예시
      * - POST /api/chat
@@ -95,12 +87,7 @@ public class ChatBotController {
      * 4) OpenAI에 요청해서 답변을 생성함
      * 5) 생성된 답변을 ChatResponse(reply)에 담아 JSON으로 반환함
      */
-    @PostMapping("/api/chat")
-    public ChatResponse chat(@RequestBody ChatRequest request) {
-        String userMessage = (request == null || request.getMessage() == null) ? "" : request.getMessage().trim();
-        if (userMessage.isEmpty()) {
-            return new ChatResponse("질문 내용을 입력해 주세요.");
-        }
+ 
 
         // ✅ (핵심) 규칙/서비스 안내는 System 메시지로 올려야 "규칙을 무시"하는 현상이 크게 줄어듭니다.
         // - 기존처럼 모든 내용을 addUserMessage(prompt)로 보내면,
@@ -124,7 +111,7 @@ public class ChatBotController {
         // 3) OpenAI API 요청 파라미터 만들기
         //    - 어떤 모델을 사용할지 지정
         //    - System(규칙/지침) + User(질문) 형태로 분리해서 전달
-        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+          ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(ChatModel.GPT_5_1)          // GPT 5.1을 사용해 전문성있게
                 .addSystemMessage(systemMessage)   // ✅ 규칙/가이드(스크립트)는 System으로
                 .addUserMessage(userMessage)       // ✅ 사용자 질문은 User로
@@ -145,5 +132,8 @@ public class ChatBotController {
         }
 
         return new ChatResponse(reply);
+
+    
     }
 }
+
