@@ -8,17 +8,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const csrfToken = csrfTokenEl ? csrfTokenEl.getAttribute("content") : null;
   const csrfHeader = csrfHeaderEl ? csrfHeaderEl.getAttribute("content") : null;
 
-  function addMessage(role, text) {
-    const div = document.createElement("div");
-    div.classList.add("chat-msg");
-    if (role === "user") div.classList.add("chat-msg-user");
-    else if (role === "bot") div.classList.add("chat-msg-bot");
-    else div.classList.add("chat-msg-system");
-
-    div.textContent = text;
-    messages.appendChild(div);
+function addMessage(role, text) {
+  if (role === "system") {
+    const sys = document.createElement("div");
+    sys.className = "chat-msg-system";
+    sys.textContent = text;
+    messages.appendChild(sys);
     messages.scrollTop = messages.scrollHeight;
+    return;
   }
+
+  const row = document.createElement("div");
+  row.className = (role === "user") ? "chat-msg-user" : "chat-msg-bot";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  row.appendChild(bubble);
+  messages.appendChild(row);
+  messages.scrollTop = messages.scrollHeight;
+}
 
   async function sendMessage() {
     const text = input.value.trim();

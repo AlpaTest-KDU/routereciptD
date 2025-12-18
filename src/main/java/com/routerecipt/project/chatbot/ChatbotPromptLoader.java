@@ -17,6 +17,9 @@ public class ChatbotPromptLoader {
 	 @Value("classpath:prompts/system_message_template.txt")
 	 private Resource templateFile;
 	 
+	    // 캐싱된 결과(완성된 System 메시지)
+	    private String cachedSystemMessage;
+	 
 	 public String buildSystemMessage() {
 		    String info = readUtf8Trim(infoFile);
 		    String template = readUtf8Trim(templateFile);
@@ -30,9 +33,6 @@ public class ChatbotPromptLoader {
 		    }
 
 		    String result = template.replace("{{ROUTERECEIPT_INFO}}", info);
-			//---------
-	        System.out.println("SYSTEM MESSAGE=\n" + result); // 확인용 출력 점검이 완료되면 지우면
-			//---------
 	        return result;
 		}
 
