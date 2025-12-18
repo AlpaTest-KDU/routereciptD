@@ -97,9 +97,10 @@ public class ChatBotController {
      */
     @PostMapping("/api/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) {
-
-        /* 사용자 질문 */
-        String userMessage = request.getMessage();
+        String userMessage = (request == null || request.getMessage() == null) ? "" : request.getMessage().trim();
+        if (userMessage.isEmpty()) {
+            return new ChatResponse("질문 내용을 입력해 주세요.");
+        }
 
         // ✅ (핵심) 규칙/서비스 안내는 System 메시지로 올려야 "규칙을 무시"하는 현상이 크게 줄어듭니다.
         // - 기존처럼 모든 내용을 addUserMessage(prompt)로 보내면,
@@ -130,9 +131,7 @@ public class ChatBotController {
                 .temperature(0.2)                  // ✅ 형식/규칙 준수 안정화(권장)
                 .build();
 
-        ChatCompletion completion = openAIClient.chat()
-                .completions()
-                .create(params);
+        ChatCompletion completion = openAIClient.chat().completions().create(params);
 
         // 5) OpenAI 응답에서 답변 문자열(reply)만 꺼내기
         //    - choices(여러 후보 답변) 중 첫 번째(0번)만 사용
@@ -141,10 +140,7 @@ public class ChatBotController {
         if (completion.choices() == null || completion.choices().isEmpty()) {
             reply = "답변을 가져오지 못했어요. 잠시 후 다시 시도해 주세요.";
         } else {
-            reply = completion.choices()
-                    .get(0)
-                    .message()
-                    .content()
+            reply = completion.choices().get(0).message().content()
                     .orElse("답변을 가져오지 못했어요. 잠시 후 다시 시도해 주세요.");
         }
 
