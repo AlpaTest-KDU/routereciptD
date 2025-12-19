@@ -360,3 +360,16 @@ body {
         font-size: 12px;
     }
 }
+
+/* 시스템 메시지 아래 간격(첫 안내와 다음 메시지 분리) */
+.chat-msg-system {
+    margin-bottom: 8px;
+}
+
+/* 긴 문장/URL/이메일 줄바꿈 안정화 */
+.chat-msg-user .bubble,
+.chat-msg-bot .bubble {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}

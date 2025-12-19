@@ -1,65 +1,74 @@
-// src/main/resources/static/js/chat/openai.js
-
 document.addEventListener("DOMContentLoaded", () => {
-    const input = document.getElementById("chat-input-text");
-    const sendBtn = document.getElementById("chat-send-btn");
-    const messages = document.getElementById("chat-messages");
-    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+  const input = document.getElementById("chat-input-text");
+  const sendBtn = document.getElementById("chat-send-btn");
+  const messages = document.getElementById("chat-messages");
 
-    function addMessage(role, text) {
-        const div = document.createElement("div");
-        div.classList.add("chat-msg");
-        if (role === "user") {
-            div.classList.add("chat-msg-user");
-        } else if (role === "bot") {
-            div.classList.add("chat-msg-bot");
-        } else {
-            div.classList.add("chat-msg-system");
-        }
-        div.textContent = text;
-        messages.appendChild(div);
-        messages.scrollTop = messages.scrollHeight;
+  const csrfTokenEl = document.querySelector('meta[name="_csrf"]');
+  const csrfHeaderEl = document.querySelector('meta[name="_csrf_header"]');
+  const csrfToken = csrfTokenEl ? csrfTokenEl.getAttribute("content") : null;
+  const csrfHeader = csrfHeaderEl ? csrfHeaderEl.getAttribute("content") : null;
+
+function addMessage(role, text) {
+  if (role === "system") {
+    const sys = document.createElement("div");
+    sys.className = "chat-msg-system";
+    sys.textContent = text;
+    messages.appendChild(sys);
+    messages.scrollTop = messages.scrollHeight;
+    return;
+  }
+
+  const row = document.createElement("div");
+  row.className = (role === "user") ? "chat-msg-user" : "chat-msg-bot";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  row.appendChild(bubble);
+  messages.appendChild(row);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage("user", text);
+    input.value = "";
+    input.focus();
+    sendBtn.disabled = true;
+
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ message: text })
+      });
+
+      if (!res.ok) {
+        addMessage("bot", `서버 오류: HTTP ${res.status}`);
+        return;
+      }
+
+      const data = await res.json();
+      addMessage("bot", data.reply || "답변을 가져오지 못했어요.");
+    } catch (e) {
+      console.error(e);
+      addMessage("bot", "네트워크 오류가 발생했습니다.");
+    } finally {
+      sendBtn.disabled = false;
     }
+  }
 
-    async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
-
-        addMessage("user", text);
-        input.value = "";
-        input.focus();
-        sendBtn.disabled = true;
-
-        try {
-            const res = await fetch("/chatbot/ask", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    [csrfHeader]: csrfToken
-                },
-                body: JSON.stringify({ message: text })
-            });
-
-            if (!res.ok) {
-                addMessage("bot", "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-            } else {
-                const data = await res.json();
-                addMessage("bot", data.reply || "답변을 가져오지 못했어요.");
-            }
-        } catch (e) {
-            console.error(e);
-            addMessage("bot", "네트워크 오류가 발생했습니다.");
-        } finally {
-            sendBtn.disabled = false;
-        }
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
     }
-
-    sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+  });
 });
