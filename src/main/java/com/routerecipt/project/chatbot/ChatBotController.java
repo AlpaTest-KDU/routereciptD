@@ -42,11 +42,11 @@ public class ChatBotController {
 
             ChatCompletion completion = openAIClient.chat().completions().create(params);
 
-            String reply = (completion.choices() == null || completion.choices().isEmpty())
-                ? "답변을 가져오지 못했어요. 잠시 후 다시 시도해 주세요."
-                : completion.choices().get(0).message().content()
-                    .orElse("답변을 가져오지 못했어요. 잠시 후 다시 시도해 주세요.");
-
+            String reply = "답변을 가져오지 못했어요. 잠시 후 다시 시도해 주세요.";
+            if (completion.choices() != null && !completion.choices().isEmpty()) {
+                reply = completion.choices().get(0).message().content().orElse("").trim();
+                if (reply.isEmpty()) reply = "답변을 가져오지 못했어요. 잠시 후 다시 시도해 주세요.";
+            }
             return new ChatResponse(reply);
         } catch (Exception e) {
             return new ChatResponse("현재 응답을 생성할 수 없습니다. 잠시 후 다시 시도해 주세요.");
