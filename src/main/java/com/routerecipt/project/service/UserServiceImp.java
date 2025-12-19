@@ -1,7 +1,6 @@
 package com.routerecipt.project.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -91,11 +90,21 @@ public class UserServiceImp implements UserService {
 		return userMapper.UserInfoShow();
 	}
 	
+	// 회원 정보 name으로 찾기
+	@Override
+	public List<Userdto> selectUserByName(String u_name) {
+		return userMapper.selectUserByName(u_name);
+	}
+
+	// 회원 정보 id로 찾기
+	@Override
+	public Userdto selectUserById(String u_id) {
+		return userMapper.selectUserById(u_id);
+	}
+	
 	// 회원 정보 수정
 	@Override
 	public void UserInfoUpdate(Userdto u) {
 		userMapper.UserInfoUpdate(u);
 	}
-	
-	
 }

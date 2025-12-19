@@ -1,7 +1,6 @@
 package com.routerecipt.project.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -16,5 +15,6 @@ public interface UserService {
 	List<Userdto> UserInfoShow();
 	void UserInfoUpdate(Userdto u);
 	void UserInfoDelete(String u_id);
-	
+	List<Userdto> selectUserByName(String u_name);
+	Userdto selectUserById(String u_id);
 }

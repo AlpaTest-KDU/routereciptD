@@ -38,6 +38,39 @@
     line-height: 1.5;
 }
 
+.hero-text {
+    flex: 1;
+    padding-right: 60px;
+}
+
+/* 이미지 슬라이더 스타일 */
+#imgSlider {
+    flex: 1;
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.slider-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slideContent {
+    min-width: 100%;
+    height: 100%;
+}
+    
+.slideContent img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .feature {
 	margin: 120px auto;
 	max-width: 1200px;
@@ -89,19 +122,3 @@
 	line-height: 1.5;
 	margin-top: auto; 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
