@@ -47,8 +47,6 @@
   	font-size: 14px;
   	font-weight: 700;
   	text-decoration: none;
-  	white-space: nowrap;
-  	transition: opacity .15s ease, transform .15s ease;
 }
 
 .btnWrite:hover {
@@ -79,34 +77,42 @@
   	vertical-align: middle;
 }
 
-.noticeTable tbody tr:hover {
-  	background: rgba(59, 130, 246, 0.04);
-}
-
 .noticeTable thead th:nth-child(1),
 .noticeTable tbody td:nth-child(1) {
   	text-align: center;
-  	width: 90px;
+  	font-weight: 600;
+  	width: 20%;
 }
 
 .noticeTable thead th:nth-child(2),
 .noticeTable tbody td:nth-child(2) {
   	text-align: center;
+  	font-weight: 600;
+  	width: 60%;
 }
 
 .noticeTable thead th:nth-child(3),
 .noticeTable tbody td:nth-child(3) {
-  	text-align: right;
-  	width: 160px;
+  	text-align: center;
+  	font-weight: 600;
+  	width: 10%;
 }
 
-.tdTitle {
-  	font-weight: 800;
+.noticeTable thead th:nth-child(4),
+.noticeTable tbody td:nth-child(4) {
+	text-align: center;
+	font-weight: 600;
+	width: 10%;
 }
 
+/* 제목 말줄임 관련 css 입니다 */
 .tdTitle a {
   	color: #111827;
   	text-decoration: none;
+  	display: inline-block;
+  	overflow: hidden;
+  	text-overflow: ellipsis; /* 텍스트 길어지면 생략기호 나오게 하는거 */
+  	white-space: nowrap; /* 제목이 한 줄 이상 안 써지게 하는거 */
 }
 
 .tdTitle a:hover {
@@ -114,7 +120,8 @@
   	text-underline-offset: 3px;
 }
 
-.empty {
+.noticeTable td.empty {
+	font-weight: 400;
   	text-align: center;
   	color: #6b7280;
   	padding: 28px 16px;
