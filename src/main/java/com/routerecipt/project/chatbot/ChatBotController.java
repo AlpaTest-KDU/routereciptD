@@ -80,7 +80,7 @@ public class ChatBotController {
 
             ChatCompletion completion = openAIClient.chat().completions().create(params);
 
-            if (completion.choices() == null || completion.choices().isEmpty()) {
+            if (completion.choices().isEmpty()) {
                 return new ChatResponse(FALLBACK);
             }
 
