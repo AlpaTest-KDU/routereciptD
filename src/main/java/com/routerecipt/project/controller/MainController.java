@@ -18,7 +18,7 @@ public class MainController {
 	public String mainPage() {
 		return "index";
 	}
-	
+
 	// 로그인 화면
 	@GetMapping("/user/userLoginPage")
 	public String userLoginPage() {
