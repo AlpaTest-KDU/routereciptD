@@ -2,7 +2,11 @@ package com.routerecipt.project.chatbot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
@@ -34,6 +38,10 @@ public class ChatBotController {
     private final OpenAIClient openAIClient;
     private final ChatbotPromptLoader promptLoader;
 
+    // ✅ application.properties(openai.model)에서 모델명을 읽음
+    @Value("${openai.model:gpt-4.1-mini}")
+    private String openaiModelFromProp;
+
     public ChatBotController(OpenAIClient openAIClient, ChatbotPromptLoader promptLoader) {
         this.openAIClient = openAIClient;
         this.promptLoader = promptLoader;
@@ -63,7 +71,7 @@ public class ChatBotController {
         // 4) OpenAI 호출
         try {
             ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-                .model(resolveStableModel())
+                .model(resolveModelFromProperty())  // ✅ properties 기반 모델
                 .addSystemMessage(systemMessage)
                 .addUserMessage(userMessage)
                 .temperature(0.2)
@@ -131,13 +139,17 @@ public class ChatBotController {
     }
 
     // ---------------------------
-    // Model resolver (SDK 호환)
+    // Model resolver (properties 기반 / enum 의존 제거)
     // ---------------------------
-    private ChatModel resolveStableModel() {
+    private ChatModel resolveModelFromProperty() {
+        String m = (openaiModelFromProp == null) ? "" : openaiModelFromProp.trim();
+        if (m.isEmpty()) m = "gpt-4.1-mini";
+
         try {
-            return ChatModel.of("gpt-5.2");
+            return ChatModel.of(m);
         } catch (Throwable t) {
-            return ChatModel.GPT_5_1; // 프로젝트 SDK에 있는 enum으로 폴백
+            log.warn("Invalid/unsupported openai.model='{}' -> fallback to gpt-4.1-mini", m, t);
+            return ChatModel.of("gpt-4.1-mini");
         }
     }
 
