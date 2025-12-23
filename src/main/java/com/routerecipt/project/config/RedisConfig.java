@@ -1,4 +1,4 @@
-package com.routerecipt.project.redis;
+package com.routerecipt.project.config;
 
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,16 +19,25 @@ public class RedisConfig {
 	
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
-		return new LettuceConnectionFactory(redisProperties.getHost(),redisProperties.getPort());
+		return new LettuceConnectionFactory();
 	}
 	
 	@Bean
-	public RedisTemplate<String, Object> redisTemplate(){
-		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(redisConnectionFactory());
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-		return redisTemplate;
+	public RedisTemplate<String, Object> redisTemplate(
+			RedisConnectionFactory connectionFactory
+			){
+		
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(connectionFactory);
+		
+		template.setKeySerializer(new StringRedisSerializer());
+		template.setValueSerializer(new StringRedisSerializer());
+		template.setHashKeySerializer(new StringRedisSerializer());
+		template.setHashValueSerializer(new StringRedisSerializer());
+		
+		return template;
 	}
+
+	
 	
 }
