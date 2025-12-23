@@ -54,15 +54,23 @@ public class ChatBotController {
         String userMessage = (request == null || request.getMessage() == null) ? "" : request.getMessage();
         userMessage = oneLine(userMessage);
 
+        // ✅ 배포 반영/인스턴스 확인용 (임시)
+        // 배포 후 챗봇에 MARKER 입력 시 아래 문자열이 나오면 "이 코드가 실제로 응답 중" 확정
+        if ("MARKER".equals(userMessage)) {
+            return new ChatResponse("MARK-2025-12-23-A");
+        }
+
         if (userMessage.isEmpty()) {
             return new ChatResponse(EMPTY_ASK);
         }
 
-        // 2) 강제 답변 분기 (OpenAI 호출 전에 처리)
+        // 2) 강제 답변 분기 (OpenAI 호출 전에 처리) - 요구사항대로 광범위 매칭
         String forced = forcedReplyIfMatched(userMessage);
         log.info("chat request='{}' forced={}", userMessage, (forced != null));
         if (forced != null) {
-            return new ChatResponse(forced);
+            // ✅ 강제답변도 공백 방지 (원칙상 공백일 일은 없지만 안전장치)
+            String out = forced == null ? "" : forced.trim();
+            return new ChatResponse(out.isEmpty() ? FALLBACK : out);
         }
 
         // 3) 시스템 메시지 로딩
@@ -80,14 +88,22 @@ public class ChatBotController {
 
             ChatCompletion completion = openAIClient.chat().completions().create(params);
 
-            if (completion.choices().isEmpty()) {
+            if (completion == null || completion.choices() == null || completion.choices().isEmpty()) {
                 return new ChatResponse(FALLBACK);
             }
 
             String raw = completion.choices().get(0).message().content().orElse("");
+
+            // ✅ 핵심: raw가 빈/공백이면 절대 그대로 반환하지 않음
+            if (raw == null || raw.trim().isEmpty()) {
+                return new ChatResponse(FALLBACK);
+            }
+
             String reply = sanitizeReply(raw);
 
-            return new ChatResponse(reply.isEmpty() ? FALLBACK : reply);
+            // ✅ 핵심: sanitize 이후도 빈/공백이면 FALLBACK
+            String out = (reply == null) ? "" : reply.trim();
+            return new ChatResponse(out.isEmpty() ? FALLBACK : out);
 
         } catch (Exception e) {
             log.warn("OpenAI call failed", e);
@@ -102,7 +118,7 @@ public class ChatBotController {
         String norm = normalizeForMatch(userMessage);
         String compact = norm.replace(" ", "");
 
-        // 사용 방법/이용 방법/업로드/분석
+        // 사용 방법/이용 방법/업로드/분석 -> 요구사항대로 넓게 매칭
         if (containsAny(norm, "사용 방법", "이용 방법", "사용법", "어떻게 사용", "업로드", "영수증", "ai 분석", "분석", "지출 분석")
             || containsAny(compact, "사용방법", "이용방법", "사용법", "어떻게사용", "영수증업로드", "ai분석", "지출분석")) {
             return FORCED_USAGE;
@@ -122,8 +138,9 @@ public class ChatBotController {
     }
 
     private boolean containsAny(String text, String... keywords) {
+        if (text == null) return false;
         for (String k : keywords) {
-            if (text.contains(k)) return true;
+            if (k != null && !k.isEmpty() && text.contains(k)) return true;
         }
         return false;
     }
