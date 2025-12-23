@@ -19,7 +19,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChan(HttpSecurity http, RedirectLoggonFilter redirectLoggonFilter) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage", "/user/userSignUp","/chatbot/chatBotPage").permitAll()
+					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage", "/user/userSignUp","/chatbot/chatBotPage","user/analysisPage").permitAll()
 					.requestMatchers("/chatbot/ask","/api/chat").permitAll()
 					.requestMatchers("/user/userFindIdPage","/user/userResetPwPage","/user/userUpdatePw","/user/userCheckId","/user/userFindId").permitAll()
 					.requestMatchers("/notice/noticePage","/notice/noticeDetailPage").permitAll()
