@@ -19,6 +19,9 @@ import com.routerecipt.project.common.Gender;
 import com.routerecipt.project.config.RedisStreamConfig;
 import com.routerecipt.project.mapper.ReceiptMapper;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 /**
  * 📌 OcrStreamConsumer
  *
@@ -35,104 +38,108 @@ import com.routerecipt.project.mapper.ReceiptMapper;
 
 @Service
 public class OcrStreamConsumer {
-	/**
-     * Redis Stream과 통신하기 위한 Template
+	
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ReceiptMapper receiptMapper;
+    private volatile boolean running = true;
+    
+    public OcrStreamConsumer(
+            RedisTemplate<String, Object> redisTemplate,
+            ReceiptMapper receiptMapper) {
+        this.redisTemplate = redisTemplate;
+        this.receiptMapper = receiptMapper;
+    }
+
+    /**
+     * 📌 애플리케이션 시작 시 Consumer 초기화
+     * 1) Consumer Group 생성 보장
+     * 2) Consumer Thread 실행
      */
-	
-	@Autowired
-	private RedisTemplate<String, Object> redisTemplate;
-	
-	@Autowired
-	private ReceiptMapper receiptMapper;
-	
-	/**
-     * 생성자 주입
+    @PostConstruct
+    public void startConsumer() {
+        createGroupIfNotExists();
+        new Thread(this::pollStream, "ocr-stream-consumer").start();
+    }
+
+    /**
+     * 📌 Consumer Group 생성 (이미 존재하면 무시)
      */
-	
-	public OcrStreamConsumer(RedisTemplate<String, Object> redisTemplate, ReceiptMapper receiptMapper) {
-		this.redisTemplate = redisTemplate;
-		this.receiptMapper = receiptMapper;
-	}
-	
-	  /**
-     * 📌 애플리케이션 시작 시 Consumer Thread 실행
-     *
-     * - @PostConstruct:
-     *   Bean 초기화 완료 후 자동 실행
-     * - 별도의 Thread로 Stream을 polling
+    private void createGroupIfNotExists() {
+        try {
+            redisTemplate.opsForStream().createGroup(
+                    RedisStreamConfig.OCR_STREAM,
+                    RedisStreamConfig.OCR_GROUP
+            );
+        } catch (Exception e) {
+            // 이미 그룹이 존재하는 경우 예외 발생 → 무시
+        }
+    }
+
+    /**
+     * 📌 Redis Stream Polling 루프
+     * - 별도 Thread에서 실행
+     * - XREADGROUP 기반 소비
      */
-	@SuppressWarnings("unchecked")
-	private void pollStream() {
-		
-		while (true) {
-			try {
-				// Consumer Group 정보
-				Consumer consumer = Consumer.from(RedisStreamConfig.OCR_GROUP, "ocr-consumer-1");
-				
-				 // Stream에서 메시지 읽기
-				List<MapRecord<String, Object, Object>> messages =
-						redisTemplate.opsForStream().read(
-								consumer,
-								StreamReadOptions.empty()
-									.count(5) // 한 번에 처리할 메시지 수
-									.block(Duration.ofSeconds(2)), //최대 대기 시간
-								StreamOffset.create(
-										RedisStreamConfig.OCR_STREAM,
-										ReadOffset.lastConsumed() // 마지막 소비 이후부터
-										)
-								);
-				
-				// 메시지가 없으면 다음 루프로
-				if (messages == null || messages.isEmpty()) {
-					continue;
-				}
-				
-				// 메시지 처리
-				for (MapRecord<String, Object, Object> record : messages) {
-					processMessage(record);
-					
-					// 정상 처리된 메시지는 ACK
-					redisTemplate.opsForStream().acknowledge(
-								RedisStreamConfig.OCR_STREAM,
-								RedisStreamConfig.OCR_GROUP,
-								record.getId()
-							);
-				}
-				
-			} catch (Exception e) {
-				// consumer 장새 시 로그 출력 후 재시도
-				e.printStackTrace();
-			}
-		}
-	}
-	/**
-     * 📌 단일 OCR 요청 메시지 처리
-     *
-     * @param record Redis Stream 메시지
+    @SuppressWarnings("unchecked")
+    private void pollStream() {
+
+        Consumer consumer =
+                Consumer.from(RedisStreamConfig.OCR_GROUP, "ocr-consumer-1");
+
+        while (running) {
+            try {
+                List<MapRecord<String, Object, Object>> messages =
+                        redisTemplate.opsForStream().read(
+                                consumer,
+                                StreamReadOptions.empty()
+                                        .count(5)
+                                        .block(Duration.ofSeconds(2)),
+                                StreamOffset.create(
+                                        RedisStreamConfig.OCR_STREAM,
+                                        ReadOffset.lastConsumed()
+                                )
+                        );
+
+                if (messages == null || messages.isEmpty()) {
+                    continue;
+                }
+
+                for (MapRecord<String, Object, Object> record : messages) {
+                    processMessage(record);
+
+                    // ✅ 정상 처리 후 ACK
+                    redisTemplate.opsForStream().acknowledge(
+                            RedisStreamConfig.OCR_STREAM,
+                            RedisStreamConfig.OCR_GROUP,
+                            record.getId()
+                    );
+                }
+
+            } catch (Exception e) {
+                // 로그만 남기고 루프 유지 (Consumer는 죽지 않음)
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 📌 단일 OCR 요청 처리
      */
-	private void processMessage(MapRecord<String, Object, Object> recode) {
-		
-		// Stream 메시지 데이터 추출
-		Map<Object, Object> value = recode.getValue();
-		
-		String receiptId = (String) value.get("receiptId");
-		String imagePath = (String) value.get("imagePath");
-		
-		/*
-         * 🔹 실제 OCR 처리 위치
-         *
-         * - Clova OCR API 호출
-         * - Tesseract 실행
-         * - AI 서버 호출 등
-         */
-		
-		String storeName = performOcr(imagePath);
-		int totalPrice = 12000;
-		
-		// 2️⃣ 카테고리 분류 (룰 기반)
+    private void processMessage(MapRecord<String, Object, Object> record) {
+
+        Map<Object, Object> value = record.getValue();
+
+        String receiptId = (String) value.get("receiptId");
+        String imagePath = (String) value.get("imagePath");
+
+        // 1️⃣ OCR 처리
+        String storeName = performOcr(imagePath);
+        int totalPrice = 12000;
+
+        // 2️⃣ 카테고리 분류
         String category = classifyCategory(storeName);
 
-        // 3️⃣ ReceiptDTO 생성
+        // 3️⃣ DTO 생성
         ReceiptDTO receipt = new ReceiptDTO();
         receipt.setR_u(receiptId);
         receipt.setR_place(storeName);
@@ -141,39 +148,28 @@ public class OcrStreamConsumer {
         receipt.setCategory(category);
         receipt.setGender(Gender.MALE);
 
-		
-		/*
-         * 🔹 OCR 결과 후처리
-         *
-         * - OCR 결과 파싱
-         * - ReceiptDTO 변환
-         * - DB 저장 (Mapper 호출)
-         */
-		
-	}
-	
-	  /**
-     * 📌 실제 OCR 처리 메서드 (현재는 더미 구현)
-     *
-     * @param imagePath OCR 대상 이미지 경로
-     * @return OCR 결과
+        // 4️⃣ DB 저장
+        receiptMapper.insertReceipt(receipt);
+    }
+    
+    @PreDestroy
+    public void shutdown() {
+        running = false;
+    }
+    
+    /**
+     * 📌 OCR 더미 메서드
      */
-	
-	   private String performOcr(String imagePath) {
-	        // TODO: 실제 OCR API 연동
-	        return "GS25 강남점";
-	    }
+    private String performOcr(String imagePath) {
+        return "GS25 강남점";
+    }
 
-	
-	private String classifyCategory(String storeName) {
-
+    private String classifyCategory(String storeName) {
         if (storeName.contains("GS")
                 || storeName.contains("CU")
                 || storeName.contains("세븐")) {
             return "식비";
         }
-
         return "기타";
     }
-	
 }
