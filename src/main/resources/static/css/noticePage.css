@@ -58,12 +58,13 @@
   	width: 100%;
   	border-collapse: separate;
   	border-spacing: 0;
+  	table-layout: fixed;	/* 테이블 크기 고정 */
 }
 
 .noticeTable thead th {
   	font-size: 13px;
   	color: #6b7280;
-  	font-weight: 800;
+  	font-weight: 700;
   	padding: 14px 16px;
   	border-bottom: 1px solid #e5e7eb;
   	background: rgba(249, 250, 251, 0.7);
@@ -73,46 +74,58 @@
   	padding: 14px 16px;
   	border-bottom: 1px solid rgba(229, 231, 235, 0.7);
   	font-size: 14px;
-  	color: #111827;
+  	font-weight: 400;
+  	color: #4b5563;
   	vertical-align: middle;
 }
 
 .noticeTable thead th:nth-child(1),
 .noticeTable tbody td:nth-child(1) {
   	text-align: center;
-  	font-weight: 600;
   	width: 20%;
 }
 
 .noticeTable thead th:nth-child(2),
 .noticeTable tbody td:nth-child(2) {
   	text-align: center;
-  	font-weight: 600;
   	width: 60%;
 }
 
 .noticeTable thead th:nth-child(3),
 .noticeTable tbody td:nth-child(3) {
   	text-align: center;
-  	font-weight: 600;
   	width: 10%;
 }
 
 .noticeTable thead th:nth-child(4),
 .noticeTable tbody td:nth-child(4) {
 	text-align: center;
-	font-weight: 600;
 	width: 10%;
+}
+
+.tdNo {
+	color : #9ca3af;
+}
+
+.tdTitle {
+	overflow: hidden;	/* 제목 말줄임 관련 */
+}
+
+.tdCreateTime {
+	color : #9ca3af;
+	font-size: 13px;
 }
 
 /* 제목 말줄임 관련 css 입니다 */
 .tdTitle a {
   	color: #111827;
+  	font-weight: 500;
   	text-decoration: none;
-  	display: inline-block;
-  	overflow: hidden;
-  	text-overflow: ellipsis; /* 텍스트 길어지면 생략기호 나오게 하는거 */
-  	white-space: nowrap; /* 제목이 한 줄 이상 안 써지게 하는거 */
+  	width: 100%;
+  	display: block;				/* 텍스트가 아닌 블록으로 */		
+  	overflow: hidden;			/* 블록 구역 잘라내게 */
+  	text-overflow: ellipsis;	/* 텍스트 길어지면 생략기호 나오게 하는거 */
+  	white-space: nowrap;		/* 제목이 한 줄 이상 안 써지게 하는거 */
 }
 
 .tdTitle a:hover {
