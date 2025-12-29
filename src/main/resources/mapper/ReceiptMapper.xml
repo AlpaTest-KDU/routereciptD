@@ -48,7 +48,7 @@
             i.item_name,
             i.item_category,
             i.item_price
-        FROM receipt r
+        FROM recipt r
         JOIN user u
           ON r.r_u = u.u_id
         JOIN receipt_item i
@@ -67,7 +67,7 @@
             keyProperty="r_no"
             keyColumn="r_no">
 
-        INSERT INTO receipt
+        INSERT INTO recipt
         (r_u, r_place, r_price, r_date)
         VALUES
         (#{r_u}, #{r_place}, #{r_price}, #{r_date})
