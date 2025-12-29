@@ -37,4 +37,6 @@ public interface ReceiptMapper {
     List<ReceiptItemDTO> selectItemsByReceiptNos(@Param("nos") List<Long> nos);
     
     
+    
+    
 }

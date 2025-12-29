@@ -118,14 +118,14 @@ public class ReceiptController {
 
 	     if (recentNos == null || recentNos.isEmpty()) {
 	         model.addAttribute("receipts", Collections.emptyList());
-	         return "receiptRegisterPage";
+	         return "receipt/receiptRegisterPage";
 	     }
 
 	     List<ReceiptDTO> receipts =
 	             receiptQueryService.getRecentReceipts(recentNos);
 
 	     model.addAttribute("receipts", receipts);
-	     return "receiptRegisterPage";
+	     return "receipt/receiptRegisterPage";
 	 }
 
 	 @GetMapping("/writeReceipt")

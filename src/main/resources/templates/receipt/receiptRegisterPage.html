@@ -69,7 +69,7 @@
 
         <div th:each="receipt, stat : ${receipts}">
             <button type="button"
-                    th:text="${stat.index + 1} + '번 - ' + ${receipt.r_place}"
+                    th:text="${stat.index + 1} + '번 - ' + receipt.r_place"
                     th:onclick="|showReceipt(${stat.index})|">
             </button>
         </div>
