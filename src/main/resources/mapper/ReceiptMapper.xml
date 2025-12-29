@@ -22,7 +22,7 @@
         <!-- receipt_item (1:N) -->
         <collection property="items"
                     ofType="com.routerecipt.project.dto.ReceiptItemDTO">
-            <id property="item_id" column="item_id"/>
+            <id property="item_no" column="item_id"/>
             <result property="item_name" column="item_name"/>
             <result property="item_category" column="item_category"/>
             <result property="item_price" column="item_price"/>
