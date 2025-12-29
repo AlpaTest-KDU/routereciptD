@@ -7,7 +7,10 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -23,10 +26,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.routerecipt.project.dto.ReceiptDTO;
-import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.OpenAI.OpenAiOcrAssisService;
 import com.routerecipt.project.OpenAI.OpenAiReceiptResult;
+import com.routerecipt.project.dto.ByteArrayMultiPartFile;
+import com.routerecipt.project.dto.ReceiptDTO;
+import com.routerecipt.project.dto.ReceiptItemDTO;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -478,5 +482,26 @@ public class OcrService {
             sb.append(String.format("%02X ", b[i]));
         }
         return sb.toString().trim();
+    }
+    
+    public ReceiptDTO parseReceiptFromBytes(byte[] bytes, String filename) {
+
+        try {
+            MultipartFile multipartFile =
+                    new ByteArrayMultiPartFile(
+                            bytes,          // ✅ byte[] 반드시 필요
+                            filename,       // name
+                            "image/jpeg"    // contentType
+                    );
+
+            JSONObject json = callClovaOCR(multipartFile);
+            if (json == null) return null;
+
+            return parseReceiptWithAssist(json, multipartFile);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
