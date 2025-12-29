@@ -1,7 +1,6 @@
 package com.routerecipt.project.dto;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,8 +17,7 @@ public class ReceiptDTO {
 	private int r_price;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate r_date;
-	private String r_goods;
-	private String category;
+	
 	private Gender gender;
 	
 	private List<ReceiptItemDTO> items;
