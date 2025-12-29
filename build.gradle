@@ -47,9 +47,6 @@ dependencies {
     implementation 'org.json:json:20231013'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     
-     /* --- OpenAI --- */
-    implementation 'com.openai:openai-java:4.9.0'
-    
     // ✅ WEBP 읽기(ImageIO 플러그인) - 이것만 남기세요
     implementation 'com.twelvemonkeys.imageio:imageio-webp:3.12.0'
     
@@ -59,7 +56,6 @@ dependencies {
 	// openAI
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	 /* --- Test --- */
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     
