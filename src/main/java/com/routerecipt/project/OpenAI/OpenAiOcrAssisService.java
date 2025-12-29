@@ -1,7 +1,6 @@
 package com.routerecipt.project.OpenAI;
 
 import java.time.Duration;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,50 +22,57 @@ public class OpenAiOcrAssisService {
 
     private WebClient webClient;
 
-    @Value("${openai.api.key}")
+    @Value("${openai.api-key}")                 // 🔹 키 이름 통일
     private String apiKey;
 
     @Value("${openai.endpoint:https://api.openai.com/v1}")
     private String endpoint;
 
-    // Vision 가능한 모델로 고정 권장 (gpt-4o-mini / gpt-4.1-mini 등)
-    @Value("${openai.model:gpt-4.1-mini-2025-04-14}")
+    // Vision + JSON 출력 안정 모델
+    @Value("${openai.model:gpt-4.1-mini}")
     private String model;
 
-    @Value("${openai.timeout-ms:60000}") // ✅ 15초는 너무 짧음
+    @Value("${openai.timeout-ms:60000}")
     private long timeoutMs;
 
     @PostConstruct
     public void init() {
         if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("OPENAI_API_KEY 가 비어있습니다.");
+            throw new IllegalStateException("openai.api-key 가 비어있습니다.");
         }
 
         this.webClient = WebClient.builder()
                 .baseUrl(endpoint)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey.trim())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
     /**
-     * ✅ B안: 이미지(Vision)로 영수증 핵심 필드 보강
-     * @param imageBytes 업로드된 영수증 이미지 bytes
+     * OCR 누락 필드 보정 (Vision + OCR TEXT)
      */
-    public OpenAiReceiptResult fixMissingFieldsWithVision(MultipartFile file, String rawText) {
-        try {
-            // 이미지 -> base64
-            byte[] bytes = file.getBytes();
-            String b64 = java.util.Base64.getEncoder().encodeToString(bytes);
-            String mime = (file.getContentType() != null) ? file.getContentType() : "image/jpeg";
+    public OpenAiReceiptResult fixMissingFieldsWithVision(
+            MultipartFile file,
+            String rawText
+    ) {
 
+        try {
+            // 1️⃣ 이미지 → base64
+            byte[] bytes = file.getBytes();
+            String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
+            String mime = (file.getContentType() != null)
+                    ? file.getContentType()
+                    : "image/jpeg";
+
+            // 2️⃣ 프롬프트 (JSON만 반환 강제)
             String prompt = """
-            다음은 한국 영수증입니다. 이미지와 OCR 텍스트를 함께 참고해서,
-            아래 JSON 스키마로 "순수 JSON"만 반환하세요(설명/코드블록 금지).
+            다음은 한국 영수증이다.
+            이미지와 OCR 텍스트를 참고하여 누락된 값을 추론하라.
+            반드시 아래 스키마의 "순수 JSON"만 반환하라.
 
             {
               "place": "가게명",
-              "date": "yyyy-MM-dd(없으면 빈 문자열)",
+              "date": "yyyy-MM-dd",
               "total": 0,
               "items": [
                 { "name": "상품명", "price": 0, "count": 1 }
@@ -74,25 +80,27 @@ public class OpenAiOcrAssisService {
             }
 
             OCR TEXT:
-            """ + rawText;
+            %s
+            """.formatted(rawText);
 
-            // ✅ Responses API 형식(텍스트 + 이미지)
+            // 3️⃣ Responses API 입력 (text + image)
             Map<String, Object> inputMessage = Map.of(
                 "role", "user",
                 "content", List.of(
                     Map.of("type", "input_text", "text", prompt),
-                    Map.of("type", "input_image",
-                           "image_url", "data:" + mime + ";base64," + b64)
+                    Map.of(
+                        "type", "input_image",
+                        "image_url", "data:" + mime + ";base64," + base64
+                    )
                 )
             );
 
             Map<String, Object> body = new HashMap<>();
             body.put("model", model);
             body.put("input", List.of(inputMessage));
-            // JSON만 나오게 강제(가능하면)
             body.put("text", Map.of("format", Map.of("type", "json_object")));
 
-            // ✅ /responses 호출 -> JSONObject로 받기(Wrapper 말고 raw로 받는 게 안전)
+            // 4️⃣ 호출
             String raw = webClient.post()
                     .uri("/responses")
                     .bodyValue(body)
@@ -100,37 +108,36 @@ public class OpenAiOcrAssisService {
                     .bodyToMono(String.class)
                     .timeout(Duration.ofMillis(timeoutMs))
                     .onErrorResume(e -> {
-                        System.err.println("[VISION] timeout or error → OCR만 사용: " + e.getMessage());
-                        return Mono.empty(); // 👈 Vision 실패 시 그냥 스킵
+                        System.err.println("[OPENAI] Vision 실패 → OCR 결과 유지: " + e.getMessage());
+                        return Mono.empty();
                     })
                     .block();
 
             if (raw == null || raw.isBlank()) {
-                System.err.println("[VISION] 응답 raw 비어있음");
                 return null;
             }
 
+            // 5️⃣ Responses API → output_text 추출
             JSONObject resp = new JSONObject(raw);
+            String outputJson = extractOutputTextFromResponsesApi(resp);
 
-            // ✅ 너가 만든 함수로 output_text 추출
-            String out = extractOutputTextFromResponsesApi(resp);
-
-            if (out == null || out.isBlank()) {
-                System.err.println("[VISION] output_text 비어있음. raw=" + resp.toString(2));
+            if (outputJson == null || outputJson.isBlank()) {
+                System.err.println("[OPENAI] output_text 없음. raw=" + resp.toString(2));
                 return null;
             }
 
-            // out 자체가 JSON 문자열이므로 파싱
-            JSONObject j = new JSONObject(out);
-            return OpenAiReceiptResult.fromVisionJson(j);
+            // 6️⃣ JSON → 도메인 변환
+            return OpenAiReceiptResult.fromVisionJson(new JSONObject(outputJson));
 
         } catch (Exception e) {
-            System.err.println("[VISION] 호출 실패: " + e.getMessage());
+            System.err.println("[OPENAI] 호출 실패: " + e.getMessage());
             return null;
         }
     }
 
-    // ✅ 네가 올린 함수: 이 클래스에 private 메서드로 추가하면 됨
+    /**
+     * Responses API에서 output_text만 안전하게 추출
+     */
     private String extractOutputTextFromResponsesApi(JSONObject resp) {
         if (resp == null) return null;
 
@@ -156,33 +163,4 @@ public class OpenAiOcrAssisService {
         }
         return null;
     }
-    
-    private OpenAiReceiptResult toResult(JSONObject j) {
-        OpenAiReceiptResult r = new OpenAiReceiptResult();
-        if (j == null) return r;
-
-        r.setPlace(j.optString("place", null));
-        r.setDate(j.optString("date", null));
-        r.setTotal(j.has("total") ? j.optInt("total", 0) : 0);
-
-        JSONArray arr = j.optJSONArray("items");
-        if (arr != null) {
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject it = arr.optJSONObject(i);
-                if (it == null) continue;
-
-                OpenAiReceiptResult.Item item = new OpenAiReceiptResult.Item();
-                item.setName(it.optString("name", null));
-                item.setPrice(it.optInt("price", 0));
-                item.setCount(it.optInt("count", 1));
-
-                if (item.getName() != null && !item.getName().isBlank()) {
-                    r.getItems().add(item);
-                }
-            }
-        }
-        return r;
-    }
-
 }
-	

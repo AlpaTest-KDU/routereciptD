@@ -1,4 +1,4 @@
-package com.routerecipt.project.redis;
+package com.routerecipt.project.config;
 
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;

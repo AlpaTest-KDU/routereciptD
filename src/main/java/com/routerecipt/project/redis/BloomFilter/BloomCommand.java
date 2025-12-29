@@ -1,4 +1,4 @@
-package com.routerecipt.project.redis.bloomFilter;
+package com.routerecipt.project.redis.BloomFilter;
 
 import io.lettuce.core.protocol.ProtocolKeyword;
 

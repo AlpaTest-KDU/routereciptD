@@ -24,27 +24,26 @@ public class UserServiceImp implements UserService {
 	private PasswordEncoder passwordEncoder;
 	
 	public boolean checkDuplicateUserId(String userId) {
-		
-		//1단계: Bloom Filter 판단
-		if (bloomService.existsUserId(userId)) {
-			// Bloom Filter는 false positive가 가능하므로 DB 확정 확인
-			Userdto user = userMapper.UserFindID(userId);
-			return user != null; //true면 중복
-		}
-		
-		// 2단계: Bloom Filter에는 없다 -> DB 확인
-		
-		Userdto user = userMapper.UserFindID(userId);
-		
-		if (user == null) {
-			// DB에도 없으면 Bloom Filter에 저장
-			bloomService.addUserId(userId);
-			return false; // 중복 없음
-		}
-		
-		return true;
-		
+
+	    // 1단계: Bloom Filter 판단
+	    if (bloomService.isDuplicate(userId)) {
+	        // Bloom Filter는 false positive 가능 → DB로 확정 검사
+	        Userdto user = userMapper.UserFindID(userId);
+	        return user != null; // true면 중복
+	    }
+
+	    // 2단계: Bloom Filter에 없음 → DB 확인
+	    Userdto user = userMapper.UserFindID(userId);
+
+	    if (user == null) {
+	        // DB에도 없으면 Bloom Filter에 등록
+	        bloomService.register(userId);
+	        return false; // 중복 아님
+	    }
+
+	    return true; // DB에 존재 → 중복
 	}
+
 	
 	// Security 로그인 전용
 	@Override

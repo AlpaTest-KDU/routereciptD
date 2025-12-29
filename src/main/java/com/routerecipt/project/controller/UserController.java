@@ -21,16 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
+import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.ocr.ServiceIMP;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.UserServiceImp;
-import com.routerecipt.project.dto.ReceiptDTO;
-import com.routerecipt.project.mapper.ReceiptMapper;
-import com.routerecipt.project.mapper.UserMapper;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,8 +52,6 @@ public class UserController {
 	@Autowired
     private ServiceIMP usi;
 	
-	@Autowired
-    private UserMapper um;
 	
 	@Autowired
 	private ReceiptMapper rm;
@@ -105,7 +101,7 @@ public class UserController {
 		
 		// bloom Filter 등록 (실패해도 회원가입은 성공)
 		try {
-			bloomService.addUserId(u.getU_id());
+			bloomService.register(u.getU_id());
 		} catch (Exception e) {
 			log.warn("Bloom Filter 등록 실패: {}",u.getU_id(),e);
 		}
