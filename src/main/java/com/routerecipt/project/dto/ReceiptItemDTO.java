@@ -15,4 +15,6 @@ public class ReceiptItemDTO {
 	private String ai_source; // RULE / AI / FALLBACK
 	private Double ai_confidence; // 0.0 ~ 1.0
 	
+	private String suggested_label;
+	
 }
