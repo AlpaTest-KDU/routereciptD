@@ -105,7 +105,7 @@
 				validate(name, "이름을 입력해주세요.");
 				validate(birthday, "생년월일을 입력해주세요.");
 				validate(email, "이메일을 입력해주세요.");
-				
+
 				if(emailDomain.value === "etc") {
 					validate(emailCustom, "도메인을 입력해주세요.");
 				} else {
@@ -114,6 +114,12 @@
 
 				if(!gender) {
 					isValid = false;
+				}
+
+				if (id.value.length > 16) {
+					validate(id, "아이디는 16자를 넘을 수 없습니다.")
+				} else if (/[^a-zA-Z0-9]/.test(id.value)) {
+					validate(id, "아이디에 특수문자는 넣을 수 없습니다.")
 				}
 
 				if (pw.value !== "" && pwConfirm.value !== "") {
