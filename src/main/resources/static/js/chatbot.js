@@ -55,6 +55,7 @@ function addMessage(role, text) {
       }
 
       const data = await res.json();
+      const reply = (data.reply ?? "").trim();
       addMessage("bot", data.reply || "답변을 가져오지 못했어요.");
     } catch (e) {
       console.error(e);
@@ -69,6 +70,8 @@ function addMessage(role, text) {
     if (e.key === "Enter") {
       e.preventDefault();
       sendMessage();
+
+      
     }
   });
 });

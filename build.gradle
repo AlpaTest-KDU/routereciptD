@@ -47,6 +47,9 @@ dependencies {
     implementation 'org.json:json:20231013'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     
+     /* --- OpenAI --- */
+    implementation 'com.openai:openai-java:4.10.0'
+    
     // ✅ WEBP 읽기(ImageIO 플러그인) - 이것만 남기세요
     implementation 'com.twelvemonkeys.imageio:imageio-webp:3.12.0'
 	
