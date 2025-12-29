@@ -4,6 +4,8 @@ package com.routerecipt.project.ocr;
 
 import java.util.List;
 
+import com.routerecipt.project.service.RankingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 public class ReceiptSaveService {
 
     private final ReceiptMapper receiptMapper;
+
+    @Autowired
+    private final RankingService rankingService;
 
     @Transactional
     public Long saveReceiptWithItems(String userId, ReceiptDTO receipt) {
@@ -40,6 +45,7 @@ public class ReceiptSaveService {
                 it.setR_no(rNo);
             }
             receiptMapper.insertReceiptItems(rNo, items);
+            rankingService.recordSpending(receipt.getCategory(), receipt.getR_price(), userId, receipt.getR_date());
         }
 
         return rNo;
