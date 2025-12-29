@@ -4,83 +4,115 @@
 
 <mapper namespace="com.routerecipt.project.mapper.ReceiptResultMapper">
 
-    <!-- 1) 나의 일별 지출 (Map으로 받기) -->
+    <!--
+      1) 나의 일별 지출
+      - 특정 사용자(r_u = u_id)의 영수증을 날짜별로 묶어서(GROUP BY DATE)
+      - 하루 총 지출(SUM)을 계산해 반환
+      - 결과(Map): { dt: 'yyyy-MM-dd', total: 12345 }
+    -->
     <select id="selectDailyTotalByUser"
             parameterType="string"
             resultType="map">
         SELECT
-            DATE(r_date)                         AS dt,    -- 날짜 (yyyy-MM-dd)
-            SUM(CAST(r_price AS SIGNED))         AS total  -- 그 날 총합
-        FROM receipt_tb
+            DATE(r_date) AS dt,
+            SUM(r_price) AS total
+        FROM recipt_tb
         WHERE r_u = #{value}
         GROUP BY DATE(r_date)
         ORDER BY dt
     </select>
 
-    <!-- 2) 나의 주간 지출 -->
+    <!--
+      2) 나의 주간 지출
+      - YEARWEEK(r_date, 1): ISO 주차 기준(월요일 시작)으로 주차 계산
+      - 해당 주의 시작/끝 날짜(MIN/MAX)와 주간 총합(SUM)을 반환
+      - 결과(Map): { yearWeek: 202548, weekStart: 'yyyy-MM-dd', weekEnd: 'yyyy-MM-dd', total: 99999 }
+    -->
     <select id="selectWeeklyTotalByUser"
             parameterType="string"
             resultType="map">
         SELECT
-            YEARWEEK(r_date, 1)                  AS yearWeek,  -- 202548 형식
-            MIN(DATE(r_date))                    AS weekStart,
-            MAX(DATE(r_date))                    AS weekEnd,
-            SUM(CAST(r_price AS SIGNED))         AS total
-        FROM receipt_tb
+            YEARWEEK(r_date, 1) AS yearWeek,
+            MIN(DATE(r_date))   AS weekStart,
+            MAX(DATE(r_date))   AS weekEnd,
+            SUM(r_price)        AS total
+        FROM recipt_tb
         WHERE r_u = #{value}
         GROUP BY YEARWEEK(r_date, 1)
         ORDER BY yearWeek
     </select>
 
-    <!-- 3) 나의 월간 지출 -->
+    <!--
+      3) 나의 월간 지출
+      - DATE_FORMAT(r_date, '%Y-%m')로 '연-월' 단위로 묶어서
+      - 월별 총 지출(SUM)을 반환
+      - 결과(Map): { ym: 'yyyy-MM', total: 88888 }
+    -->
     <select id="selectMonthlyTotalByUser"
             parameterType="string"
             resultType="map">
         SELECT
-            DATE_FORMAT(r_date, '%Y-%m')         AS ym,    -- 2025-12
-            SUM(CAST(r_price AS SIGNED))         AS total
-        FROM receipt_tb
+            DATE_FORMAT(r_date, '%Y-%m') AS ym,
+            SUM(r_price)                 AS total
+        FROM recipt_tb
         WHERE r_u = #{value}
         GROUP BY DATE_FORMAT(r_date, '%Y-%m')
         ORDER BY ym
     </select>
 
-    <!-- 4) 성별별 지출 (Map으로 받기) -->
+    <!--
+      4) 성별별 지출
+      - recipt_tb.r_u(= user_tb.u_id)로 사용자 테이블(user_tb)과 JOIN
+      - user_tb.gender(MALE/FEMALE) 기준으로 그룹핑하여 성별 총 지출(SUM) 반환
+      - 결과(Map): { gender: 'MALE'/'FEMALE', total: 77777 }
+    -->
     <select id="selectTotalByGender"
             resultType="map">
         SELECT
-            u.u_gender                           AS gender,
-            SUM(CAST(r.r_price AS SIGNED))       AS total
-        FROM receipt_tb r
+            u.gender       AS gender,
+            SUM(r.r_price) AS total
+        FROM recipt_tb r
         JOIN user_tb u ON r.r_u = u.u_id
-        GROUP BY u.u_gender
-        ORDER BY u.u_gender
+        GROUP BY u.gender
+        ORDER BY u.gender
     </select>
 
-    <!-- 5) 나의 평균 일별 지출 -->
+    <!--
+      5) 나의 평균 일별 지출
+      - 먼저 사용자별로 일자별 합계(daily_sum)를 구한 뒤(서브쿼리)
+      - 그 daily_sum들의 평균(AVG)을 계산
+      - int로 받기 위해 ROUND 처리
+      - 결과(int): 예) 15432
+    -->
     <select id="selectMyAverage"
             parameterType="string"
             resultType="int">
-        SELECT IFNULL(AVG(daily_sum), 0)
+        SELECT IFNULL(ROUND(AVG(daily_sum)), 0)
         FROM (
             SELECT
-                DATE(r_date)                 AS dt,
-                SUM(CAST(r_price AS SIGNED)) AS daily_sum
-            FROM receipt_tb
+                DATE(r_date) AS dt,
+                SUM(r_price) AS daily_sum
+            FROM recipt_tb
             WHERE r_u = #{value}
             GROUP BY DATE(r_date)
         ) t
     </select>
 
-    <!-- 6) 전체 평균 일별 지출 -->
+    <!--
+      6) 전체 평균 일별 지출
+      - 전체 사용자 기준으로 일자별 합계(daily_sum)를 구한 뒤
+      - 그 daily_sum들의 평균(AVG)을 계산
+      - int로 받기 위해 ROUND 처리
+      - 결과(int): 예) 20345
+    -->
     <select id="selectAllAverage"
             resultType="int">
-        SELECT IFNULL(AVG(daily_sum), 0)
+        SELECT IFNULL(ROUND(AVG(daily_sum)), 0)
         FROM (
             SELECT
-                DATE(r_date)                 AS dt,
-                SUM(CAST(r_price AS SIGNED)) AS daily_sum
-            FROM receipt_tb
+                DATE(r_date) AS dt,
+                SUM(r_price) AS daily_sum
+            FROM recipt_tb
             GROUP BY DATE(r_date)
         ) t
     </select>
