@@ -33,7 +33,8 @@ public class RedirectLoggonFilter extends OncePerRequestFilter {
 	        uri.equals("/user/userLoginPage") ||
 	        uri.equals("/user/userSignUpPage") ||
 	        uri.equals("/user/userFindIdPage") ||
-	        uri.equals("/user/userResetPwPage")
+	        uri.equals("/user/userResetPwPage") ||
+	        uri.equals("/user/analysisPage")
 	    ) {
 	        filterChain.doFilter(request, response);
 	        return;

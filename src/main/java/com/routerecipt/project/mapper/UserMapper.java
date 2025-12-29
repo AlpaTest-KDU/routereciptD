@@ -12,6 +12,7 @@ import com.routerecipt.project.dto.Userdto;
 public interface UserMapper {
 	void UserSignUp(Userdto u);
 	Userdto loadUserByUsername(String u_id);
+	Userdto UserSelectById(String u_id);
 	Userdto UserFindID (String u_email);
 	int UserCheckID(@Param("u_id") String u_id, @Param("u_email") String email);
 	void UserUpdatePW (Userdto u);
