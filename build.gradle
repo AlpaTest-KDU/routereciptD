@@ -48,34 +48,14 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     
      /* --- OpenAI --- */
-    implementation 'com.openai:openai-java:4.9.0'
+    implementation 'com.openai:openai-java:4.10.0'
     
     // ✅ WEBP 읽기(ImageIO 플러그인) - 이것만 남기세요
     implementation 'com.twelvemonkeys.imageio:imageio-webp:3.12.0'
-    
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.5.8'
 	
-	// openAI
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	 /* --- Test --- */
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    
-   
 
-    /* --- MyBatis + DB --- */
-    
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.6'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-
-    
-
-    /* --- Security --- */
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
 
     
 
