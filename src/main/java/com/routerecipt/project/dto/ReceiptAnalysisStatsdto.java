@@ -7,7 +7,7 @@ import lombok.Data;
 
 // DTO(Data Transfer Object) 클래스 - 영수증 분석 통계 데이터 전송용
 @Data
-public class ReceiptAnalysisStatsDTO {
+public class ReceiptAnalysisStatsdto {
 
     // 1) daily - 일별 소비 데이터
     private List<Map<String, Object>> dailyData;

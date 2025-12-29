@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.routerecipt.project.dto.Userdto; // ✅ loginUser DTO
-import com.routerecipt.project.dto.ReceiptAnalysisStatsDTO; // ✅ 변경된 DTO
+import com.routerecipt.project.dto.ReceiptAnalysisStatsdto; // ✅ 변경된 DTO
 import com.routerecipt.project.receipt.ReceiptResultService; // ✅ stats 가져오는 서비스(프로젝트 실제 경로로 유지)
 
 import jakarta.servlet.http.HttpSession;
@@ -32,7 +32,7 @@ public class UserAnalysisController {
         String uId = loginUser.getU_id();
 
         // 3) 서비스에서 내 지출 통계 조회 (✅ 타입 변경)
-        ReceiptAnalysisStatsDTO stats = receiptResultService.getStats(uId);
+        ReceiptAnalysisStatsdto stats = receiptResultService.getStats(uId);
 
         // 4) 모델 바인딩
         model.addAttribute("dailyData",  stats.getDailyData());
