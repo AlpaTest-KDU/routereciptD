@@ -38,11 +38,16 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
         List<ReceiptItemDTO> items =
                 receiptMapper.selectItemsByReceiptNos(receiptNos);
 
-        // 3) r_no 기준 grouping
-        Map<Long, List<ReceiptItemDTO>> itemMap =
-                (items == null) ? Collections.emptyMap()
-                        : items.stream()
-                               .collect(Collectors.groupingBy(ReceiptItemDTO::getR_no));
+     // 3) r_no 기준 grouping  ✅ (여기 블록을 교체)
+        Map<Long, List<ReceiptItemDTO>> itemMap;
+        if (items == null || items.isEmpty()) {
+            itemMap = Collections.emptyMap();
+        } else {
+            itemMap = items.stream()
+                    .filter(Objects::nonNull)          // item 자체 null 방지
+                    .filter(it -> it.getR_no() != null) // ✅ groupingBy 키 null 방지 (NPE 원인)
+                    .collect(Collectors.groupingBy(ReceiptItemDTO::getR_no));
+        }
 
         for (ReceiptDTO r : receipts) {
             r.setItems(itemMap.getOrDefault(r.getR_no(), Collections.emptyList()));
