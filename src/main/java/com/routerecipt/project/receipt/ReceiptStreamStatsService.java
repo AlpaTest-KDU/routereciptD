@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import com.routerecipt.project.util.StreamTimeUtil;
 
 @Service
-public class ReceiptStatsService {
+public class ReceiptStreamStatsService {
 	
 	private final RedisTemplate<String, Object> redisTemplate;
 	private static final String STREAM_KEY = "ocr:receipt";
 	
-	public ReceiptStatsService(RedisTemplate<String, Object> redisTemplate) {
+	public ReceiptStreamStatsService(RedisTemplate<String, Object> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
 	

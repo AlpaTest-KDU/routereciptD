@@ -1,4 +1,4 @@
-package com.routerecipt.project.ocr;
+package com.routerecipt.project.service;
 
 
 import java.time.LocalDate;
@@ -24,15 +24,15 @@ import com.routerecipt.project.OpenAI.AiCategoryService;
 
 import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.mapper.UserMapper;
-import com.routerecipt.project.ocr.ServiceIMP;
+import com.routerecipt.project.service.ReceiptApplicationServiceImp;
 
 import lombok.AllArgsConstructor;
 
 @org.springframework.stereotype.Service
 @AllArgsConstructor
-public class ServiceIMP {
+public class ReceiptApplicationServiceImp implements ReceiptApplicatoinService {
 	
-	private static final Logger log = LoggerFactory.getLogger(ServiceIMP.class);
+	private static final Logger log = LoggerFactory.getLogger(ReceiptApplicationServiceImp.class);
 
     private final ReceiptMapper receiptMapper;
     private final AiCategoryService aiCategoryService;

@@ -1,4 +1,4 @@
-package com.routerecipt.project.receipt;
+package com.routerecipt.project.ocr;
 
 import java.net.URI;
 import java.util.Base64;
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.routerecipt.project.mapper.ReceiptMapper;
 
 @Service
-public class ReceiptService {
+public class ClovaOcrService {
 
     @Value("${clova.secret}")
     private String secretKey;
