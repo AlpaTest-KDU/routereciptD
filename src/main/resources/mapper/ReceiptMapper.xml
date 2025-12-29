@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.routerecipt.project.mapper">
+<mapper namespace="com.routerecipt.project.mapper.ReceiptMapper">
 
 	<select id="getSavedReceiptsDate" resultMap="SaveMap">
         SELECT *
@@ -10,7 +10,7 @@
         ORDER BY r_date ASC
     </select>
 
-	<resultMap id="SaveMap" type="com.routerecipt.project.DTO.ReceiptDTO">
+	<resultMap id="SaveMap" type="com.routerecipt.project.dto.ReceiptDTO">
         <id property="r_no" column="r_no"/>
         <result property="r_u" column="r_u"/>
         <result property="r_place" column="r_place"/>
@@ -24,7 +24,7 @@
     
     <!-- ===================== INSERT: receipt (TEMP) ===================== -->
   <!-- r_no가 auto increment라면 useGeneratedKeys로 dto.r_no에 세팅 -->
-  <insert id="insertReceipt" parameterType="com.routerecipt.project.DTO.ReceiptDTO"
+  <insert id="insertReceipt" parameterType="com.routerecipt.project.dto.ReceiptDTO"
           useGeneratedKeys="true" keyProperty="r_no" keyColumn="r_no">
     INSERT INTO receipt
     (r_u, r_place, r_price, r_date, r_goods, category, gender)
@@ -42,7 +42,7 @@
     </foreach>
   </insert>
 
-	<resultMap id="ReceiptResultMap" type="com.routerecipt.project.DTO.ReceiptDTO">
+	<resultMap id="ReceiptResultMap" type="com.routerecipt.project.dto.ReceiptDTO">
 	  <id     column="r_no"    property="r_no"/>
 	  <result column="r_u"     property="r_u"/>
 	  <result column="r_place" property="r_place"/>
@@ -53,7 +53,7 @@
 	  <result column="gender"   property="gender"/>
 	</resultMap>
 	
-	<resultMap id="ReceiptItemResultMap" type="com.routerecipt.project.DTO.ReceiptItemDTO">
+	<resultMap id="ReceiptItemResultMap" type="com.routerecipt.project.dto.ReceiptItemDTO">
 	  <id     column="item_id"       property="item_id"/>
 	  <result column="r_no"          property="r_no"/>
 	  <result column="item_name"     property="item_name"/>
@@ -87,14 +87,6 @@
 	    #{no}
 	  </foreach>
 	  ORDER BY r_no DESC, item_id ASC
-	</select>
-	
-	<select id="getSavedReceiptsDate" resultMap="SaveMap">
-	    SELECT *
-	    FROM receipt
-	    WHERE r_u = #{r_u}
-	      AND DATE_FORMAT(r_date, '%Y-%m') = #{yearMonth}
-	    ORDER BY r_date ASC
 	</select>
 	
 

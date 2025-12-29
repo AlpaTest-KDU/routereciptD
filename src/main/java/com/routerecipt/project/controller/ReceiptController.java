@@ -76,21 +76,6 @@ public class ReceiptController {
     
     private final ReceiptSaveService receiptSaveService; // ✅ 이게 없어서 터진 것
 
-    /**
-     * 달력 셀(하루) 표현용 DTO
-     * - 프로젝트에 DayDTO가 없어서 터졌으니, 우선 내부 클래스로 정의해 컴파일/부팅부터 정상화
-     */
-    public static class DayDTO {
-        private int day;                       // 1~31
-        private List<ReceiptDTO> receipts;      // 그 날짜의 영수증들
-
-        public int getDay() { return day; }
-        public void setDay(int day) { this.day = day; }
-
-        public List<ReceiptDTO> getReceipts() { return receipts; }
-        public void setReceipts(List<ReceiptDTO> receipts) { this.receipts = receipts; }
-    }
-    
     private String pickReceiptCategoryByMode(ReceiptDTO receipt) {
         if (receipt == null || receipt.getItems() == null || receipt.getItems().isEmpty()) {
             return "ETC"; // 또는 "미분류"
