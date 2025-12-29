@@ -8,7 +8,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -24,15 +23,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.routerecipt.project.dto.AiCategoryResponse;
-import com.routerecipt.project.dto.ItemCategory;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
-import com.routerecipt.project.OpenAI.AiCategoryService;
-import com.routerecipt.project.OpenAI.OpenAiCategoryResult;
 import com.routerecipt.project.OpenAI.OpenAiOcrAssisService;
 import com.routerecipt.project.OpenAI.OpenAiReceiptResult;
-import com.routerecipt.project.OpenAI.OpenAiReceiptResult.Item;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +46,6 @@ public class OcrService {
     // OCR 누락 보강
     private final OpenAiOcrAssisService openAiOcrAssistService;
 
-    // 품목 카테고리 분류
-    private final AiCategoryService aiCategoryService;
 
     /**
      * 1) CLOVA 파싱
@@ -93,9 +85,6 @@ public class OcrService {
                         parsed.setR_price(fixed.getTotal());
                     }
 
-                    // goods 병합
-                    mergeGoods(parsed, fixed);
-
                     // items 보강 (CLOVA items가 비었을 때만)
                     if (parsed.getItems() == null || parsed.getItems().isEmpty()) {
                         List<ReceiptItemDTO> fromAi = convertOpenAiItemsToReceiptItems(fixed);
@@ -107,27 +96,9 @@ public class OcrService {
             }
         }
 
-        // ✅ 최종 카테고리 분류(원하면 항상 적용)
-        ensureItemCategoryNotNull(parsed);
-        applyOpenAiCategories(parsed);      // 가능하면 OpenAI로 덮어쓰기
-        ensureItemCategoryNotNull(parsed);  // OpenAI 실패해도 null 방지
-
         return parsed;
     }
     
-    private void ensureItemCategoryNotNull(ReceiptDTO dto) {
-        if (dto == null || dto.getItems() == null) return;
-
-        for (ReceiptItemDTO it : dto.getItems()) {
-            if (it == null) continue;
-
-            if (isBlank(it.getItem_category())) {
-                String name = it.getItem_name();
-                it.setItem_category(isBlank(name) ? ItemCategory.ETC.name() : categorizeToString(name));
-            }
-        }
-    }
-
     @PostConstruct
     public void initImageIO() {
         ImageIO.scanForPlugins();
@@ -199,80 +170,11 @@ public class OcrService {
         return isBlank(r.getR_place())
                 || r.getR_date() == null
                 || r.getR_price() <= 0
-                || isBlank(r.getR_goods());
-    }
-
-    private String categorizeToString(String itemName) {
-        if (itemName == null) return ItemCategory.ETC.name();
-
-        String n = itemName.replaceAll("\\s+", "").toLowerCase();
-
-        if (n.contains("택시") || n.contains("지하철") || n.contains("버스") || n.contains("주차")
-                || n.contains("톨") || n.contains("통행") || n.contains("파킹")) {
-            return ItemCategory.TRAFFIC.name();
-        }
-
-        if (n.contains("병원") || n.contains("의원") || n.contains("약") || n.contains("처방") || n.contains("진료")) {
-            return ItemCategory.MEDICAL.name();
-        }
-
-        if (n.contains("셔츠") || n.contains("바지") || n.contains("신발") || n.contains("의류") || n.contains("옷")) {
-            return ItemCategory.CLOTHES.name();
-        }
-
-        if (n.contains("월세") || n.contains("관리비") || n.contains("전기") || n.contains("가스") || n.contains("수도")) {
-            return ItemCategory.HOME.name();
-        }
-        if (n.contains("세제") || n.contains("휴지") || n.contains("샴푸") || n.contains("치약") || n.contains("생필품")) {
-            return ItemCategory.LIVING.name();
-        }
-
-        if (n.contains("서점") || n.contains("도서") || n.contains("책") || n.contains("영화") || n.contains("전시") || n.contains("컬러링")) {
-            return ItemCategory.CULTURE.name();
-        }
-
-        if (n.contains("식사") || n.contains("커피") || n.contains("음료") || n.contains("라면")
-                || n.contains("김밥") || n.contains("치킨") || n.contains("피자") || n.contains("아메")) {
-            return ItemCategory.FOOD.name();
-        }
-
-        return ItemCategory.ETC.name();
-    }
-
-    private void applyOpenAiCategories(ReceiptDTO dto) {
-
-        if (dto == null || dto.getItems() == null) return;
-
-        for (ReceiptItemDTO item : dto.getItems()) {
-
-            if (item == null || item.getItem_name() == null) continue;
-
-            AiCategoryResponse r =
-                aiCategoryService.classifyItem(item.getItem_name());
-
-            if (r != null && r.getCategory() != null) {
-                item.setItem_category(r.getCategory());
-                item.setAi_source(r.getSource());
-                item.setAi_confidence(r.getConfidence());
-            } else {
-                item.setItem_category(ItemCategory.ETC.name());
-                item.setAi_source("FALLBACK");
-                item.setAi_confidence(0.0);
-            }
-        }
+                || r.getItems() == null
+                || r.getItems().isEmpty();
     }
 
 
-
-
-    private boolean isValidCategory(String cat) {
-        try {
-            ItemCategory.valueOf(cat);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     public ReceiptDTO parseReceipt(JSONObject json) {
         ReceiptDTO dto = new ReceiptDTO();
@@ -348,7 +250,7 @@ public class OcrService {
                         ReceiptItemDTO rid = new ReceiptItemDTO();
                         rid.setItem_name(name);
                         rid.setItem_price(price);
-                        rid.setItem_category(categorizeToString(name));
+                        rid.setItem_category(null);
 
                         itemList.add(rid);
                         goodsNames.add(name);
@@ -357,38 +259,13 @@ public class OcrService {
             }
 
             dto.setItems(itemList);
-            dto.setR_goods(goodsNames.isEmpty() ? null : String.join(",", goodsNames));
 
-            dto.setCategory("미분류");
-            dto.setGender(null);
 
         } catch (Exception e) {
             System.out.println("OCR 파싱 오류: " + e.getMessage());
         }
 
         return dto;
-    }
-
-    private void mergeGoods(ReceiptDTO parsed, OpenAiReceiptResult fixed) {
-        if (parsed == null || fixed == null) return;
-
-        Set<String> merged = new LinkedHashSet<>();
-
-        if (!isBlank(parsed.getR_goods())) {
-            for (String a : parsed.getR_goods().split(",")) {
-                if (!isBlank(a)) merged.add(a.trim());
-            }
-        }
-
-        if (fixed.getItems() != null && !fixed.getItems().isEmpty()) {
-            for (Item it : fixed.getItems()) {
-                if (it == null) continue;
-                String name = it.getName();
-                if (!isBlank(name)) merged.add(name.trim());
-            }
-        }
-
-        parsed.setR_goods(merged.isEmpty() ? null : String.join(",", merged));
     }
 
     private boolean isBlank(String s) {
@@ -519,7 +396,7 @@ public class OcrService {
         List<ReceiptItemDTO> list = new ArrayList<>();
         if (fixed == null || fixed.getItems() == null) return list;
 
-        for (Item it : fixed.getItems()) {
+        for (OpenAiReceiptResult.Item it : fixed.getItems()) {
             if (it == null) continue;
             if (isBlank(it.getName())) continue;
 
@@ -529,13 +406,14 @@ public class OcrService {
             int p = (it.getPrice() <= 0) ? 0 : it.getPrice();
             rid.setItem_price(p);
 
-            // category는 이후 applyOpenAiCategories에서 채워짐
+            // OCR 단계에서는 category 확정 ❌
             rid.setItem_category(null);
 
             list.add(rid);
         }
         return list;
     }
+
 
     // ✅ WEBP -> JPG 변환(누락되어 있던 메서드 추가)
     private byte[] convertWebpToJpg(byte[] webpBytes) {
