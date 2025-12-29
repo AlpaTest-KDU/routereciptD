@@ -47,5 +47,5 @@ public class ReceiptCategoryServiceImp implements ReceiptCategoryService {
 	                .map(Map.Entry::getKey)
 	                .orElse(ItemCategory.ETC.name());
 	    }
-	}
 }
+
