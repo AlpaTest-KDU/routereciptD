@@ -1,4 +1,4 @@
-package com.routerecipt.project.redis.bloomFilter;
+package com.routerecipt.project.redis.BloomFilter;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

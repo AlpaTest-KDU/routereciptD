@@ -1,25 +1,21 @@
 package com.routerecipt.project.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.openai.client.OpenAIClient;
-import com.openai.client.OpenAIClientImpl;
+import java.time.Duration;
+
 
 @Configuration
 public class OpenAiConfig {
 	
 
-    @Value("${openai.api-key}")
-    private String apiKey;
-
-    @Bean
-    public OpenAIClient openAIClient() {
-        OpenAIClientOptions options = OpenAIClientOptions.builder()
-                .apiKey(apiKey)
+	@Bean
+    public OkHttpClient openAiHttpClient() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .readTimeout(Duration.ofSeconds(60))
                 .build();
-
-        return new OpenAIClientImpl(options);
     }
 }
