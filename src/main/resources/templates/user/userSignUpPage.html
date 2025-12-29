@@ -49,7 +49,10 @@
                        	 	<option value="etc">직접입력</option>
                     	</select>
                 	</div>
-                	<input id="emailCustom" type="text" name="emailDomainCustom" required oninput="checkUserInfo()">
+					<!-- required가 있으면 반드시 채워넣어야 하는데 직접입력 하지 않았을때 Hidden으로 되고
+					 	 입력값을 받을 수 없어서 회원가입이 안되는 오류 발생하여 required 제거하고
+					 	 javaScript로 해당 부분 조정 -->
+                	<input id="emailCustom" type="text" name="emailDomainCustom" oninput="checkUserInfo()">
             	</div>
 	            <div>
 	            	<span>성별</span>
@@ -88,6 +91,16 @@
 				const isValidMsg = document.getElementById("isValidMsg");
 
 				let isValid = true;
+
+				// 이메일 도메인 직접입력시에만 입력 부분 보이도록
+				if (emailDomain.value === "etc") {
+					emailCustom.style.display = ""; // 보이게 설정 (CSS 기본값 사용)
+					emailCustom.required = true;    // 필수 입력으로 변경
+				} else {
+					emailCustom.style.display = "none"; // 숨김
+					emailCustom.required = false;       // 필수 입력 해제
+					emailCustom.value = "";             // 값 초기화
+				}
 				
 				function validate(input, msg) {
 					if(input.value.trim() === "") {
