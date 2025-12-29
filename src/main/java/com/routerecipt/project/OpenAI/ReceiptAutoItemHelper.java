@@ -73,15 +73,7 @@ public final class ReceiptAutoItemHelper {
         auto.setItem_price(receipt.getR_price());
         items.add(auto);
 
-        // ✅ 화면이 r_goods를 쓰는 경우 대비
-        if (isBlank(receipt.getR_goods())) {
-            receipt.setR_goods(label);
-        }
-
-        // category 자동 지정(미분류일 때만)
-        if (isBlank(receipt.getCategory()) || "미분류".equals(receipt.getCategory())) {
-            receipt.setCategory("교통");
-        }
+        
     }
 
     // ====== 여기부터가 빨간줄 원인 해결 포인트: hasAnyItem 메서드 ======
@@ -98,12 +90,7 @@ public final class ReceiptAutoItemHelper {
             }
         }
 
-        // 2) r_goods 기준 (현재 화면/기존 구조 대비)
-        String goods = receipt.getR_goods();
-        if (!isBlank(goods)) {
-            String cleaned = goods.replace(",", "").trim();
-            return !cleaned.isEmpty();
-        }
+        
 
         return false;
     }

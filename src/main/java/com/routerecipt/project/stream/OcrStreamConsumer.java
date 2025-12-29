@@ -145,7 +145,7 @@ public class OcrStreamConsumer {
         receipt.setR_place(storeName);
         receipt.setR_price(totalPrice);
         receipt.setR_date(LocalDate.now());
-        receipt.setCategory(category);
+        
         receipt.setGender(Gender.MALE);
 
         // 4️⃣ DB 저장

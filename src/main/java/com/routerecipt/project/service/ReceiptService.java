@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.UploadResult;
 
-@Mapper
 public interface ReceiptService {
 	/**
      * 특정 사용자, 특정 월의 영수증 목록 조회
