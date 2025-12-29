@@ -28,7 +28,7 @@ public interface ReceiptMapper {
 	// ====== TEMP 저장 ======
     
 
-    int insertReceiptItems(@Param("rNo") Long rNo,
+    int insertReceiptItems(@Param("r_no") Long rNo,
                            @Param("items") List<ReceiptItemDTO> items);
 
     // ====== 등록페이지 출력용 조회 ======

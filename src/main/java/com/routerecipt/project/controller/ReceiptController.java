@@ -34,8 +34,7 @@ import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.mapper.UserMapper;
 import com.routerecipt.project.ocr.OcrService;
 import com.routerecipt.project.ocr.ReceiptSaveService;
-import com.routerecipt.project.ocr.ServiceIMP;
-
+import com.routerecipt.project.service.ReceiptApplicationServiceImp;
 import com.routerecipt.project.controller.ReceiptController;
 
 import jakarta.servlet.http.HttpSession;
@@ -70,7 +69,7 @@ public class ReceiptController {
 	private final OcrService ocrService;
     
     @Autowired
-    private ServiceIMP serviceImp;
+    private ReceiptApplicationServiceImp serviceImp;
     
     private final UserMapper userMapper;
     

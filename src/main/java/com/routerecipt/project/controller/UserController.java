@@ -25,9 +25,9 @@ import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.ReceiptMapper;
-import com.routerecipt.project.ocr.ServiceIMP;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.security.LoginDetails;
+import com.routerecipt.project.service.ReceiptApplicationServiceImp;
 import com.routerecipt.project.service.UserServiceImp;
 
 import jakarta.servlet.ServletException;
@@ -50,7 +50,7 @@ public class UserController {
 	private RedisBloomService bloomService;
 	
 	@Autowired
-    private ServiceIMP usi;
+    private ReceiptApplicationServiceImp usi;
 	
 	
 	@Autowired
