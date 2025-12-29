@@ -120,14 +120,16 @@ public class ReceiptController {
 
 	     if (recentNos == null || recentNos.isEmpty()) {
 	         model.addAttribute("receipts", Collections.emptyList());
-	         return "receiptRegisterPage";
+             // 파일이 templates/receipt/ 폴더에 있다면 아래처럼 수정
+	         return "receipt/receiptRegisterPage"; 
 	     }
 
 	     List<ReceiptDTO> receipts =
 	             receiptQueryService.getRecentReceipts(recentNos);
 
 	     model.addAttribute("receipts", receipts);
-	     return "receiptRegisterPage";
+         // 파일이 templates/receipt/ 폴더에 있다면 아래처럼 수정
+	     return "receipt/receiptRegisterPage";
 	 }
 
 	 @GetMapping("/writeReceipt")
