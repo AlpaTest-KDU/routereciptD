@@ -39,13 +39,23 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
     @Transactional
     public void saveReceiptWithItems(ReceiptDTO receipt) {
 
-        // 1) 아이템 단위 카테고리 분류
-        if (receipt.getItems() != null && !receipt.getItems().isEmpty()) {
+        // 0️⃣ 방어 코드
+        if (receipt == null) {
+            return;
+        }
 
-            for (ReceiptItemDTO item : receipt.getItems()) {
+        List<ReceiptItemDTO> items = receipt.getItems();
+
+        /* ===============================
+         * 1️⃣ 아이템 단위 AI 분류 + FALLBACK
+         * =============================== */
+        if (items != null && !items.isEmpty()) {
+
+            for (ReceiptItemDTO item : items) {
 
                 String text = item.getItem_name();
 
+                // 1-1) 상품명이 없으면 무조건 FALLBACK
                 if (text == null || text.isBlank()) {
                     item.setItem_category(ItemCategory.ETC.name());
                     item.setAi_source("FALLBACK");
@@ -53,21 +63,19 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
                     continue;
                 }
 
-                AiCategoryResponse ai =
-                        aiCategoryService.classifyItem(text);
+                // 1-2) AI 분류 시도
+                AiCategoryResponse ai = aiCategoryService.classifyItem(text);
 
-                item.setItem_category(
-                        ai != null && ai.getCategory() != null
-                                ? ai.getCategory()
-                                : ItemCategory.ETC.name()
-                );
-
-                item.setAi_source(
-                        ai != null ? ai.getSource() : "FALLBACK"
-                );
-                item.setAi_confidence(
-                        ai != null ? ai.getConfidence() : 0.0
-                );
+                // 1-3) AI 성공 / 실패 분기
+                if (ai != null && ai.getCategory() != null) {
+                    item.setItem_category(ai.getCategory());
+                    item.setAi_source(ai.getSource());
+                    item.setAi_confidence(ai.getConfidence());
+                } else {
+                    item.setItem_category(ItemCategory.ETC.name());
+                    item.setAi_source("FALLBACK");
+                    item.setAi_confidence(0.0);
+                }
             }
         }
 
