@@ -57,6 +57,7 @@ body {
     align-items: center;
     gap: 4px;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    
 }
 
 .openai-header-actions a:hover {

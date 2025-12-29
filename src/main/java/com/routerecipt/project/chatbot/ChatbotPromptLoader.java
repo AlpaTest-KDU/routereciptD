@@ -3,7 +3,6 @@ package com.routerecipt.project.chatbot;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +73,8 @@ public class ChatbotPromptLoader {
             return text == null ? "" : text.trim();
         } catch (IOException e) {
             log.warn("Failed to read resource: {}", nameForLog, e);
-            return "";
+            return ""; 
+            
         }
     }
 }

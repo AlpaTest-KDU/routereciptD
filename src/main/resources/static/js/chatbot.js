@@ -70,6 +70,7 @@ function addMessage(role, text) {
     if (e.key === "Enter") {
       e.preventDefault();
       sendMessage();
+
       
     }
   });

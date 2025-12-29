@@ -18,5 +18,6 @@ public class ChatBotConfig {
         return OpenAIOkHttpClient.builder()
                 .apiKey(apiKey)
                 .build();
+                
     }
 }
