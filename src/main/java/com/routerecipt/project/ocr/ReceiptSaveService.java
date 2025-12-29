@@ -45,7 +45,7 @@ public class ReceiptSaveService {
                 it.setR_no(rNo);
             }
             receiptMapper.insertReceiptItems(rNo, items);
-            rankingService.recordSpending(receipt.getCategory(), receipt.getR_price(), userId, receipt.getR_date());
+//            rankingService.recordSpending(receipt.getCategory(), receipt.getR_price(), userId, receipt.getR_date());
         }
 
         return rNo;
