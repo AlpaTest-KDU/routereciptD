@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.routerecipt.project.mapper">
+
+	<select id="getSavedReceiptsDate" resultMap="SaveMap">
+        SELECT *
+        FROM ocr.receipt
+        WHERE r_u = #{r_u}
+          AND DATE_FORMAT(r_date, '%Y-%m') = #{yearMonth}
+        ORDER BY r_date ASC
+    </select>
+
+	<resultMap id="SaveMap" type="com.routerecipt.project.DTO.ReceiptDTO">
+        <id property="r_no" column="r_no"/>
+        <result property="r_u" column="r_u"/>
+        <result property="r_place" column="r_place"/>
+        <result property="r_price" column="r_price"/>
+        <result property="r_date" column="r_date" javaType="java.time.LocalDate"/>
+        <result property="r_goods" column="r_goods"/>
+        <result property="category" column="category"/>
+        <result property="gender" column="gender"/>
+    </resultMap>
+    
+    
+    <!-- ===================== INSERT: receipt (TEMP) ===================== -->
+  <!-- r_no가 auto increment라면 useGeneratedKeys로 dto.r_no에 세팅 -->
+  <insert id="insertReceipt" parameterType="com.routerecipt.project.DTO.ReceiptDTO"
+          useGeneratedKeys="true" keyProperty="r_no" keyColumn="r_no">
+    INSERT INTO receipt
+    (r_u, r_place, r_price, r_date, r_goods, category, gender)
+    VALUES
+    (#{r_u}, #{r_place}, #{r_price}, #{r_date}, #{r_goods}, #{category}, #{gender})
+  </insert>
+
+  <!-- ===================== INSERT: receipt_item batch ===================== -->
+  <insert id="insertReceiptItems">
+    INSERT INTO receipt_item
+      (r_no, item_name, item_category, item_price)
+    VALUES
+    <foreach collection="items" item="it" separator=",">
+      (#{rNo}, #{it.item_name}, #{it.item_category}, #{it.item_price})
+    </foreach>
+  </insert>
+
+	<resultMap id="ReceiptResultMap" type="com.routerecipt.project.DTO.ReceiptDTO">
+	  <id     column="r_no"    property="r_no"/>
+	  <result column="r_u"     property="r_u"/>
+	  <result column="r_place" property="r_place"/>
+	  <result column="r_price" property="r_price"/>
+	  <result column="r_date"  property="r_date"/>
+	  <result column="r_goods" property="r_goods"/>
+	  <result column="category" property="category"/>
+	  <result column="gender"   property="gender"/>
+	</resultMap>
+	
+	<resultMap id="ReceiptItemResultMap" type="com.routerecipt.project.DTO.ReceiptItemDTO">
+	  <id     column="item_id"       property="item_id"/>
+	  <result column="r_no"          property="r_no"/>
+	  <result column="item_name"     property="item_name"/>
+	  <result column="item_category" property="item_category"/>
+	  <result column="item_price"    property="item_price"/>
+	</resultMap>
+	
+	
+  
+
+  <!-- ===================== SELECT: items by receipt nos ===================== -->
+  <select id="selectTempReceiptsByNos"
+	        parameterType="map"
+	        resultMap="ReceiptResultMap">
+	  SELECT r_no, r_u, r_place, r_price, r_date, r_goods, category, gender
+	  FROM receipt
+	  WHERE r_no IN
+	  <foreach collection="nos" item="no" open="(" separator="," close=")">
+	    #{no}
+	  </foreach>
+	  ORDER BY r_no DESC
+	</select>
+	
+	<select id="selectItemsByReceiptNos"
+	        parameterType="map"
+	        resultMap="ReceiptItemResultMap">
+	  SELECT item_id, r_no, item_name, item_category, item_price
+	  FROM receipt_item
+	  WHERE r_no IN
+	  <foreach collection="nos" item="no" open="(" separator="," close=")">
+	    #{no}
+	  </foreach>
+	  ORDER BY r_no DESC, item_id ASC
+	</select>
+	
+	<select id="getSavedReceiptsDate" resultMap="SaveMap">
+	    SELECT *
+	    FROM receipt
+	    WHERE r_u = #{r_u}
+	      AND DATE_FORMAT(r_date, '%Y-%m') = #{yearMonth}
+	    ORDER BY r_date ASC
+	</select>
+	
+
+
+
+</mapper>
