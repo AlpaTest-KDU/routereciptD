@@ -1,6 +1,5 @@
 package com.routerecipt.project.service;
 
-
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +44,7 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
         }
 
         List<ReceiptItemDTO> items = receipt.getItems();
+        String place = receipt.getR_place();
 
         /* ===============================
          * 1️⃣ 아이템 단위 AI 분류 + FALLBACK
@@ -57,14 +57,17 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
 
                 // 1-1) 상품명이 없으면 무조건 FALLBACK
                 if (text == null || text.isBlank()) {
-                    item.setItem_category(ItemCategory.ETC.name());
-                    item.setAi_source("FALLBACK");
-                    item.setAi_confidence(0.0);
+                    applyFallback(item);
                     continue;
                 }
 
                 // 1-2) AI 분류 시도
-                AiCategoryResponse ai = aiCategoryService.classifyItem(text);
+                AiCategoryResponse ai = null;
+                try {
+                    ai = aiCategoryService.classifyItem(text);
+                } catch (Exception e) {
+                    log.warn("AI classify failed. text={}", text, e);
+                }
 
                 // 1-3) AI 성공 / 실패 분기
                 if (ai != null && ai.getCategory() != null) {
@@ -72,28 +75,72 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
                     item.setAi_source(ai.getSource());
                     item.setAi_confidence(ai.getConfidence());
                 } else {
-                    item.setItem_category(ItemCategory.ETC.name());
-                    item.setAi_source("FALLBACK");
-                    item.setAi_confidence(0.0);
+                    applyFallback(item);
+                }
+
+                // 1-4) ⭐ ETC일 때만 place 기반 "보조 제안"
+                if (ItemCategory.ETC.name().equals(item.getItem_category())) {
+                    String suggest = suggestByPlace(place);
+                    if (suggest != null) {
+                        // ❗ 자동 확정 아님 / UI 전달용
+                        item.setSuggested_label(suggest);
+                    }
                 }
             }
         }
 
-        // 2) 영수증 저장 (부모 category 없음)
+        /* ===============================
+         * 2️⃣ 영수증 저장
+         * =============================== */
         receiptMapper.insertReceipt(receipt);
         Long rNo = receipt.getR_no();
 
-        // 3) 아이템 저장
-        if (rNo != null && receipt.getItems() != null) {
-            for (ReceiptItemDTO it : receipt.getItems()) {
+        /* ===============================
+         * 3️⃣ 아이템 저장
+         * =============================== */
+        if (rNo != null && items != null && !items.isEmpty()) {
+
+            for (ReceiptItemDTO it : items) {
+
                 it.setR_no(rNo);
 
+                // 최종 안전장치
                 if (it.getItem_category() == null) {
-                    it.setItem_category(ItemCategory.ETC.name());
+                    applyFallback(it);
                 }
+
                 receiptMapper.insertItem(it);
             }
         }
+    }
+
+    /* =====================================================
+     * place 기반 보조 제안 (자동 확정 ❌)
+     * ===================================================== */
+    private String suggestByPlace(String place) {
+        if (place == null) return null;
+
+        String p = place.replaceAll("\\s+", "").toLowerCase();
+
+        if (p.contains("주차")) {
+            return "주차비";
+        }
+        if (p.contains("택시") || p.contains("카카오t") || p.contains("티맵")) {
+            return "택시비";
+        }
+        if (p.contains("교통카드") || p.contains("티머니") || p.contains("캐시비")) {
+            return "교통카드충전";
+        }
+        return null;
+    }
+
+    /* =====================================================
+     * FALLBACK 공통 처리
+     * ===================================================== */
+    private void applyFallback(ReceiptItemDTO item) {
+        item.setItem_category(ItemCategory.ETC.name());
+        item.setAi_source("FALLBACK");
+        item.setAi_confidence(0.0);
     }
 
     /* =====================================================
@@ -142,14 +189,4 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
         }
         return calendar;
     }
-    
-    
 }
-    
-   
-    
-    
-
-
-
-    
