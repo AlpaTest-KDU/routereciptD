@@ -143,12 +143,13 @@ public class ReceiptController {
 	         return "receipt/receiptRegisterPage";
 	     }
 
-	     List<ReceiptDTO> receipts =
-	             receiptQueryService.getRecentReceipts(recentNos);
+	     // 여기서 받아오는 receipts 안에, 저장된 “택시” 상품이 포함되어 있어야 함
+	     List<ReceiptDTO> receipts = receiptQueryService.getRecentReceipts(recentNos);
 
 	     model.addAttribute("receipts", receipts);
 	     return "receipt/receiptRegisterPage";
 	 }
+
 
 	 @GetMapping("/writeReceipt")
 	 public String writeReceiptForm(Model model, Principal principal) {
