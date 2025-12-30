@@ -1,5 +1,10 @@
 package com.routerecipt.project.controller;
 
+import com.routerecipt.project.dto.MyPageSummaryDTO;
+import com.routerecipt.project.service.ReceiptCategoryServiceImp;
+import com.routerecipt.project.service.ReceiptQueryService;
+import com.routerecipt.project.service.ReceiptQueryServiceImp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -11,7 +16,10 @@ import com.routerecipt.project.security.LoginDetails;
 
 @Controller
 public class MainController {
-	
+
+	@Autowired
+	private ReceiptQueryService receiptQueryService;
+
 	// Branch Test
 	// 메인 화면
 	@GetMapping("/")
@@ -54,6 +62,11 @@ public class MainController {
     	model.addAttribute("u_email", user.getU_email());
     	model.addAttribute("u_birthday", user.getU_birthday());
     	model.addAttribute("gender", user.getGender());
+
+		// 통계 데이터 조회 및 모델 추가
+		MyPageSummaryDTO summary = receiptQueryService.getMyPageSummary(user.getU_id());
+		model.addAttribute("summary", summary);
+
 		return "user/userInfoShowPage";
 	}
 		
