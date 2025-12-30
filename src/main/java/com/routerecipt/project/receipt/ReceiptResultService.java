@@ -1,3 +1,4 @@
+// src/main/java/com/routerecipt/project/receipt/ReceiptResultService.java
 package com.routerecipt.project.receipt;
 
 import org.springframework.stereotype.Service;
@@ -7,32 +8,27 @@ import com.routerecipt.project.mapper.ReceiptResultMapper;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Service
 @RequiredArgsConstructor
 public class ReceiptResultService {
-	 private final ReceiptResultMapper receiptresultmapper;
-	 
-	    public ReceiptAnalysisStatsdto getStats(String uId) {
 
-	    	ReceiptAnalysisStatsdto radto = new ReceiptAnalysisStatsdto();
+    private final ReceiptResultMapper receiptresultmapper;
 
-	        // 1) 일별
-	    	radto.setDailyData(receiptresultmapper.selectDailyTotalByUser(uId));
+    // /user/analysisMonthlyPage : 1,2,3만
+    public ReceiptAnalysisStatsdto getAnalysisMonthlyPageStats(String uId) {
+        ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
+        dto.setDailyData(receiptresultmapper.selectDailyTotalByUser(uId));
+        dto.setWeeklyData(receiptresultmapper.selectWeeklyTotalByUser(uId));
+        dto.setMonthlyData(receiptresultmapper.selectMonthlyTotalByUser(uId));
+        return dto;
+    }
 
-	        // 2) 주별
-	    	radto.setWeeklyData(receiptresultmapper.selectWeeklyTotalByUser(uId));
-
-	        // 3) 월별
-	    	radto.setMonthlyData(receiptresultmapper.selectMonthlyTotalByUser(uId));
-
-	        // 4) 성별
-	    	radto.setGenderData(receiptresultmapper.selectTotalByGender());
-
-	        // 5) 평균
-	    	radto.setMyAvg(receiptresultmapper.selectMyAverage(uId));
-	    	radto.setAllAvg(receiptresultmapper.selectAllAverage());
-
-	        return radto;
-	    }
+    // /user/analysisPage : 4,5,6만
+    public ReceiptAnalysisStatsdto getAnalysisPageStats(String uId) {
+        ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
+        dto.setGenderData(receiptresultmapper.selectTotalByGender());
+        dto.setMyAvg(receiptresultmapper.selectMyAverage(uId));
+        dto.setAllAvg(receiptresultmapper.selectAllAverage());
+        return dto;
+    }
 }
