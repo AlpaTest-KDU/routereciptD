@@ -3,39 +3,42 @@ version: "3.8"
 services:
   mariadb:
     image: mariadb:11.4
+    container_name: routereciptd-mariadb
     environment:
       MYSQL_ROOT_PASSWORD: "Vheh150630!"
       MYSQL_DATABASE: routereciptdb
-      MYSQL_USER: reciptback
-      MYSQL_PASSWORD: "rainbow77&&**"
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     restart: always
 
   redis-bloom:
     image: redislabs/rebloom:latest
+    container_name: routereciptd-redis
     restart: always
-
-  fastapi:
-    build: ./fastapi
-    restart: unless-stopped
 
   springboot:
     build: .
+    container_name: routereciptd-springboot
     depends_on:
       - mariadb
       - redis-bloom
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
       SPRING_PROFILES_ACTIVE: dev
+
+      # ===== DB =====
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/routereciptdb
-      SPRING_DATASOURCE_USERNAME: reciptback
-      SPRING_DATASOURCE_PASSWORD: "rainbow77&&**"
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+      # ===== Redis =====
       SPRING_DATA_REDIS_HOST: redis-bloom
       SPRING_DATA_REDIS_PORT: 6379
-      FASTAPI_BASE_URL: http://fastapi:8000
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
     restart: unless-stopped
 
 volumes:
