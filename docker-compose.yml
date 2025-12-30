@@ -3,57 +3,39 @@ version: "3.8"
 services:
   mariadb:
     image: mariadb:11.4
-    container_name: mariadb-dev
     environment:
-      MYSQL_ROOT_PASSWORD: Vheh150630!
+      MYSQL_ROOT_PASSWORD: "Vheh150630!"
       MYSQL_DATABASE: routereciptdb
       MYSQL_USER: reciptback
-      MYSQL_PASSWORD: rainbow77&&**
-    ports:
-      - "3306:3306"
+      MYSQL_PASSWORD: "rainbow77&&**"
     volumes:
       - db_data:/var/lib/mysql
     restart: always
 
   redis-bloom:
     image: redislabs/rebloom:latest
-    container_name: redis-bloom-dev
-    ports:
-      - "6379:6379"
     restart: always
+
+  fastapi:
+    build: ./fastapi
+    restart: unless-stopped
 
   springboot:
     build: .
-    container_name: springboot-dev
     depends_on:
       - mariadb
       - redis-bloom
-      - fastapi
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/routereciptdb
       SPRING_DATASOURCE_USERNAME: reciptback
-      SPRING_DATASOURCE_PASSWORD: rainbow77&&**
-
+      SPRING_DATASOURCE_PASSWORD: "rainbow77&&**"
       SPRING_DATA_REDIS_HOST: redis-bloom
       SPRING_DATA_REDIS_PORT: 6379
-
       FASTAPI_BASE_URL: http://fastapi:8000
-      OPENAI_API_KEY: "${OPENAI_API_KEY}"
-    restart: unless-stopped
-
-  fastapi:
-    build:
-      context: ./fastapi
-      dockerfile: Dockerfile
-    container_name: fastapi-dev
-    ports:
-      - "8000:8000"
-    environment:
-      ENV: dev
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     restart: unless-stopped
 
 volumes:
