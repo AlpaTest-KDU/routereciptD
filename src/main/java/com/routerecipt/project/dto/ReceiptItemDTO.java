@@ -9,7 +9,7 @@ public class ReceiptItemDTO {
 	private Long r_no;
 	private String item_name;
 	private String item_category;
-	private int item_price;
+	private Integer item_price;
 	
 	// AI 분류 메타데이터
 	private String ai_source; // RULE / AI / FALLBACK

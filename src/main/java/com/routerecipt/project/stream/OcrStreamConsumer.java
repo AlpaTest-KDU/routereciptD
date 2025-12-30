@@ -131,7 +131,9 @@ public class OcrStreamConsumer {
                             Paths.get(imagePath).getFileName().toString()
                     );
 
+
             if (receipt == null) return;
+
 
             receipt.setR_u(userId);
 
