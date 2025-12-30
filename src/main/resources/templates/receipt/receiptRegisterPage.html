@@ -76,17 +76,36 @@
     </div>
 
     <!-- ================= 선택된 영수증 정보 ================= -->
-    <div id="detailArea" class="info-box" style="display:none;">
+	<div id="detailArea" class="info-box" style="display:none;">
 
-        <h3>기본 정보</h3>
-        <p>가게명: <span id="place"></span></p>
-        <p>날짜: <span id="date"></span></p>
-        <p>총액: <span id="price"></span>원</p>
-
-        <h3>카테고리별 항목</h3>
-        <div id="categoryArea" class="category-box"></div>
-
-    </div>
+	    <h3>기본 정보</h3>
+	    <p>가게명: <span id="placeText"></span></p>
+	    <p>날짜: <span id="dateText"></span></p>
+	    <p>총액: <span id="priceText"></span>원</p>
+	
+	    <!-- ✅ 확정(업데이트) 폼: items input이 반드시 이 form 안에 있어야 전송됨 -->
+	    <form id="confirmForm" th:action="@{/receipt/confirm}" method="post" onsubmit="return beforeSubmitConfirm();">
+	      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+	
+	      <!-- 기본정보는 수정 불가지만 서버로 전송 -->
+	      <input type="hidden" name="r_no"    id="rNoInput">
+	      <input type="hidden" name="r_place" id="rPlaceInput">
+	      <input type="hidden" name="r_date"  id="rDateInput">
+	      <input type="hidden" name="r_price" id="rPriceInput">
+	
+	      <h3>카테고리별 항목 (수정 가능)</h3>
+	
+	      <!-- ✅ 여기에 JS로 item_names/item_prices/item_categories input이 생성됨 -->
+	      <div id="categoryArea" class="category-box"></div>
+	
+	      <div style="margin-top:15px; display:flex; gap:10px;">
+	        <button type="button" onclick="recalcTotalToHidden()">총액 다시 계산</button>
+	        <button type="submit">영수증확정</button>
+	      </div>
+	    </form>
+	
+	  </div>
+	</div>
 
 </div>
 
@@ -183,54 +202,74 @@ const receipts = /*[[${receipts}]]*/ [];
 <!-- ================= 핵심 JS ================= -->
 <script>
 function showReceipt(idx) {
-    const receipt = receipts[idx];
-    console.log("SELECTED RECEIPT:", receipt);
+	  selectedIdx = idx;
+	  const receipt = receipts[idx];
+	  if (!receipt) return;
 
-    if (!receipt) return;
+	  // ✅ 기본 정보 (span 표시 + hidden 세팅)
+	  const place = receipt.r_place ?? "";
+	  const date  = (receipt.r_date ?? "").toString().substring(0, 10); // yyyy-MM-dd
+	  const price = Number(receipt.r_price ?? 0);
 
-    // 기본 정보
-    document.getElementById("place").textContent =
-        receipt.r_place ?? "";
+	  document.getElementById("placeText").textContent = place;
+	  document.getElementById("dateText").textContent  = date;
+	  document.getElementById("priceText").textContent = price.toLocaleString();
 
-    document.getElementById("date").textContent =
-        receipt.r_date ?? "";
+	  document.getElementById("rNoInput").value    = receipt.r_no ?? "";
+	  document.getElementById("rPlaceInput").value = place;
+	  document.getElementById("rDateInput").value  = date;
+	  document.getElementById("rPriceInput").value = price;
 
-    document.getElementById("price").textContent =
-        receipt.r_price ? receipt.r_price.toLocaleString() : "";
+	  const categoryMap = {
+	    FOOD: "음식",
+	    MEDICAL: "의료",
+	    CLOTHES: "의류",
+	    HOME: "주거",
+	    LIVING: "생활",
+	    CULTURE: "문화",
+	    TRAFFIC: "교통",
+	    ETC: "기타"
+	  };
 
-    const categoryMap = {
-        FOOD: "음식",
-        MEDICAL: "의료",
-        CLOTHES: "의류",
-        HOME: "주거",
-        LIVING: "생활",
-        CULTURE: "문화",
-        TRAFFIC: "교통",
-        ETC: "기타"
-    };
+	  let html = "";
 
-    let html = "";
+	  if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
+	    html = "<p>카테고리 정보가 없습니다.</p>";
+	  } else {
+	    for (const [key, label] of Object.entries(categoryMap)) {
+	      const items = receipt.items.filter(it => it.item_category === key);
+	      if (items.length === 0) continue;
 
-    if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
-        html = "<p>카테고리 정보가 없습니다.</p>";
-    } else {
-        for (const [key, label] of Object.entries(categoryMap)) {
-            const items = receipt.items.filter(
-                item => item.item_category === key
-            );
+	      html += `<h4>${label}</h4>`;
+	      html += `<ul style="list-style:none; padding-left:0;">`;
 
-            if (items.length === 0) continue;
+	      items.forEach((it) => {
+	        html += `
+	          <li style="margin:8px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+	            <!-- ✅ 반드시 복수형 name으로! -->
+	            <input type="hidden" name="item_categories" value="${escapeHtmlAttr(it.item_category)}">
 
-            html += `<h4>${label}</h4><ul>`;
-            items.forEach(item => {
-                html += `<li>${item.item_name} ${item.item_price.toLocaleString()}원</li>`;
-            });
-            html += `</ul>`;
-        }
-    }
+	            <span style="min-width:52px;">상품명</span>
+	            <input type="text" name="item_names" value="${escapeHtmlAttr(it.item_name ?? "")}" style="width:260px;">
 
-    document.getElementById("categoryArea").innerHTML = html;
-    document.getElementById("detailArea").style.display = "block";
+	            <span style="min-width:36px;">가격</span>
+	            <input type="number" name="item_prices" value="${Number(it.item_price ?? 0)}"
+	                   min="0" style="width:140px;" oninput="recalcTotalToHidden()">
+	            <span>원</span>
+
+	            <button type="button" onclick="removeItemRow(this)">삭제</button>
+	          </li>
+	        `;
+	      });
+
+	      html += `</ul>`;
+	    }
+	  }
+
+	  document.getElementById("categoryArea").innerHTML = html;
+	  document.getElementById("detailArea").style.display = "block";
+
+	  recalcTotalToHidden();
     
     
 }
@@ -432,6 +471,61 @@ function saveManualReceipt() {
 	    .replaceAll("'", "&#039;");
 	}
 </script>
+
+
+<!-- 데이터 분석 후 수정용 스크립트  -->
+<script>
+	
+	
+	// 화면에서 row 삭제(프론트에서만) -> 전송에서도 빠짐
+	function removeItemRow(btn) {
+	  const li = btn.closest("li");
+	  if (li) li.remove();
+	  recalcTotalToHidden();
+	}
+	
+	// 현재 화면의 item_price 합산 -> span 표시 + hidden r_price 갱신
+	function recalcTotalToHidden() {
+	  const priceInputs = document.querySelectorAll('#confirmForm input[name="item_prices"]');
+	  let total = 0;
+	  priceInputs.forEach(inp => {
+	    const v = Number(inp.value);
+	    if (!Number.isNaN(v)) total += v;
+	  });
+	
+	  document.getElementById("priceText").textContent = total.toLocaleString();
+	  document.getElementById("rPriceInput").value = total;
+	}
+	
+	// submit 직전 검증
+	function beforeSubmitConfirm() {
+	  const rNo = document.getElementById("rNoInput").value;
+	  if (!rNo) { alert("영수증 번호(r_no)가 없습니다."); return false; }
+	
+	  const names = document.querySelectorAll('#confirmForm input[name="item_names"]');
+	  if (!names || names.length === 0) { alert("상품이 1개 이상 있어야 합니다."); return false; }
+	
+	  // 총액 최신 반영
+	  recalcTotalToHidden();
+	
+	  // 최종 점검(개발 중 확인용)
+	  // console.log("names=", document.querySelectorAll('#confirmForm input[name="item_names"]').length);
+	
+	  return true;
+	}
+	
+	// attribute용 escape
+	function escapeHtmlAttr(str) {
+	  return String(str ?? "")
+	    .replaceAll("&", "&amp;")
+	    .replaceAll("<", "&lt;")
+	    .replaceAll(">", "&gt;")
+	    .replaceAll('"', "&quot;")
+	    .replaceAll("'", "&#039;");
+	}
+</script>
+
+
 
 
 </body>

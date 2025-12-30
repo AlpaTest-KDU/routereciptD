@@ -1,5 +1,6 @@
 package com.routerecipt.project.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,18 @@ public interface ReceiptApplicationService {
 
     /* 달력 데이터 생성 */
     List<Integer> buildCalendar(String yearMonth);
+    
+
+
+    void confirmReceipt(
+        Long r_no,
+        String r_place,
+        LocalDate r_date,
+        Integer r_price,
+        List<String> item_names,
+        List<Integer> item_prices,
+        List<String> item_categories
+    );
 }
 
 

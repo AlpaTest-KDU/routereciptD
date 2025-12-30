@@ -156,4 +156,33 @@
   <result property="suggested_label" column="suggested_label"/>
 </resultMap>
 
+
+	<!-- 1) 영수증 기본 정보 업데이트 -->
+	  <update id="updateReceiptBasic">
+	    UPDATE recipt
+	    SET
+	      r_place = #{r_place},
+	      r_date  = #{r_date},
+	      r_price = #{r_price}
+	    WHERE r_no = #{r_no}
+	  </update>
+	
+	  <!-- 2) 기존 아이템 삭제 -->
+	  <delete id="deleteItemsByReceiptNo">
+	    DELETE FROM receipt_item
+	    WHERE r_no = #{r_no}
+	  </delete>
+	
+	  <!-- 3) 아이템 배치 삽입 (foreach + index로 3개 리스트 동기화) -->
+	  <insert id="insertItemsBatch">
+	    INSERT INTO receipt_item (r_no, item_name, item_category, item_price)
+	    VALUES
+	    <foreach collection="item_names" item="nm" index="i" separator=",">
+	      (#{r_no},
+	       #{nm},
+	       #{item_categories[${i}]},
+	       #{item_prices[${i}]})
+	    </foreach>
+	  </insert>
+
 </mapper>

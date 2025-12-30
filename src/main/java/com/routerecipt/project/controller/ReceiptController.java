@@ -37,6 +37,7 @@ import com.routerecipt.project.dto.Userdto.Gender;
 import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.mapper.UserMapper;
 import com.routerecipt.project.service.ReceiptAnalyzeService;
+import com.routerecipt.project.service.ReceiptApplicationService;
 import com.routerecipt.project.service.ReceiptQueryService;
 import com.routerecipt.project.service.ReceiptService;
 
@@ -311,6 +312,38 @@ public class ReceiptController {
 
         return "redirect:/receipt/receiptRegisterPage";
     }
+    
+    private final ReceiptApplicationService receiptApplicationService;
+    
+    @PostMapping("/confirm")
+    public String confirmReceipt(
+            @RequestParam("r_no") Long r_no,
+            @RequestParam("r_place") String r_place,
+            @RequestParam("r_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate r_date,
+            @RequestParam("r_price") Integer r_price,
+            @RequestParam("item_names") List<String> item_names,
+            @RequestParam("item_prices") List<Integer> item_prices,
+            @RequestParam("item_categories") List<String> item_categories,
+            RedirectAttributes ra,
+            Principal principal
+    ) {
+        if (principal == null) return "redirect:/login";
+
+        if (item_names.size() != item_prices.size() || item_names.size() != item_categories.size()) {
+            ra.addFlashAttribute("saveMsg", "항목 데이터가 올바르지 않습니다.");
+            return "redirect:/receipt/receiptRegisterPage";
+        }
+
+        receiptApplicationService.confirmReceipt(
+                r_no, r_place, r_date, r_price,
+                item_names, item_prices, item_categories
+        );
+
+        ra.addFlashAttribute("saveMsg", "영수증이 업데이트(확정)되었습니다.");
+        return "redirect:/receipt/receiptRegisterPage";
+    }
+
+
 
 
 

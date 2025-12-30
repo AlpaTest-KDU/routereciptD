@@ -1,5 +1,6 @@
 package com.routerecipt.project.mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -36,6 +37,21 @@ public interface ReceiptMapper {
     List<ReceiptDTO> selectTempReceiptsByNos(@Param("nos") List<Long> nos);
     List<ReceiptItemDTO> selectItemsByReceiptNos(@Param("nos") List<Long> nos);
     
+    int updateReceiptBasic(
+            @Param("r_no") Long r_no,
+            @Param("r_place") String r_place,
+            @Param("r_date") LocalDate r_date,
+            @Param("r_price") Integer r_price
+    );
+
+    int deleteItemsByReceiptNo(@Param("r_no") Long r_no);
+
+    int insertItemsBatch(
+            @Param("r_no") Long r_no,
+            @Param("item_names") List<String> item_names,
+            @Param("item_prices") List<Integer> item_prices,
+            @Param("item_categories") List<String> item_categories
+    );
     
     
     

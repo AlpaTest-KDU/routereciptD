@@ -21,6 +21,14 @@ import com.routerecipt.project.mapper.ReceiptMapper;
 
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 @Service
 @AllArgsConstructor
 public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
@@ -112,6 +120,27 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
                 receiptMapper.insertItem(it);
             }
         }
+    }
+    
+    // 분석 후 수정을 하기 위함
+   
+    public void confirmReceipt(
+            Long r_no,
+            String r_place,
+            LocalDate r_date,
+            Integer r_price,
+            List<String> item_names,
+            List<Integer> item_prices,
+            List<String> item_categories
+    ) {
+        // 1) receipt 기본 정보 업데이트
+        receiptMapper.updateReceiptBasic(r_no, r_place, r_date, r_price);
+
+        // 2) 기존 items 삭제
+        receiptMapper.deleteItemsByReceiptNo(r_no);
+
+        // 3) 새 items insert
+        receiptMapper.insertItemsBatch(r_no, item_names, item_prices, item_categories);
     }
 
     /* =====================================================
