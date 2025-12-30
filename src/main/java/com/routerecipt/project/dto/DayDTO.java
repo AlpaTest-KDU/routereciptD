@@ -1,5 +1,6 @@
 package com.routerecipt.project.dto;
 
+
 import java.util.List;
 
 import lombok.Getter;
@@ -13,4 +14,5 @@ public class DayDTO {
 
     private int day;                    // 1 ~ 31
     private List<ReceiptDTO> receipts;  // 해당 날짜의 영수증
+
 }
