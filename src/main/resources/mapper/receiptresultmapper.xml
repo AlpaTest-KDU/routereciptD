@@ -16,7 +16,7 @@
         SELECT
             DATE(r_date) AS dt,
             SUM(r_price) AS total
-        FROM recipt_tb
+        FROM recipt
         WHERE r_u = #{value}
         GROUP BY DATE(r_date)
         ORDER BY dt
@@ -36,7 +36,7 @@
             MIN(DATE(r_date))   AS weekStart,
             MAX(DATE(r_date))   AS weekEnd,
             SUM(r_price)        AS total
-        FROM recipt_tb
+        FROM recipt
         WHERE r_u = #{value}
         GROUP BY YEARWEEK(r_date, 1)
         ORDER BY yearWeek
@@ -54,7 +54,7 @@
         SELECT
             DATE_FORMAT(r_date, '%Y-%m') AS ym,
             SUM(r_price)                 AS total
-        FROM recipt_tb
+        FROM recipt
         WHERE r_u = #{value}
         GROUP BY DATE_FORMAT(r_date, '%Y-%m')
         ORDER BY ym
@@ -71,8 +71,8 @@
         SELECT
             u.gender       AS gender,
             SUM(r.r_price) AS total
-        FROM recipt_tb r
-        JOIN user_tb u ON r.r_u = u.u_id
+        FROM recipt r
+        JOIN user u ON r.r_u = u.u_id
         GROUP BY u.gender
         ORDER BY u.gender
     </select>
@@ -92,7 +92,7 @@
             SELECT
                 DATE(r_date) AS dt,
                 SUM(r_price) AS daily_sum
-            FROM recipt_tb
+            FROM recipt
             WHERE r_u = #{value}
             GROUP BY DATE(r_date)
         ) t
@@ -112,7 +112,7 @@
             SELECT
                 DATE(r_date) AS dt,
                 SUM(r_price) AS daily_sum
-            FROM recipt_tb
+            FROM recipt
             GROUP BY DATE(r_date)
         ) t
     </select>

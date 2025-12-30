@@ -3,6 +3,9 @@ package com.routerecipt.project.mapper;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
 public interface ReceiptResultMapper {
 	 // 1. 일별 지출
     List<Map<String, Object>> selectDailyTotalByUser(String uId);
