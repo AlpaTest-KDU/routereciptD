@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/base}">
 <head>
 <meta charset="UTF-8">
-<title>영수증 등록</title>
+	<title>영수증 등록</title>
 
 <link th:href="@{/css/Login.css}" rel="stylesheet">
 
 <style>
     .container {
         width: 1000px;
+		height: 80vh;
         margin: 40px auto;
     }
 
@@ -50,45 +53,51 @@
 </head>
 
 <body>
+	<div layout:fragment="content">
+		<div class="container" sec:authorize="isAuthenticated()">
 
-<div class="container" sec:authorize="isAuthenticated()">
+			<h2>영수증 등록</h2>
 
-    <h2>영수증 등록</h2>
+			<!-- ================= 파일 업로드 ================= -->
+			<form th:action="@{/receipt/uploadReceipt}"
+				  method="post"
+				  enctype="multipart/form-data">
+				<input type="file" name="receipt" multiple required>
+				<button type="submit">영수증 분석</button>
+			</form>
 
-    <!-- ================= 파일 업로드 ================= -->
-    <form th:action="@{/receipt/uploadReceipt}"
-          method="post"
-          enctype="multipart/form-data">
-        <input type="file" name="receipt" multiple required>
-        <button type="submit">영수증 분석</button>
-    </form>
+			<!-- ================= 영수증 목록 ================= -->
+			<div class="receipt-list" th:if="${receipts != null and !receipts.isEmpty()}">
+				<h3>영수증 목록</h3>
 
-    <!-- ================= 영수증 목록 ================= -->
-    <div class="receipt-list" th:if="${receipts != null and !receipts.isEmpty()}">
-        <h3>영수증 목록</h3>
+				<div th:each="receipt, stat : ${receipts}">
+					<button type="button"
+							th:text="${stat.index + 1} + '번 - ' + ${receipt.r_place}"
+							th:onclick="|showReceipt(${stat.index})|">
+					</button>
+				</div>
+			</div>
 
-        <div th:each="receipt, stat : ${receipts}">
-            <button type="button"
-                    th:text="${stat.index + 1} + '번 - ' + ${receipt.r_place}"
-                    th:onclick="|showReceipt(${stat.index})|">
-            </button>
-        </div>
-    </div>
 
-    <!-- ================= 선택된 영수증 정보 ================= -->
-    <div id="detailArea" class="info-box" style="display:none;">
+			<!-- ================= 선택된 영수증 정보 ================= -->
+			<div id="detailArea" class="info-box" style="display:none;">
 
-        <h3>기본 정보</h3>
-        <p>가게명: <span id="place"></span></p>
-        <p>날짜: <span id="date"></span></p>
-        <p>총액: <span id="price"></span>원</p>
 
-        <h3>카테고리별 항목</h3>
-        <div id="categoryArea" class="category-box"></div>
+				<h3>기본 정보</h3>
+				<p>가게명: <span id="place"></span></p>
+				<p>날짜: <span id="date"></span></p>
+				<p>총액: <span id="price"></span>원</p>
 
-    </div>
+				<h3>카테고리별 항목</h3>
+				<div id="categoryArea" class="category-box"></div>
 
-</div>
+			</div>
+
+		</div>
+
+		<!-- ============= 확인(현 마이페이지) 버튼 ============== -->
+		<button th:if="${receipts != null and !receipts.isEmpty()}" type="button" class="confirmBtn"
+				th:onclick="|location.href='@{/user/userInfoShowPage}'|">확인</button>
 
 
 	
@@ -173,266 +182,285 @@
 	</div>
 
 
-<!-- ================= receipts → JS ================= -->
-<script th:inline="javascript">
-/*<![CDATA[*/
-const receipts = /*[[${receipts}]]*/ [];
-/*]]>*/
-</script>
 
-<!-- ================= 핵심 JS ================= -->
-<script>
-function showReceipt(idx) {
-    const receipt = receipts[idx];
-    console.log("SELECTED RECEIPT:", receipt);
+				  <div class="row">
+					<label>날짜</label>
+					<input type="date" id="m_date" name="r_date" required>
+				  </div>
 
-    if (!receipt) return;
+				  <div class="row">
+					<label>총액</label>
+					<input type="number" id="m_price" name="r_price" placeholder="자동 계산" min="0" readonly>
+				  </div>
 
-    // 기본 정보
-    document.getElementById("place").textContent =
-        receipt.r_place ?? "";
+				  <hr>
 
-    document.getElementById("date").textContent =
-        receipt.r_date ?? "";
+				  <h4>상품 목록</h4>
 
-    document.getElementById("price").textContent =
-        receipt.r_price ? receipt.r_price.toLocaleString() : "";
+				  <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+					<select id="m_category" name="itemCategories" >
+					  <option value="FOOD">음식</option>
+					  <option value="MEDICAL">의료</option>
+					  <option value="CLOTHES">의류</option>
+					  <option value="HOME">주거</option>
+					  <option value="LIVING">생활</option>
+					  <option value="CULTURE">문화</option>
+					  <option value="TRAFFIC">교통</option>
+					  <option value="ETC" selected>기타</option>
+					</select>
 
-    const categoryMap = {
-        FOOD: "음식",
-        MEDICAL: "의료",
-        CLOTHES: "의류",
-        HOME: "주거",
-        LIVING: "생활",
-        CULTURE: "문화",
-        TRAFFIC: "교통",
-        ETC: "기타"
-    };
+					<input type="text" id="m_itemName" name="itemNames"	 placeholder="상품명 (예: 생수)">
+					<input type="number" id="m_itemPrice" name="itemPrices" placeholder="가격" min="0">
+					<button type="button" onclick="addManualItem()">추가</button>
+				  </div>
 
-    let html = "";
+				  <table id="manualItemsTable" border="1" style="width:100%; border-collapse:collapse;">
+					<thead>
+					  <tr>
+						<th style="width:20%;">카테고리</th>
+						<th>상품명</th>
+						<th style="width:20%;">가격</th>
+						<th style="width:12%;">삭제</th>
+					  </tr>
+					</thead>
+					<tbody id="manualItemsBody">
+					</tbody>
+				  </table>
 
-    if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
-        html = "<p>카테고리 정보가 없습니다.</p>";
-    } else {
-        for (const [key, label] of Object.entries(categoryMap)) {
-            const items = receipt.items.filter(
-                item => item.item_category === key
-            );
+				</div>
 
-            if (items.length === 0) continue;
+			<div class="modal-footer" style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end;">
+			  <button type="button" onclick="saveManualReceipt()">저장</button>
+			</form>
+			  <button type="button" onclick="closeManualModal()">취소</button>
+			</div>
+		</div>
 
-            html += `<h4>${label}</h4><ul>`;
-            items.forEach(item => {
-                html += `<li>${item.item_name} ${item.item_price.toLocaleString()}원</li>`;
-            });
-            html += `</ul>`;
-        }
-    }
+		<!-- ================= receipts → JS ================= -->
+		<script th:inline="javascript">
+		/*<![CDATA[*/
+		const receipts = /*[[${receipts}]]*/ [];
+		/*]]>*/
+		</script>
 
-    document.getElementById("categoryArea").innerHTML = html;
-    document.getElementById("detailArea").style.display = "block";
-    
-    
-}
+		<!-- ================= 핵심 JS ================= -->
+		<script>
+		function showReceipt(idx) {
+			const receipt = receipts[idx];
+			console.log("SELECTED RECEIPT:", receipt);
 
+			if (!receipt) return;
 
-</script>
+			// 기본 정보
+			document.getElementById("place").textContent =
+				receipt.r_place ?? "";
 
-<script>
-let manualItems = []; // 모달에서 입력한 상품들
+			document.getElementById("date").textContent =
+				receipt.r_date ?? "";
 
-function openManualModal() {
-  document.getElementById("manualModal").style.display = "flex";
-  resetManualForm();
-}
+			document.getElementById("price").textContent =
+				receipt.r_price ? receipt.r_price.toLocaleString() : "";
 
-function closeManualModal() {
-  document.getElementById("manualModal").style.display = "none";
-}
+			const categoryMap = {
+				FOOD: "음식",
+				MEDICAL: "의료",
+				CLOTHES: "의류",
+				HOME: "주거",
+				LIVING: "생활",
+				CULTURE: "문화",
+				TRAFFIC: "교통",
+				ETC: "기타"
+			};
 
-function resetManualForm() {
-  document.getElementById("m_place").value = "";
-  document.getElementById("m_date").value = "";
-  document.getElementById("m_price").value = "";
-  document.getElementById("m_category").value = "ETC";
-  document.getElementById("m_itemName").value = "";
-  document.getElementById("m_itemPrice").value = "";
-  manualItems = [];
-  renderManualItems();
-  updateManualTotal();
-}
+			let html = "";
 
-function addManualItem() {
-  const category = document.getElementById("m_category").value;
-  const itemName = (document.getElementById("m_itemName").value || "").trim();
-  const itemPriceRaw = document.getElementById("m_itemPrice").value;
+			if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
+				html = "<p>카테고리 정보가 없습니다.</p>";
+			} else {
+				for (const [key, label] of Object.entries(categoryMap)) {
+					const items = receipt.items.filter(
+						item => item.item_category === key
+					);
 
-  if (!itemName) {
-    alert("상품명을 입력하세요.");
-    return;
-  }
+					if (items.length === 0) continue;
 
-  const itemPrice = Number(itemPriceRaw);
-  if (Number.isNaN(itemPrice) || itemPrice < 0) {
-    alert("가격을 올바르게 입력하세요.");
-    return;
-  }
+					html += `<h4>${label}</h4><ul>`;
+					items.forEach(item => {
+						html += `<li>${item.item_name} ${item.item_price.toLocaleString()}원</li>`;
+					});
+					html += `</ul>`;
+				}
+			}
 
-  manualItems.push({
-    item_category: category,
-    item_name: itemName,
-    item_price: itemPrice
-  });
-
-  // 입력칸 초기화
-  document.getElementById("m_itemName").value = "";
-  document.getElementById("m_itemPrice").value = "";
-  renderManualItems();
-  updateManualTotal();
-}
-
-function removeManualItem(index) {
-  manualItems.splice(index, 1);
-  renderManualItems();
-  updateManualTotal();
-}
-
-	function renderManualItems() {
-	  const body = document.getElementById("manualItemsBody");
-	  const hiddenBox = document.getElementById("manualHiddenInputs");
-
-	  const categoryLabel = {
-	    FOOD: "음식",
-	    MEDICAL: "의료",
-	    CLOTHES: "의류",
-	    HOME: "주거",
-	    LIVING: "생활",
-	    CULTURE: "문화",
-	    TRAFFIC: "교통",
-	    ETC: "기타"
-	  };
-
-	// 테이블
-	  let html = "";
-	  manualItems.forEach((it, idx) => {
-	    html += `
-	      <tr>
-	        <td>${categoryLabel[it.item_category] ?? it.item_category}</td>
-	        <td>${escapeHtml(it.item_name)}</td>
-	        <td style="text-align:right;">${Number(it.item_price).toLocaleString()}</td>
-	        <td style="text-align:center;">
-	          <button type="button" onclick="removeManualItem(${idx})">삭제</button>
-	        </td>
-	      </tr>
-	    `;
-	  });
-	  body.innerHTML = html;
-
-	  // ✅ hidden inputs (서버로 List 전송)
-	  let hiddenHtml = "";
-	  manualItems.forEach((it) => {
-	    hiddenHtml += `<input type="hidden" name="item_name" value="${escapeHtmlAttr(it.item_name)}">`;
-	    hiddenHtml += `<input type="hidden" name="item_price" value="${Number(it.item_price)}">`;
-	    hiddenHtml += `<input type="hidden" name="item_category" value="${it.item_category}">`;
-	  });
-	  hiddenBox.innerHTML = hiddenHtml;
-	}
-
-	// attribute용 escape (value="")
-	function escapeHtmlAttr(str) {
-	  return String(str)
-	    .replaceAll("&", "&amp;")
-	    .replaceAll("<", "&lt;")
-	    .replaceAll(">", "&gt;")
-	    .replaceAll('"', "&quot;")
-	    .replaceAll("'", "&#039;");
-	}
-
-// 저장: receipts 배열에 "현재 showReceipt가 기대하는 형태"로 추가
-function saveManualReceipt() {
-  const place = (document.getElementById("m_place").value || "").trim();
-  const date = document.getElementById("m_date").value;
-
-  if (!place) { alert("가게명을 입력하세요."); return; }
-  if (!date) { alert("날짜를 선택하세요."); return; }
-  if (!manualItems || manualItems.length === 0) { alert("상품을 1개 이상 추가하세요."); return; }
-
-  const price = manualItems.reduce((sum, it) => sum + Number(it.item_price || 0), 0);
-
-  const newReceipt = {
-    r_place: place,
-    r_date: date,
-    r_price: price,
-    items: manualItems.map(it => ({
-      item_category: it.item_category,
-      item_name: it.item_name,
-      item_price: it.item_price
-    }))
-  };
-
-  receipts.push(newReceipt);
-  appendReceiptButton(receipts.length - 1, newReceipt);
-  closeManualModal();
-  showReceipt(receipts.length - 1);
-}
+			document.getElementById("categoryArea").innerHTML = html;
+			document.getElementById("detailArea").style.display = "block";
 
 
-	function appendReceiptButton(index, receipt) {
-	  // receipt-list가 없던 경우도 고려 (처음 수기입력으로만 추가할 때)
-	  let list = document.querySelector(".receipt-list");
-	  if (!list) {
-	    // receipt-list 컨테이너 생성
-	    const container = document.querySelector(".container");
-	    list = document.createElement("div");
-	    list.className = "receipt-list";
-	
-	    const h3 = document.createElement("h3");
-	    h3.textContent = "영수증 목록";
-	    list.appendChild(h3);
-	
-	    container.appendChild(list);
-	  }
-	
-	  // 버튼 생성
-	  const btn = document.createElement("button");
-	  btn.type = "button";
-	  btn.textContent = `${index + 1}번 - ${receipt.r_place}`;
-	  btn.onclick = () => showReceipt(index);
-	
-	  list.appendChild(btn);
-	}
-	
-	
-	
-	function updateManualTotal() {
-	  const total = manualItems.reduce((sum, it) => sum + Number(it.item_price || 0), 0);
-	  document.getElementById("m_price").value = total;
-	}
 
-	function beforeSubmitManualReceipt() {
-	  const place = (document.getElementById("m_place").value || "").trim();
-	  const date = document.getElementById("m_date").value;
-
-	  if (!place) { alert("가게명을 입력하세요."); return false; }
-	  if (!date) { alert("날짜를 선택하세요."); return false; }
-	  if (!manualItems || manualItems.length === 0) { alert("상품을 1개 이상 추가하세요."); return false; }
-
-	  // 총액 최신 반영
-	  updateManualTotal();
-	  renderManualItems();
-	  return true; // ✅ true면 form submit 진행
-	}
-	
-	function escapeHtml(str) {
-	  return String(str)
-	    .replaceAll("&", "&amp;")
-	    .replaceAll("<", "&lt;")
-	    .replaceAll(">", "&gt;")
-	    .replaceAll('"', "&quot;")
-	    .replaceAll("'", "&#039;");
-	}
-</script>
+		}
 
 
+		</script>
+
+		<script>
+		let manualItems = []; // 모달에서 입력한 상품들
+
+		function openManualModal() {
+		  document.getElementById("manualModal").style.display = "flex";
+		  resetManualForm();
+		}
+
+		function closeManualModal() {
+		  document.getElementById("manualModal").style.display = "none";
+		}
+
+		function resetManualForm() {
+		  document.getElementById("m_place").value = "";
+		  document.getElementById("m_date").value = "";
+		  document.getElementById("m_price").value = "";
+		  document.getElementById("m_category").value = "ETC";
+		  document.getElementById("m_itemName").value = "";
+		  document.getElementById("m_itemPrice").value = "";
+		  manualItems = [];
+		  renderManualItems();
+		  updateManualTotal();
+		}
+
+		function addManualItem() {
+		  const category = document.getElementById("m_category").value;
+		  const itemName = (document.getElementById("m_itemName").value || "").trim();
+		  const itemPriceRaw = document.getElementById("m_itemPrice").value;
+
+		  if (!itemName) {
+			alert("상품명을 입력하세요.");
+			return;
+		  }
+
+		  const itemPrice = Number(itemPriceRaw);
+		  if (Number.isNaN(itemPrice) || itemPrice < 0) {
+			alert("가격을 올바르게 입력하세요.");
+			return;
+		  }
+
+		  manualItems.push({
+			item_category: category,
+			item_name: itemName,
+			item_price: itemPrice
+		  });
+
+		  // 입력칸 초기화
+		  document.getElementById("m_itemName").value = "";
+		  document.getElementById("m_itemPrice").value = "";
+		  renderManualItems();
+		  updateManualTotal();
+		}
+
+		function removeManualItem(index) {
+		  manualItems.splice(index, 1);
+		  renderManualItems();
+		  updateManualTotal();
+		}
+
+		function renderManualItems() {
+		  const body = document.getElementById("manualItemsBody");
+		  const categoryLabel = {
+			FOOD: "음식",
+			MEDICAL: "의료",
+			CLOTHES: "의류",
+			HOME: "주거",
+			LIVING: "생활",
+			CULTURE: "문화",
+			TRAFFIC: "교통",
+			ETC: "기타"
+		  };
+
+		  let html = "";
+		  manualItems.forEach((it, idx) => {
+			html += `
+			  <tr>
+				<td>${categoryLabel[it.item_category] ?? it.item_category}</td>
+				<td>${escapeHtml(it.item_name)}</td>
+				<td style="text-align:right;">${Number(it.item_price).toLocaleString()}</td>
+				<td style="text-align:center;">
+				  <button type="button" onclick="removeManualItem(${idx})">삭제</button>
+				</td>
+			  </tr>
+			`;
+		  });
+
+		  body.innerHTML = html;
+		}
+
+		// 저장: receipts 배열에 "현재 showReceipt가 기대하는 형태"로 추가
+		function saveManualReceipt() {
+		  const place = (document.getElementById("m_place").value || "").trim();
+		  const date = document.getElementById("m_date").value;
+
+		  if (!place) { alert("가게명을 입력하세요."); return; }
+		  if (!date) { alert("날짜를 선택하세요."); return; }
+		  if (!manualItems || manualItems.length === 0) { alert("상품을 1개 이상 추가하세요."); return; }
+
+		  const price = manualItems.reduce((sum, it) => sum + Number(it.item_price || 0), 0);
+
+		  const newReceipt = {
+			r_place: place,
+			r_date: date,
+			r_price: price,
+			items: manualItems.map(it => ({
+			  item_category: it.item_category,
+			  item_name: it.item_name,
+			  item_price: it.item_price
+			}))
+		  };
+
+		  receipts.push(newReceipt);
+		  appendReceiptButton(receipts.length - 1, newReceipt);
+		  closeManualModal();
+		  showReceipt(receipts.length - 1);
+		}
+
+
+
+		function appendReceiptButton(index, receipt) {
+		  // receipt-list가 없던 경우도 고려 (처음 수기입력으로만 추가할 때)
+		  let list = document.querySelector(".receipt-list");
+		  if (!list) {
+			// receipt-list 컨테이너 생성
+			const container = document.querySelector(".container");
+			list = document.createElement("div");
+			list.className = "receipt-list";
+
+			const h3 = document.createElement("h3");
+			h3.textContent = "영수증 목록";
+			list.appendChild(h3);
+
+			container.appendChild(list);
+		  }
+
+		  // 버튼 생성
+		  const btn = document.createElement("button");
+		  btn.type = "button";
+		  btn.textContent = `${index + 1}번 - ${receipt.r_place}`;
+		  btn.onclick = () => showReceipt(index);
+
+		  list.appendChild(btn);
+		}
+
+		// XSS 방지용
+		function escapeHtml(str) {
+		  return String(str)
+			.replaceAll("&", "&amp;")
+			.replaceAll("<", "&lt;")
+			.replaceAll(">", "&gt;")
+			.replaceAll('"', "&quot;")
+			.replaceAll("'", "&#039;");
+		}
+
+		function updateManualTotal() {
+		  const total = manualItems.reduce((sum, it) => sum + Number(it.item_price || 0), 0);
+		  document.getElementById("m_price").value = total;
+		}
+		</script>
+	</div>
 </body>
 </html>
