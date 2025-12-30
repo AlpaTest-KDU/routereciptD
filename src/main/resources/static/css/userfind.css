@@ -35,7 +35,8 @@
 	font-weight: 350;
 }
 
-.userFindId {
+.userFindId,
+.userFindPw {
   	background: #ffffff;
   	border: 1px solid #e5e7eb;
   	border-radius: 18px;
