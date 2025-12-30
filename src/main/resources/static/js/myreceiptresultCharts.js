@@ -156,82 +156,86 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // -----------------------------
-  // 4) 성별 지출 도넛 차트 (MALE/FEMALE로 변경)
+  // 4) 성별 지출 도넛 차트 (남=파랑, 여=빨강 고정)
   // -----------------------------
-  const genderCanvas = document.getElementById("genderChart");
-  const genderSummaryBox = document.getElementById("genderSummary");
+ const genderCanvas = document.getElementById("genderChart");
+ const genderSummaryBox = document.getElementById("genderSummary");
 
-  // 성별 합계 정리: FEMALE/MALE/OTHER
-  const genderSum = { FEMALE: 0, MALE: 0, OTHER: 0 };
+ // 성별 합계 정리: FEMALE/MALE/OTHER
+ const genderSum = { FEMALE: 0, MALE: 0, OTHER: 0 };
 
-  (genderData || []).forEach(row => {
-    const g = String(row.gender || "").toUpperCase();
-    const v = Number(row.total || 0);
+ (genderData || []).forEach(row => {
+   const g = String(row.gender || "").toUpperCase();
+   const v = Number(row.total || 0);
 
-    if (g === "FEMALE") genderSum.FEMALE += v;
-    else if (g === "MALE") genderSum.MALE += v;
-    else genderSum.OTHER += v;
-  });
+   if (g === "FEMALE") genderSum.FEMALE += v;
+   else if (g === "MALE") genderSum.MALE += v;
+   else genderSum.OTHER += v;
+ });
 
-  // 여 -> 남 -> 기타
-  const genderLabels = [];
-  const genderTotals = [];
+ // 라벨/데이터/색을 "같이" 만든다 (핵심)
+ const genderLabels = [];
+ const genderTotals = [];
+ const genderBgColors = [];
+ const genderBorderColors = [];
 
-  if (genderSum.FEMALE > 0) { genderLabels.push("여"); genderTotals.push(genderSum.FEMALE); }
-  if (genderSum.MALE > 0)   { genderLabels.push("남"); genderTotals.push(genderSum.MALE); }
-  if (genderSum.OTHER > 0)  { genderLabels.push("기타"); genderTotals.push(genderSum.OTHER); }
+ if (genderSum.FEMALE > 0) {
+   genderLabels.push("여");
+   genderTotals.push(genderSum.FEMALE);
+   genderBgColors.push("rgba(255, 99, 132, 0.9)");   // 여=빨강
+   genderBorderColors.push("rgba(255, 99, 132, 1)");
+ }
 
-  if (genderCanvas && genderLabels.length > 0) {
-    const totalSum = genderTotals.reduce((sum, v) => sum + Number(v || 0), 0) || 1;
+ if (genderSum.MALE > 0) {
+   genderLabels.push("남");
+   genderTotals.push(genderSum.MALE);
+   genderBgColors.push("rgba(80, 120, 255, 0.9)");   // 남=파랑
+   genderBorderColors.push("rgba(80, 120, 255, 1)");
+ }
 
-    // 도넛 아래 요약
-    if (genderSummaryBox) {
-      const pieces = genderLabels.map((label, idx) => {
-        const value = Number(genderTotals[idx]) || 0;
-        const percent = (value / totalSum) * 100;
-        return `<span>${label}: ${percent.toFixed(1)}% (${value.toLocaleString()}원)</span>`;
-      });
-      genderSummaryBox.innerHTML = pieces.join("<br>");
-    }
+ if (genderSum.OTHER > 0) {
+   genderLabels.push("기타");
+   genderTotals.push(genderSum.OTHER);
+   genderBgColors.push("rgba(153, 102, 255, 0.9)");
+   genderBorderColors.push("rgba(153, 102, 255, 1)");
+ }
 
-    new Chart(genderCanvas, {
-      type: "doughnut",
-      data: {
-        labels: genderLabels,
-        datasets: [{
-          data: genderTotals,
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.9)", // 여
-            "rgba(80, 120, 255, 0.9)", // 남
-            "rgba(153, 102, 255, 0.9)" // 기타
-          ],
-          borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(80, 120, 255, 1)",
-            "rgba(153, 102, 255, 1)"
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "65%",
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: { boxWidth: 18, padding: 16 }
-          },
-          tooltip: { enabled: false },
-          doughnutPercentage: {
-            color: "#ffffff",
-            fontSize: 14,
-            fontFamily: "system-ui"
-          }
-        }
-      }
+ if (genderCanvas && genderLabels.length > 0) {
+   const totalSum = genderTotals.reduce((sum, v) => sum + Number(v || 0), 0) || 1;
+
+   if (genderSummaryBox) {
+     const pieces = genderLabels.map((label, idx) => {
+      const value = Number(genderTotals[idx]) || 0;
+      const percent = (value / totalSum) * 100;
+      return `<span>${label}: ${percent.toFixed(1)}% (${value.toLocaleString()}원)</span>`;
     });
+    genderSummaryBox.innerHTML = pieces.join("<br>");
   }
+
+  new Chart(genderCanvas, {
+    type: "doughnut",
+    data: {
+      labels: genderLabels,
+      datasets: [{
+        data: genderTotals,
+        backgroundColor: genderBgColors,
+        borderColor: genderBorderColors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "65%",
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 18, padding: 16 } },
+        tooltip: { enabled: false },
+        doughnutPercentage: { color: "#ffffff", fontSize: 14, fontFamily: "system-ui" }
+      }
+    }
+  });
+}
+
 
   // -----------------------------
   // 5) 나의 평균 vs 전체 평균 (bar)
