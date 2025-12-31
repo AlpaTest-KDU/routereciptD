@@ -17,7 +17,7 @@ public class OpenAiCategoryService {
     private final RestTemplate restTemplate;
 
     private static final String FAST_API_URL =
-            "http://192.168.0.123:8000/predict";
+            "http://192.168.45.150:8000/predict";
 
     /**
      * 단건 item 분류
