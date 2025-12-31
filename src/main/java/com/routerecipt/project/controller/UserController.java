@@ -241,4 +241,10 @@ public class UserController {
 	public boolean checkUserId(@RequestParam String userId) {
 		return userServiceImp.checkDuplicateUserId(userId); // true면 중복
 	}
+	
+	// 마이페이지 -> 월별 지출로
+	@GetMapping("/analysisMonthlyPage")
+	public String analysisMonthlyPage() {
+	    return "user/monthlyanalysisPage"; // templates/user/monthlyanalysisPage.html
+	}
 }
