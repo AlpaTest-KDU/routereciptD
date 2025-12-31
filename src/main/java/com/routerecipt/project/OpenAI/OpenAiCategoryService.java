@@ -12,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AiCategoryService {
+public class OpenAiCategoryService {
 
     private final RestTemplate restTemplate;
 
     private static final String FAST_API_URL =
-            "http://127.0.0.1:8000/predict";
+            "http://192.168.0.123:8000/predict";
 
     /**
      * 단건 item 분류
