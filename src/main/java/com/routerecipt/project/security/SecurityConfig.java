@@ -24,6 +24,7 @@ public class SecurityConfig {
 					.requestMatchers("/user/userFindIdPage","/user/userResetPwPage","/user/userUpdatePw","/user/userCheckId","/user/userFindId").permitAll()
 					.requestMatchers("/notice/noticePage","/notice/noticeDetailPage").permitAll()
 					.requestMatchers("/error").permitAll()
+					.requestMatchers("/ai/**").permitAll()
 					.requestMatchers("/admin/**","/notice/noticeRegisterPage","/noticePage/noticeRegister").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					)

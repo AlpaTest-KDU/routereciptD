@@ -4,7 +4,6 @@ package com.routerecipt.project.ocr;
 
 import java.util.List;
 
-import com.routerecipt.project.service.RankingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.mapper.ReceiptMapper;
+import com.routerecipt.project.service.RankingService;
 
 import lombok.RequiredArgsConstructor;
 
