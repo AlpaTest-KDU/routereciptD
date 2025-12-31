@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.ReceiptMapper;
+import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.ReceiptApplicationServiceImp;
@@ -33,12 +35,17 @@ import com.routerecipt.project.service.UserServiceImp;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
+	
+
+    private final ReceiptResultService receiptResultService;
 	
 	@Autowired
 	private UserServiceImp userServiceImp;
@@ -243,8 +250,18 @@ public class UserController {
 	}
 	
 	// 마이페이지 -> 월별 지출로
-	@GetMapping("/analysisMonthlyPage")
-	public String analysisMonthlyPage() {
-	    return "user/monthlyanalysisPage"; // templates/user/monthlyanalysisPage.html
-	}
+	 @GetMapping("/analysisMonthlyPage")
+	    public String analysisMonthlyPage(Authentication authentication, Model model) {
+
+	        LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+	        String uId = loginDetails.getUser().getU_id();
+
+	        ReceiptAnalysisStatsdto stats = receiptResultService.getAnalysisMonthlyPageStats(uId);
+
+	        model.addAttribute("dailyData", stats.getDailyData());
+	        model.addAttribute("weeklyData", stats.getWeeklyData());
+	        model.addAttribute("monthlyData", stats.getMonthlyData());
+
+	        return "user/monthlyanalysisPage";
+	    }
 }

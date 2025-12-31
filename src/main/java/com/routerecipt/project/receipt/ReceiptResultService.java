@@ -14,7 +14,7 @@ public class ReceiptResultService {
 
     private final ReceiptResultMapper receiptresultmapper;
 
-    // /user/analysisMonthlyPage : 1,2,3만
+    // /user/analysisMonthlyPage : 개인 사용자
     public ReceiptAnalysisStatsdto getAnalysisMonthlyPageStats(String uId) {
         ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
         dto.setDailyData(receiptresultmapper.selectDailyTotalByUser(uId));
@@ -23,7 +23,7 @@ public class ReceiptResultService {
         return dto;
     }
 
-    // /user/analysisPage : 4,5,6만
+    // /user/analysisPage : 전체 사용자
     public ReceiptAnalysisStatsdto getAnalysisPageStats(String uId) {
         ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
         dto.setGenderData(receiptresultmapper.selectTotalByGender());

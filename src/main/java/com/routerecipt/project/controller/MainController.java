@@ -6,11 +6,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.security.LoginDetails;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
+@RequiredArgsConstructor
 public class MainController {
+	private final ReceiptResultService receiptResultService;
 	
 	// Branch Test
 	// 메인 화면
@@ -58,10 +64,22 @@ public class MainController {
 	}
 		
 	// 지출분석 화면
-	@GetMapping("/user/analysisPage")
-	public String analysisPage() {
-		return "user/analysisPage";
-	}
+
+    @GetMapping("/user/analysisPage")
+    public String analysisPage(Authentication authentication, Model model) {
+
+        LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+        String uId = loginDetails.getUser().getU_id();
+
+        ReceiptAnalysisStatsdto stats = receiptResultService.getAnalysisPageStats(uId);
+
+        model.addAttribute("genderData", stats.getGenderData());
+        model.addAttribute("myAvg", stats.getMyAvg());
+        model.addAttribute("allAvg", stats.getAllAvg());
+
+        return "user/analysisPage";
+    }
+
 	
 	// 영수증 등록 화면
 	@GetMapping("/recepit/receiptRegisterPage")
