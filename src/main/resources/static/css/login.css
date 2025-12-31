@@ -74,17 +74,44 @@
     margin-top: 22px;
     display: flex;
     justify-content: center;
-    gap: 18px;
+    gap: 20px;
     font-size: 13px;
 }
 
 .loginBottom a {
     text-decoration: none;
-}
-
-.loginBottom a:hover {
     color: #4f46e5;
 }
 
+.loginBottom a:hover {
+	text-decoration: underline;
+}
+
+/* 자주 방문한 링크 색 변하지 않게 추가했습니다 */
+.loginBottom a:visited {
+  	color: #4f46e5;
+}
+
+.goSignup {
+	display: flex;
+  	gap: 15px;
+  	align-items: center;
+  	flex-wrap: wrap;
+  	justify-content: center;
+  	font-size: 13px;	
+}
+
+.goSignup p {
+	color: #252c36;
+}
+
+.goSignup a {
+	color: #4f46e5;
+	font-weight: 450;
+}
+
+.goSignup a:hover {
+    text-decoration: underline;
+}
 
 
