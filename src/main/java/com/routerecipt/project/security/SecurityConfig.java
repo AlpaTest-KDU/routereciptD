@@ -18,6 +18,9 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChan(HttpSecurity http, RedirectLoggonFilter redirectLoggonFilter) throws Exception {
 		http
+			 .csrf(csrf -> csrf
+            .ignoringRequestMatchers("/ai/**")
+        	)
 			.authorizeHttpRequests(auth -> auth
 					.requestMatchers("/","/index","/user/userSignUpPage","/user/userLoginPage", "/user/userSignUp","/chatbot/chatBotPage","user/analysisPage").permitAll()
 					.requestMatchers("/chatbot/ask","/api/chat").permitAll()

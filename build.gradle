@@ -69,3 +69,7 @@ tasks.named('test') {
 tasks.test {
     enabled = false
 }
+
+jar {
+    enabled = false
+}

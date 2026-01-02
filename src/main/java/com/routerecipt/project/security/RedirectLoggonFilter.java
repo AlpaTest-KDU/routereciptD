@@ -24,6 +24,12 @@ public class RedirectLoggonFilter extends OncePerRequestFilter {
 	        throws ServletException, IOException {
 
 	    String uri = request.getRequestURI();
+	    
+	    // ✅ AI / API 요청은 무조건 통과
+	    if (uri.startsWith("/ai/")) {
+	        filterChain.doFilter(request, response);
+	        return;
+	    }
 
 	    // 🔒 비로그인 접근 허용 페이지
 	    if (

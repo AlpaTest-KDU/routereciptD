@@ -3,7 +3,6 @@ version: "3.8"
 services:
   mariadb:
     image: mariadb:11.4
-    container_name: routereciptd-mariadb
     environment:
       MYSQL_ROOT_PASSWORD: "Vheh150630!"
       MYSQL_DATABASE: routereciptdb
@@ -11,21 +10,30 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"   # 팀 확인용 (선택)
     restart: always
 
   redis-bloom:
     image: redislabs/rebloom:latest
-    container_name: routereciptd-redis
     restart: always
 
+  fastapi-ai:
+    build:
+      context: ./fastapi-ai
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
   springboot:
-    build: .
-    container_name: routereciptd-springboot
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - mariadb
       - redis-bloom
+      - fastapi-ai
     ports:
-      - "8080:8080"
+      - "8090:8090"
     env_file:
       - .env
     environment:
@@ -39,6 +47,9 @@ services:
       # ===== Redis =====
       SPRING_DATA_REDIS_HOST: redis-bloom
       SPRING_DATA_REDIS_PORT: 6379
+
+      # ===== AI =====
+      AI_CATEGORY_URL: http://fastapi-ai:8000
     restart: unless-stopped
 
 volumes:
