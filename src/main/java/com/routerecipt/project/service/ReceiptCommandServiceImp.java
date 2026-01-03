@@ -39,17 +39,17 @@ public class ReceiptCommandServiceImp implements ReceiptCommandService {
 
         // 1) 영수증 저장
         receiptMapper.insertReceipt(receipt);
-        Long rNo = receipt.getR_no();
+        Long r_no = receipt.getR_no();
 
         // 2) 아이템 저장
         List<ReceiptItemDTO> items = receipt.getItems();
-        if (rNo != null && items != null && !items.isEmpty()) {
+        if (r_no != null && items != null && !items.isEmpty()) {
             for (ReceiptItemDTO it : items) {
-                it.setR_no(rNo);
+                it.setR_no(r_no);
 
                 // item_name 없으면 스킵 (정책에 맞게 변경 가능)
                 if (it.getItem_name() == null || it.getItem_name().isBlank()) {
-                    log.warn("Skip item with blank name. r_no={}, item={}", rNo, it);
+                    log.warn("Skip item with blank name. r_no={}, item={}", r_no, it);
                     continue;
                 }
 
