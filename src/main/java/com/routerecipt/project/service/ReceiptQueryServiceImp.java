@@ -1,6 +1,13 @@
 package com.routerecipt.project.service;
 
-import java.util.*;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -19,6 +26,57 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
 
     private final ReceiptMapper receiptMapper;
 
+    /* =====================================================
+     * 월별 영수증 조회
+     * ===================================================== */
+    @Override
+    public List<ReceiptDTO> getSavedReceiptsDate(String userId, String yearMonth) {
+        return receiptMapper.getSavedReceiptsDate(userId, yearMonth);
+    }
+
+    /* =====================================================
+     * 카테고리별 메뉴 Map 생성
+     * ===================================================== */
+    @Override
+    public Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts) {
+
+        if (receipts == null) {
+            return new HashMap<>();
+        }
+
+        return receipts.stream()
+                .filter(r -> r.getItems() != null)
+                .flatMap(r -> r.getItems().stream())
+                .filter(i -> i.getItem_category() != null)
+                .collect(Collectors.groupingBy(
+                        ReceiptItemDTO::getItem_category,
+                        Collectors.mapping(
+                                ReceiptItemDTO::getItem_name,
+                                Collectors.toList()
+                        )
+                ));
+    }
+
+    /* =====================================================
+     * 달력 데이터 생성
+     * ===================================================== */
+    @Override
+    public List<Integer> buildCalendar(String yearMonth) {
+
+        YearMonth ym = YearMonth.parse(yearMonth);
+        int lastDay = ym.lengthOfMonth();
+
+        List<Integer> calendar = new ArrayList<>();
+        for (int i = 1; i <= lastDay; i++) {
+            calendar.add(i);
+        }
+        return calendar;
+    }
+
+    /* =====================================================
+     * 최근(임시) 영수증 조회 + 아이템 매핑
+     * (네가 올린 기존 로직 그대로)
+     * ===================================================== */
     @Override
     public List<ReceiptDTO> getRecentReceipts(List<Long> r_no) {
 
@@ -28,6 +86,7 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
 
         // 1) receipt 조회
         List<ReceiptDTO> receipts = receiptMapper.selectTempReceiptsByNos(r_no);
+
         if (receipts == null || receipts.isEmpty()) {
             return Collections.emptyList();
         }
@@ -56,9 +115,11 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
             order.put(r_no.get(i), i);
         }
 
-        receipts.sort(Comparator.comparingInt(
-                r -> order.getOrDefault(r.getR_no(), Integer.MAX_VALUE)
-        ));
+        receipts.sort(
+                Comparator.comparingInt(
+                        r -> order.getOrDefault(r.getR_no(), Integer.MAX_VALUE)
+                )
+        );
 
         return receipts;
     }

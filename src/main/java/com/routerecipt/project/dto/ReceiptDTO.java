@@ -14,7 +14,7 @@ public class ReceiptDTO {
 	private Long r_no;
 	private String r_u;
 	private String r_place;
-	private int r_price;
+	private Integer r_price;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate r_date;
 	
