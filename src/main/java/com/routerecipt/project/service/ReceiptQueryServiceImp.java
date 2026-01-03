@@ -20,32 +20,29 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
     private final ReceiptMapper receiptMapper;
 
     @Override
-    public List<ReceiptDTO> getRecentReceipts(List<Long> receiptNos) {
+    public List<ReceiptDTO> getRecentReceipts(List<Long> r_no) {
 
-        if (receiptNos == null || receiptNos.isEmpty()) {
+        if (r_no == null || r_no.isEmpty()) {
             return Collections.emptyList();
         }
 
         // 1) receipt 조회
-        List<ReceiptDTO> receipts =
-                receiptMapper.selectTempReceiptsByNos(receiptNos);
-
+        List<ReceiptDTO> receipts = receiptMapper.selectTempReceiptsByNos(r_no);
         if (receipts == null || receipts.isEmpty()) {
             return Collections.emptyList();
         }
 
         // 2) items 일괄 조회
-        List<ReceiptItemDTO> items =
-                receiptMapper.selectItemsByReceiptNos(receiptNos);
+        List<ReceiptItemDTO> items = receiptMapper.selectItemsByReceiptNos(r_no);
 
-     // 3) r_no 기준 grouping  ✅ (여기 블록을 교체)
+        // 3) r_no 기준 grouping (null key 방지)
         Map<Long, List<ReceiptItemDTO>> itemMap;
         if (items == null || items.isEmpty()) {
             itemMap = Collections.emptyMap();
         } else {
             itemMap = items.stream()
-                    .filter(Objects::nonNull)          // item 자체 null 방지
-                    .filter(it -> it.getR_no() != null) // ✅ groupingBy 키 null 방지 (NPE 원인)
+                    .filter(Objects::nonNull)
+                    .filter(it -> it.getR_no() != null)
                     .collect(Collectors.groupingBy(ReceiptItemDTO::getR_no));
         }
 
@@ -55,15 +52,13 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
 
         // 4) 업로드 순서 유지 정렬
         Map<Long, Integer> order = new HashMap<>();
-        for (int i = 0; i < receiptNos.size(); i++) {
-            order.put(receiptNos.get(i), i);
+        for (int i = 0; i < r_no.size(); i++) {
+            order.put(r_no.get(i), i);
         }
 
-        receipts.sort(
-            Comparator.comparingInt(
+        receipts.sort(Comparator.comparingInt(
                 r -> order.getOrDefault(r.getR_no(), Integer.MAX_VALUE)
-            )
-        );
+        ));
 
         return receipts;
     }

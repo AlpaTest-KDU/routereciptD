@@ -2,13 +2,11 @@ package com.routerecipt.project.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import com.routerecipt.project.dto.ReceiptDTO;
 
-public interface ReceiptApplicationService {
+public interface ReceiptCommandService {
 
-    // Write
     void saveReceiptWithItems(ReceiptDTO receipt);
 
     void confirmReceipt(
@@ -20,14 +18,4 @@ public interface ReceiptApplicationService {
             List<Integer> item_prices,
             List<String> item_categories
     );
-
-    // Read
-    List<ReceiptDTO> getSavedReceiptsDate(String userId, String yearMonth);
-
-    Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts);
-
-    List<Integer> buildCalendar(String yearMonth);
-
-    // Recent (Temp)
-    List<ReceiptDTO> getRecentReceipts(List<Long> r_no);
 }
