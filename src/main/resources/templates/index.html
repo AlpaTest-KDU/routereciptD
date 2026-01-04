@@ -76,48 +76,91 @@
 		  	</div>
 		</section>
 		
-		<section class="home2Wrap">
-			<div class="home2Container">
-				<div class="home2Text">
-					<h2>데이터 입력, <br>
-					직접 하지 마세요</h2>
-				</div>
-				<div class="">
-					<div class="">
-						<div class="ocr_mokup_left">
-							
-						</div>
-						<div class="ocr_mokup_right">
-							
-						</div>
-					</div>
-				</div>
-				<div class="home2Text2">
-					<p>사진 속 글자도 놓치지 않는 OCR 엔진으로 <br>
-					실용성과 정확성은 높이고 ~~~는 낮추고</p>
-				</div>
-			</div>
+		<section class="ocrSection">
+			<div class="ocrContainer stagger">
+		
+		    	<div class="ocrIntro reveal from-up">
+		      		<h2 class="ocrTitle">
+		        		영수증 데이터 입력,<br>
+		        		직접 하지 마세요
+		      		</h2>
+		    	</div>
+		
+		    	<div class="ocrRow reveal soft">
+		      		<div class="ocrCol">
+		        		<p class="ocrPointTitle">자동 인식</p>
+		        		<p class="ocrPointHeadline">
+		          			사진 속 글자도 놓치지 않는 OCR 엔진으로<br>
+		          			실수는 줄이고(수정 필)
+		        		</p>
+		        		<p class="ocrPointDesc">
+		          			영수증 이미지에서 텍스트를 추출하고, 필요한 값만 정리해서
+		          			저장합니다.(수정 필)
+		        		</p>
+		      		</div>
+		
+		      		<div class="ocrCol">
+		        		<div class="ocrMokupRight">
+		          			<img th:src="@{/img/ocrData.png}" alt="데이터 추출">
+		        		</div>
+		      		</div>
+		    	</div>
+		
+		    	<div class="ocrRow reverse reveal soft">
+		      		<div class="ocrCol">
+		        		<div class="ocrMokupLeft">
+		          			<img th:src="@{/img/ocrCategory.png}" alt="카테고리 분류">
+		        		</div>
+		      		</div>
+		
+		      		<div class="ocrCol">
+		        		<p class="ocrPointTitle">정확한 추출</p>
+		        		<p class="ocrPointHeadline">
+		          			항목을 자동 분류해<br>
+		          			필요한 정보만 남겨요(수정필)
+		        		</p>
+		        		<p class="ocrPointDesc">
+		          			금액/상호/일자 등 핵심 필드를 우선 추출하고,
+		          			후처리 부담을 줄입니다.(수정필)
+		        		</p>
+		      		</div>
+		    	</div>
+		
+		  	</div>
 		</section>
 		
-		<section class="home3Wrap">
-			<div class="home3Container">
-				<div class="home3Text">
-					<h2>달력과 그래프로 <br>
-					한 눈에 보는 소비흐름</h2>
-				</div>
-				<div class="upload_mokup">
-					<div class="upload_mokup_body">
-						<div class="upload_mokup_left">
-							
-						</div>
-						<div class="upload_mokup_right">
-							
-						</div>
-					</div>
-				</div>
-				<div class="home3Text2">
-					<p>지출 패턴을 보면 재정 관리의 방향이 보입니다</p>
-				</div>
+		<section class="graphSection">
+			<div class="graphContainer stagger">
+		
+			    <div class="graphIntro reveal from-up">
+			      	<h2 class="graphTitle">
+			      	달력과 그래프로 <br>
+			      	한 눈에 보는 소비흐름</h2>
+			      </div>
+			
+			    <div class="graphMokup reveal soft">
+			      	<div class="graphMokupBody">
+			
+			        	<div class="graphMokupArea">
+			          		<div class="slidePane active">
+			            		<img th:src="@{/img/calendar_1.png}" alt="달력 보기">
+			          		</div>
+			          		<div class="slidePane">
+			            		<img th:src="@{/img/calendar_2.png}" alt="그래프 보기 1">
+			          		</div>
+			          		<div class="slidePane">
+			            		<img th:src="@{/img/calendar_2.png}" alt="그래프 보기 2">
+			          		</div>
+			          		<div class="slidePane">
+			            		<img th:src="@{/img/calendar_2.png}" alt="그래프 보기 3">
+			          		</div>
+			        	</div>
+			      	</div>
+			    </div>
+			
+			    <div class="graphSubText reveal from-up">
+			      	<p>지출 패턴을 보면 재정 관리의 방향이 보입니다</p>
+			    </div>
 			</div>
 		</section>
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
@@ -171,6 +214,51 @@
 					slides[currentSlide].classList.add('active');
 				}, 3000); // 3000ms = 3초 간격
 			});
+		</script>
+		
+				<!-- 스크롤 반응 스크립트 -->
+		<script>
+		(() => {
+		  const groups = document.querySelectorAll('.stagger');
+		
+		  groups.forEach(group => {
+		    const items = group.querySelectorAll('.reveal');
+		
+		    // stagger 딜레이 자동 적용
+		    items.forEach((el, i) => {
+		      el.style.transitionDelay = `${120 + i * 180}ms`;
+		    });
+		
+		    const io = new IntersectionObserver(entries => {
+		      entries.forEach(entry => {
+		        if (entry.isIntersecting) {
+		          items.forEach(el => el.classList.add('is-inview'));
+		          io.unobserve(entry.target);
+		        }
+		      });
+		    }, {
+		      threshold: 0.15,
+		      rootMargin: '0px 0px -10% 0px'
+		    });
+		
+		    io.observe(group);
+		  });
+		})();
+		</script>
+		
+		<!-- 달력/그래프 슬라이드 스크립트 -->
+		<script>
+		(() => {
+		  const panes = document.querySelectorAll('.graphMokupArea .slidePane');
+		  if (!panes.length) return;
+		
+		  let idx = 0;
+		  setInterval(() => {
+		    panes[idx].classList.remove('active');
+		    idx = (idx + 1) % panes.length;
+		    panes[idx].classList.add('active');
+		  }, 2600); // 2.6초마다 전환
+		})();
 		</script>
 	</div>
 	
