@@ -60,6 +60,9 @@
           method="post"
           enctype="multipart/form-data">
         <input type="file" name="receipt" multiple required>
+        <input type="hidden"
+           th:name="${_csrf.parameterName}"
+           th:value="${_csrf.token}"/>
         <button type="submit">영수증 분석</button>
     </form>
 
