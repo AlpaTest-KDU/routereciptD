@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+.container {
+   width: 1000px;
+   margin: 40px auto;
+}
+
+.receipt-list button {
+   display: block;
+   margin: 6px 0;
+   padding: 8px 12px;
+   cursor: pointer;
+   width: 100%;
+   text-align: left;
+   border: 1px solid #ccc;
+   background: #f7f7f7;
+}
+
+.receipt-list button:hover {
+   background: #eaeaea;
+}
+
+.info-box {
+   margin-top: 30px;
+   padding: 20px;
+   border: 1px solid #ccc;
+   background: #fff;
+}
+
+.category-box {
+   margin-top: 20px;
+}
+
+.category-box h4 {
+   margin-top: 15px;
+}
+
+ul {
+   margin-left: 20px;
+}
