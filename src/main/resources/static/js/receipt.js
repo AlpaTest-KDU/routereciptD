@@ -1,6 +1,7 @@
 /* ======================================================
  * 공통 유틸
  * ====================================================== */
+console.log("receipt.js LOADED");
 function escapeHtml(str) {
   return String(str ?? "")
     .replaceAll("&", "&amp;")
@@ -156,4 +157,12 @@ function removeManualItem(i) {
 function updateManualTotal() {
   const sum = manualItems.reduce((s, it) => s + Number(it.item_price), 0);
   document.getElementById("m_price").value = sum;
+}
+
+function beforeSubmitManualReceipt() {
+  if (!manualItems.length) {
+    alert("상품을 1개 이상 추가하세요.");
+    return false;
+  }
+  return true;
 }
