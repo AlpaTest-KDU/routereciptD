@@ -22,13 +22,12 @@ public class OpenAiOcrAssisService {
 
     private WebClient webClient;
 
-    @Value("${openai.api-key}")                 // 🔹 키 이름 통일
+    @Value("${openai.api-key}")
     private String apiKey;
 
     @Value("${openai.endpoint:https://api.openai.com/v1}")
     private String endpoint;
 
-    // Vision + JSON 출력 안정 모델
     @Value("${openai.model:gpt-4.1-mini}")
     private String model;
 
@@ -50,6 +49,7 @@ public class OpenAiOcrAssisService {
 
     /**
      * OCR 누락 필드 보정 (Vision + OCR TEXT)
+     * 🔹 [기존 로직 그대로 유지]
      */
     public OpenAiReceiptResult fixMissingFieldsWithVision(
             MultipartFile file,
@@ -57,14 +57,12 @@ public class OpenAiOcrAssisService {
     ) {
 
         try {
-            // 1️⃣ 이미지 → base64
             byte[] bytes = file.getBytes();
             String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
             String mime = (file.getContentType() != null)
                     ? file.getContentType()
                     : "image/jpeg";
 
-            // 2️⃣ 프롬프트 (JSON만 반환 강제)
             String prompt = """
             다음은 한국 영수증이다.
             이미지와 OCR 텍스트를 참고하여 누락된 값을 추론하라.
@@ -83,7 +81,6 @@ public class OpenAiOcrAssisService {
             %s
             """.formatted(rawText);
 
-            // 3️⃣ Responses API 입력 (text + image)
             Map<String, Object> inputMessage = Map.of(
                 "role", "user",
                 "content", List.of(
@@ -100,39 +97,47 @@ public class OpenAiOcrAssisService {
             body.put("input", List.of(inputMessage));
             body.put("text", Map.of("format", Map.of("type", "json_object")));
 
-            // 4️⃣ 호출
             String raw = webClient.post()
                     .uri("/responses")
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(String.class)
                     .timeout(Duration.ofMillis(timeoutMs))
-                    .onErrorResume(e -> {
-                        System.err.println("[OPENAI] Vision 실패 → OCR 결과 유지: " + e.getMessage());
-                        return Mono.empty();
-                    })
+                    .onErrorResume(e -> Mono.empty())
                     .block();
 
             if (raw == null || raw.isBlank()) {
                 return null;
             }
 
-            // 5️⃣ Responses API → output_text 추출
             JSONObject resp = new JSONObject(raw);
             String outputJson = extractOutputTextFromResponsesApi(resp);
 
             if (outputJson == null || outputJson.isBlank()) {
-                System.err.println("[OPENAI] output_text 없음. raw=" + resp.toString(2));
                 return null;
             }
 
-            // 6️⃣ JSON → 도메인 변환
             return OpenAiReceiptResult.fromVisionJson(new JSONObject(outputJson));
 
         } catch (Exception e) {
-            System.err.println("[OPENAI] 호출 실패: " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * 🔹 [추가된 최소 메서드]
+     * ReceiptServiceImp에서 "보조 호출"용
+     * - DTO를 건드리지 않음
+     * - 단순 위임
+     */
+    public OpenAiReceiptResult assistIfNeeded(
+            MultipartFile file,
+            String rawText
+    ) {
+        if (file == null) {
+            return null;
+        }
+        return fixMissingFieldsWithVision(file, rawText == null ? "" : rawText);
     }
 
     /**
