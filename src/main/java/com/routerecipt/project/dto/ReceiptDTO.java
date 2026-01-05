@@ -21,6 +21,4 @@ public class ReceiptDTO {
 	private Gender gender;
 	
 	private List<ReceiptItemDTO> items;
-    
-    
 }

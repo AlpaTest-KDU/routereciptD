@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.ReceiptMapper;
+import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 import com.routerecipt.project.security.LoginDetails;
 import com.routerecipt.project.service.ReceiptApplicationServiceImp;
@@ -38,30 +40,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
-	
-	@Autowired
-	private UserServiceImp userServiceImp;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
-	@Autowired
-	private RedisBloomService bloomService;
-	
-	@Autowired
-    private ReceiptApplicationServiceImp usi;
-	
-	
-	@Autowired
-	private ReceiptMapper rm;
+
+	private final ReceiptResultService receiptResultService;
+	private final UserServiceImp userServiceImp;
+	private final PasswordEncoder passwordEncoder;
+	private final RedisBloomService bloomService;
+    private final ReceiptApplicationServiceImp usi;
+	private final ReceiptMapper rm;
 	
 	// 회원가입 기능
 	@PostMapping("/userSignUp")
 	public String userSignUp(@Valid @ModelAttribute("userdto") Userdto u, Model model,@RequestParam(name = "emailDomain") String emailDomain,@RequestParam(name = "emailDomainCustom",required = false) String emailDomainCustom) {
 		String domain = emailDomain.equals("etc") ? emailDomainCustom : emailDomain;
 		u.setU_email(u.getU_email() + "@" + domain);
-		
+
+		// 로그 확인용 코드
 		System.out.println("===== userSignUp 호출됨 =====");
 		System.out.println("u_id=" + u.getU_id());
 		System.out.println("u_pw=" + u.getU_pw());
@@ -75,7 +70,6 @@ public class UserController {
 			model.addAttribute("birthdayError", "생년월일을 입력하세요");
 			return "user/userSignUpPage";
 		}
-		
 
 		// 주입받은 PasswordEncoder 인스턴스로 암호화
 		u.setU_pw(passwordEncoder.encode(u.getU_pw()));
@@ -85,8 +79,6 @@ public class UserController {
 		try {
 			// 회원가입 처리
 			userServiceImp.UserSignUp(u);
-			
-			
 		} catch (DataIntegrityViolationException e) {
 			model.addAttribute("dupilcateError", "이미 사용 중인 아이디입니다.");
 			model.addAttribute("message", "회원가입 실패: " + e.getMessage());
@@ -194,8 +186,7 @@ public class UserController {
 		String loginUserId = principal.getUser().getU_id();
 		
 		Userdto user = userServiceImp.loadUserByUsername(loginUserId);
-		
-		
+
     	model.addAttribute("u_id", user.getU_id());
     	model.addAttribute("u_name", user.getU_name());
     	model.addAttribute("u_email", user.getU_email());
@@ -215,10 +206,7 @@ public class UserController {
 		
 		// 1. DB업데이트
 		userServiceImp.UserInfoUpdate(u);
-		
-		
-		
-		
+
 		return "redirect:/user/userInfoShowPage";
 	}
 	
@@ -241,4 +229,20 @@ public class UserController {
 	public boolean checkUserId(@RequestParam String userId) {
 		return userServiceImp.checkDuplicateUserId(userId); // true면 중복
 	}
+
+	// 마이페이지 -> 월별 지출로
+	 @GetMapping("/analysisMonthlyPage")
+	    public String analysisMonthlyPage(Authentication authentication, Model model) {
+
+	        LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+	        String uId = loginDetails.getUser().getU_id();
+
+	        ReceiptAnalysisStatsdto stats = receiptResultService.getAnalysisMonthlyPageStats(uId);
+
+	        model.addAttribute("dailyData", stats.getDailyData());
+	        model.addAttribute("weeklyData", stats.getWeeklyData());
+	        model.addAttribute("monthlyData", stats.getMonthlyData());
+
+	        return "user/monthlyanalysisPage";
+	    }
 }

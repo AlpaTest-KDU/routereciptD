@@ -1,0 +1,89 @@
+@charset "UTF-8";
+
+.userInfoUpdateArea {
+	max-width: 1180px;
+  	margin: 0 auto;
+  	padding: 36px 24px 80px;
+}
+
+.userInfoUpdateArea > h2 {
+  	margin: 0 0 18px;
+  	padding: 10px 0 18px;
+  	font-size: 22px;
+  	font-weight: 700;
+  	letter-spacing: -0.2px;
+  	border-bottom: 1px solid var(--line);
+}
+
+.userInfoUpdateArea > form {
+  	border: 1px solid var(--line);
+  	border-top: 2px solid var(--strong);
+  	background: #fff;
+  	margin: 16px 0;
+  	padding: 6px 0;
+}
+
+.infoRow {
+  	display: grid;
+  	grid-template-columns: 220px 1fr;
+  	align-items: center;
+  	min-height: 54px;
+  	border-bottom: 1px solid var(--line);
+}
+
+.infoRow > label {
+  	padding: 0 18px;
+  	font-size: 13px;
+  	font-weight: 700;
+  	color: var(--text);
+}
+
+.infoRow span {
+  	display: inline-flex;
+  	align-items: center;
+  	min-height: 34px;
+  	padding: 0 10px;
+  	border: 1px solid #cfcfcf;
+  	background: #f7f7f7;
+  	font-size: 13px;
+  	color: var(--text);
+}
+
+/* hidden: 레이아웃 영향 방지 */
+input[type="hidden"]{ display:none; }
+
+.saveBtn {
+  	height: 38px;
+  	padding: 0 16px;
+  	border: 1px solid #111;
+  	background: #111;
+  	color: #fff;
+  	font-size: 13px;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+.cancelBtn {
+  	height: 38px;
+  	padding: 0 16px;
+  	border: 1px solid #111;
+  	background: #fff;
+  	color: #111;
+  	font-size: 13px;
+  	font-weight: 700;
+  	display: inline-flex;
+  	align-items: center;
+  	cursor: pointer;
+}
+
+.deleteBtn {
+  	height: 38px;
+  	padding: 0 16px;
+  	border: 1px solid var(--danger);
+  	color: black;
+  	font-size: 13px;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+

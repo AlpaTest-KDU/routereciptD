@@ -5,9 +5,7 @@
 <mapper namespace="com.routerecipt.project.mapper.ReceiptResultMapper">
 
     <!--
-      1) 나의 일별 지출
-      - 특정 사용자(r_u = u_id)의 영수증을 날짜별로 묶어서(GROUP BY DATE)
-      - 하루 총 지출(SUM)을 계산해 반환
+      1) 나의 일별 지출 (오늘 포함 7일)
       - 결과(Map): { dt: 'yyyy-MM-dd', total: 12345 }
     -->
     <select id="selectDailyTotalByUser"
@@ -18,34 +16,36 @@
             SUM(r_price) AS total
         FROM recipt
         WHERE r_u = #{value}
+          AND DATE(r_date) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
         GROUP BY DATE(r_date)
         ORDER BY dt
     </select>
 
-    <!--
-      2) 나의 주간 지출
-      - YEARWEEK(r_date, 1): ISO 주차 기준(월요일 시작)으로 주차 계산
-      - 해당 주의 시작/끝 날짜(MIN/MAX)와 주간 총합(SUM)을 반환
-      - 결과(Map): { yearWeek: 202548, weekStart: 'yyyy-MM-dd', weekEnd: 'yyyy-MM-dd', total: 99999 }
-    -->
-    <select id="selectWeeklyTotalByUser"
-            parameterType="string"
-            resultType="map">
-        SELECT
-            YEARWEEK(r_date, 1) AS yearWeek,
-            MIN(DATE(r_date))   AS weekStart,
-            MAX(DATE(r_date))   AS weekEnd,
-            SUM(r_price)        AS total
-        FROM recipt
-        WHERE r_u = #{value}
-        GROUP BY YEARWEEK(r_date, 1)
-        ORDER BY yearWeek
-    </select>
 
-    <!--
-      3) 나의 월간 지출
-      - DATE_FORMAT(r_date, '%Y-%m')로 '연-월' 단위로 묶어서
-      - 월별 총 지출(SUM)을 반환
+   <!--
+      2) "주별(4주)" 그래프용 데이터
+      - 요구사항이 "주 안에 일별(7개)" 이므로,
+        주합계(4행)가 아니라 "최근 28일 일별 합계(28행)"을 반환해야 함
+      - 결과(Map): { dt: 'yyyy-MM-dd', total: 99999 }
+    -->
+
+<select id="selectWeeklyTotalByUser"
+        parameterType="string"
+        resultType="map">
+    SELECT
+        DATE(r_date) AS dt,
+        SUM(r_price) AS total
+    FROM recipt
+    WHERE r_u = #{value}
+      AND r_date &gt;= DATE_SUB(CURDATE(), INTERVAL 27 DAY)
+      AND r_date &lt;  DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+    GROUP BY DATE(r_date)
+    ORDER BY dt
+</select>
+
+
+ <!--
+      3) 나의 월간 지출 (이번달 포함 3개월)
       - 결과(Map): { ym: 'yyyy-MM', total: 88888 }
     -->
     <select id="selectMonthlyTotalByUser"
@@ -56,6 +56,8 @@
             SUM(r_price)                 AS total
         FROM recipt
         WHERE r_u = #{value}
+          AND r_date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), '%Y-%m-01')
+          AND r_date &lt;  DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
         GROUP BY DATE_FORMAT(r_date, '%Y-%m')
         ORDER BY ym
     </select>

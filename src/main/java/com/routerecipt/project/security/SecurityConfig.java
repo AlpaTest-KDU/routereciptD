@@ -26,9 +26,10 @@ public class SecurityConfig {
 					.requestMatchers("/chatbot/ask","/api/chat").permitAll()
 					.requestMatchers("/user/userFindIdPage","/user/userResetPwPage","/user/userUpdatePw","/user/userCheckId","/user/userFindId").permitAll()
 					.requestMatchers("/notice/noticePage","/notice/noticeDetailPage").permitAll()
-					.requestMatchers("/error").permitAll()
+					.requestMatchers("/error/**").permitAll()
 					.requestMatchers("/ai/**").permitAll()
 					.requestMatchers("/admin/**","/notice/noticeRegisterPage","/noticePage/noticeRegister").hasRole("ADMIN")
+					.requestMatchers("/user/userInfoShowPage", "/recepit/receiptRegisterPage").hasRole("USER")
 					.anyRequest().authenticated()
 					)
 			.formLogin(form -> form
@@ -46,7 +47,9 @@ public class SecurityConfig {
 				);
 		
 		http.addFilterBefore(redirectLoggonFilter, UsernamePasswordAuthenticationFilter.class);
-		
+		http.exceptionHandling(handler -> handler
+				.accessDeniedPage("/error/403")
+		);
 		return http.build();
 	}
 	

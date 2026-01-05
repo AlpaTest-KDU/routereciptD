@@ -8,10 +8,21 @@
 }
 
 .routeceipt {
+	display: inline-block;		
 	text-align: center;
 	font-size: 48px;
-	font-weight: 900;
+	font-weight: 800;
 	color: #623597;
+	text-decoration: none;		/* a 태그 밑줄 제거 */
+}
+
+.routeceipt:visited {
+  	color: #623597;				/* 자주 클릭해도 원래 색 유지할 수 있게 */
+}
+
+.userFindArea > div:first-child {
+  	text-align: center;   		/* Routeceipt를 확실히 가운데로 */
+ 	margin-bottom: 50px;
 }
 
 .userFindArea h3 {
@@ -20,39 +31,82 @@
 	line-height: 32px;
 }
 
-.userFindArea h5 {
+.userFindArea p {
 	font-weight: 350;
 }
 
-.userFindId {
+.userFindId,
+.userFindPw {
   	background: #ffffff;
   	border: 1px solid #e5e7eb;
   	border-radius: 18px;
-  	box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
-  	padding: 26px 26px 22px;
+  	padding: 32px;
+  	min-height: 400px;
 }
 
-input {
-  	width: 90%;
-  	height: 44px;
-  	padding: 0 14px;
-  	border: 1px solid #d1d5db;
-  	border-radius: 12px;
-  	font-size: 14px;
-  	color: #111827;
+.findRow {
+  	display: flex;
+  	flex-direction: column;		/* 인풋창과 버튼 세로로 */
+  	gap: 25px;					/* input-버튼 간격 */
+  	margin-top: 16px;
+}
+
+.field {
+	position: relative;
+	border: 1px solid #d1d5db;
+	border-radius: 12px;
+	background: #fff;
+	transition: border-color 0.2s, box-shadow 0.2s;
+	overflow: hidden;			/* 내부 인풋이 모서리를 삐져나오지 못하게 */
+}
+
+.field:focus-within {
+  	box-shadow: 0 0 0 2px rgba(80, 84, 239, 0.5);		/* 인풋 테두리 조금 더 두껍게 해주기 위해 추가했음 */
+}
+
+.findRow input {
+	width: 100%;
+  	height: 69px;
+  	padding: 22px 14px 10px;
+  	border: 0;
   	outline: none;
-  	background: #ffffff;
+  	font-size: 14px;
+  	box-sizing: border-box;
+}
+
+.field label {
+  	position: absolute;
+  	left: 14px;
+  	top: 50%;
+  	transform: translateY(-50%);
+  	font-size: 16px;
+  	color: #9ca3af;
+  	pointer-events: none;
+  	transition: 0.2s ease;
+  	background: #fff;
+  	padding: 0 4px;	
+}
+
+/* 입력 시 라벨 위로 */
+.field input:focus + label {
+  	top: 10px;
+  	transform: translateY(0);
+  	font-size: 12px;
+  	color: #9ca3af;
 }
 
 .findBtn {
-	margin-top: 20px;
-	margin-left: 350px;
-	padding: 10px 16px;
+	width: 25%;
+	height: 44px;
+	padding: 0px 18px;
     background: #5054ef;
-    border-radius: 8px;
+    border-radius: 12px;
     color: #fff;
-    font-weight: bold;
+    font-weight: 600;
     border: none;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .findBtn:hover {

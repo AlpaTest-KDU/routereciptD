@@ -1,17 +1,29 @@
 package com.routerecipt.project.controller;
 
+import com.routerecipt.project.dto.MyPageSummaryDTO;
+import com.routerecipt.project.service.ReceiptCategoryServiceImp;
+import com.routerecipt.project.service.ReceiptQueryService;
+import com.routerecipt.project.service.ReceiptQueryServiceImp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.security.LoginDetails;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
+@RequiredArgsConstructor
 public class MainController {
-	
+	private final ReceiptResultService receiptResultService;
+	private final ReceiptQueryService receiptQueryService;
+
 	// Branch Test
 	// 메인 화면
 	@GetMapping("/")
@@ -54,14 +66,31 @@ public class MainController {
     	model.addAttribute("u_email", user.getU_email());
     	model.addAttribute("u_birthday", user.getU_birthday());
     	model.addAttribute("gender", user.getGender());
+
+		// 통계 데이터 조회 및 모델 추가
+		MyPageSummaryDTO summary = receiptQueryService.getMyPageSummary(user.getU_id());
+		model.addAttribute("summary", summary);
+
 		return "user/userInfoShowPage";
 	}
 		
 	// 지출분석 화면
-	@GetMapping("/user/analysisPage")
-	public String analysisPage() {
-		return "user/analysisPage";
-	}
+
+    @GetMapping("/user/analysisPage")
+    public String analysisPage(Authentication authentication, Model model) {
+
+        LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+        String uId = loginDetails.getUser().getU_id();
+
+        ReceiptAnalysisStatsdto stats = receiptResultService.getAnalysisPageStats(uId);
+
+        model.addAttribute("genderData", stats.getGenderData());
+        model.addAttribute("myAvg", stats.getMyAvg());
+        model.addAttribute("allAvg", stats.getAllAvg());
+
+        return "user/analysisPage";
+    }
+
 	
 	// 영수증 등록 화면
 	@GetMapping("/recepit/receiptRegisterPage")

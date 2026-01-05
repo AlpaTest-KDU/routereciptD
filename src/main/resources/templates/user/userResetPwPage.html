@@ -12,22 +12,25 @@
 	
 		<div class="userFindArea">
 			<div>
-				<p class="routeceipt">Routeceipt</p>
+				<a th:href="@{/}" class="routeceipt">Routeceipt</a>
 			</div>
 			<form th:action="@{/user/userCheckId}" method="post" th:unless="${verifiedId}">
 				<div class="userFindPw">
 					<div>
 						<h3>비밀번호 재설정</h3>
+						<p>아이디와 이메일을 입력하세요.</p>
 					</div>
-					<div>
-						<label for="findPw_id">아이디</label>
-						<input id="findPw_id" type="text" name="u_id" placeholder="아이디" required>
+					<div class="findRow">
+						<div class="field">
+							<input id="findPw_id" type="text" name="u_id" placeholder=" " required>
+							<label for="findPw_id">아이디</label>
+						</div>
+						<div class="field">
+							<input id="findPw_email" type="text" name="u_email" placeholder=" " required>
+							<label for="findPw_email">이메일</label>
+						</div>
+						<button type="submit" class="findBtn">재설정</button>
 					</div>
-					<div>
-						<label for="findPw_email">이메일</label>
-						<input id="findPw_email" type="text" name="u_email" placeholder="이메일" required>
-					</div>
-					<button type="submit" class="findBtn">비밀번호 재설정</button>
 					<div class="findError" th:if="${idError}">
 		        		<p th:text="${idError}"></p>
 		    		</div>

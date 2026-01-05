@@ -52,9 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReceiptController {
 	
 	private final ReceiptService receiptService;
-	
 	private final ReceiptQueryService receiptQueryService;
-	
 	private final ReceiptAnalyzeService receiptAnalyzeService;
 	
 	@Autowired
