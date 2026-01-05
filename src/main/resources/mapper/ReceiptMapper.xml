@@ -88,10 +88,30 @@
 
     </insert>
     
-    <insert id="insertItem" parameterType="com.routerecipt.project.dto.ReceiptItemDTO">
-  INSERT INTO receipt_item (r_no, item_name, item_category, item_price)
-  VALUES (#{r_no}, #{item_name}, #{item_category}, #{item_price})
+   <insert id="insertItem"
+        parameterType="com.routerecipt.project.dto.ReceiptItemDTO">
+  INSERT INTO receipt_item
+  (
+    r_no,
+    item_name,
+    item_category,
+    item_price,
+    ai_source,
+    ai_confidence,
+    suggested_label
+  )
+  VALUES
+  (
+    #{r_no},
+    #{item_name},
+    #{item_category},
+    #{item_price},
+    #{ai_source},
+    #{ai_confidence},
+    #{suggested_label}
+  )
 </insert>
+
 
 <select id="selectItemsByReceiptNos"
         resultMap="ReceiptItemMap">
@@ -175,14 +195,29 @@
 	
 	  <!-- 3) 아이템 배치 삽입 (foreach + index로 3개 리스트 동기화) -->
 	  <insert id="insertItemsBatch">
-	    INSERT INTO receipt_item (r_no, item_name, item_category, item_price)
-	    VALUES
-	    <foreach collection="item_names" item="nm" index="i" separator=",">
-	      (#{r_no},
-	       #{nm},
-	       #{item_categories[${i}]},
-	       #{item_prices[${i}]})
-	    </foreach>
-	  </insert>
+  INSERT INTO receipt_item
+  (
+    r_no,
+    item_name,
+    item_category,
+    item_price,
+    ai_source,
+    ai_confidence,
+    suggested_label
+  )
+  VALUES
+  <foreach collection="items" item="it" separator=",">
+    (
+      #{r_no},
+      #{it.item_name},
+      #{it.item_category},
+      #{it.item_price},
+      #{it.ai_source},
+      #{it.ai_confidence},
+      #{it.suggested_label}
+    )
+  </foreach>
+</insert>
+
 
 </mapper>
