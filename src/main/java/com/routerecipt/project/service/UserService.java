@@ -15,6 +15,5 @@ public interface UserService {
 	List<Userdto> UserInfoShow();
 	void UserInfoUpdate(Userdto u);
 	void UserInfoDelete(String u_id);
-	List<Userdto> selectUserByName(String u_name);
-	Userdto selectUserById(String u_id);
+	Userdto UserSelectById(String u_id);
 }

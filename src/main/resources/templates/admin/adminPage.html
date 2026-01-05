@@ -27,32 +27,29 @@
 		      		</div>
 		    	</form>
 		      		
-		      	<div th:if="${param.u_id != null and userList == null}" class="userError">
+		      	<div th:if="${param.u_id != null and userInfo == null}" class="userError">
 		      		<p>해당 회원은 존재하지 않는 회원입니다.</p>
 		      	</div>
 				
-				<div th:each="userInfo : ${userList}">
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 <!--│				        해당 아이디를 가진 회원이 존재하는 경우				          │ -->
 <!--└─────────────────────────────────────────────────────────────────────────────┘ -->	      		
-					<div th:if="${userInfo != null}" class="userInfoShowArea">
-						<a th:href="@{/admin/userInfoShowPage/{u_id}(u_id=${userInfo.u_id})}">
-							<span th:text="${userInfo.u_id}"></span>
-						</a>
-						<span th:text="${userInfo.u_name}"></span>
-						<span th:text="${userInfo.u_birthday}"></span>
-						<span th:text="${userInfo.u_email}"></span>
-						<span th:text="${userInfo.gender}"></span>
-					</div>
+				<div th:if="${userInfo != null}" class="userInfoShowArea">
+					<span th:text="${userInfo.u_id}"></span>
+					<span th:text="${userInfo.u_name}"></span>
+					<span th:text="${userInfo.u_birthday}"></span>
+					<span th:text="${userInfo.u_email}"></span>
+					<span th:text="${userInfo.gender}"></span>
+				</div>
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 <!--│				        해당 아이디를 가진 회원이 존재하는 경우				          │ -->
 <!--└─────────────────────────────────────────────────────────────────────────────┘ -->
-					<form th:if="${userInfo != null}" th:action="@{/admin/userInfoDelete}" method="post">
-						<input type="hidden" name="u_id" th:value="${userInfo.u_id}">
-						<button type="submit"
-						onclick="return confirm('삭제하시면 되돌릴 수 없습니다.\n정말 삭제하시겠습니까?')">강제 삭제</button>
-					</form>
-				</div>
+				<form th:if="${userInfo != null}" th:action="@{/admin/userInfoDelete}" method="post">
+					<input type="hidden" name="u_id" th:value="${userInfo.u_id}">
+					<button type="submit"
+							onclick="return confirm('삭제하시면 되돌릴 수 없습니다.\n정말 삭제하시겠습니까?')">강제 삭제
+					</button>
+				</form>
 		  	</div>
 		    
 		</section>
