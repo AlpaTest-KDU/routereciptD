@@ -2,7 +2,7 @@
 
 .userFindArea {
     max-width: 520px;
-    margin: 140px auto 80px;
+    margin: 60px auto 157px;
     padding: 40px 34px;
     border-radius: 20px;
 }
@@ -12,12 +12,12 @@
 	text-align: center;
 	font-size: 48px;
 	font-weight: 800;
-	color: #623597;
+	color: #1f1c6f;
 	text-decoration: none;		/* a 태그 밑줄 제거 */
 }
 
 .routeceipt:visited {
-  	color: #623597;				/* 자주 클릭해도 원래 색 유지할 수 있게 */
+  	color: #1f1c6f;				/* 자주 클릭해도 원래 색 유지할 수 있게 */
 }
 
 .userFindArea > div:first-child {
@@ -103,7 +103,7 @@
 	width: 25%;
 	height: 44px;
 	padding: 0px 18px;
-    background: #5054ef;
+    background: #1f1c6f;
     border-radius: 12px;
     color: #fff;
     font-weight: 600;
@@ -116,6 +116,10 @@
 .findBtn:hover {
   	opacity: 0.92;
   	transform: translateY(-1px);
+}
+
+.resetPw .findBtn {
+    width: 25%;
 }
 
 .findError {
@@ -131,6 +135,13 @@
   	font-size: 13px;
   	font-weight: 700;
   	color: #b91c1c;
+}
+
+.resetPw .findBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.2);
 }
 
 
