@@ -1,5 +1,6 @@
 package com.routerecipt.project.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,10 +14,10 @@ import com.routerecipt.project.service.UserServiceImp;
 
 @Controller
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserfindController {
 
-	@Autowired
-	private UserServiceImp userServiceImp;
+	private final UserServiceImp userServiceImp;
 
 	// 아이디 찾기 기능
 	// 파라미터 = email

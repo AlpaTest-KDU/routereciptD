@@ -2,6 +2,7 @@ package com.routerecipt.project.controller;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,11 @@ import com.routerecipt.project.service.UserServiceImp;
 
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
-	
-	@Autowired
-	private UserServiceImp userServiceImp;
-	
-	
+
+	private final UserServiceImp userServiceImp;
+
 	// 사용자 탈퇴 시키기
 	@PostMapping("/userInfoDelete")
 	public String userInfoDelete(@RequestParam(value="u_id") String u_id) {

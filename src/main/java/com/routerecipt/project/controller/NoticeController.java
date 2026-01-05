@@ -1,6 +1,7 @@
 package com.routerecipt.project.controller;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -18,10 +19,10 @@ import com.routerecipt.project.service.NoticeServiceImp;
 
 @Controller
 @RequestMapping("/notice")
+@RequiredArgsConstructor
 public class NoticeController {
 	
-	@Autowired
-	private NoticeServiceImp noticeServiceImp;
+	private final NoticeServiceImp noticeServiceImp;
 	
 	// 공지사항 등록 화면
 	@GetMapping("/noticeRegisterPage")
