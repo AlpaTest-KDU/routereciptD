@@ -21,8 +21,8 @@
 					<h1>영수증 관리의 새로운 길</h1>
 					<h1 id="routeceipt">Routeceipt</h1>
 					<p>영수증을 업로드하면 AI가 자동으로 인식하고 정리해요</p>
-					<p>영수증 정리부터 월별 소비 패턴까지</p>
-					<p>Routeceipt에서 한 눈에,한 번에?,,,,,해결하세요</p>
+					<p>영수증 관리부터 소비 분석까지</p>
+					<p>Routeceipt 하나로 끝내세요</p>
 					<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/adminPage}">관리자 페이지</a>
 					<a sec:authorize="hasRole('USER')" th:href="@{/recepit/receiptRegisterPage}">영수증 등록하기</a>
 					<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}">지금 시작하기</a>
@@ -90,12 +90,12 @@
 		      		<div class="ocrCol">
 		        		<p class="ocrPointTitle">자동 인식</p>
 		        		<p class="ocrPointHeadline">
-		          			사진 속 글자도 놓치지 않는 OCR 엔진으로<br>
-		          			실수는 줄이고(수정 필)
+		          			사진 속 작은 글자까지 인식하는 OCR로<br>
+		          			입력 실수는 최소화합니다.
 		        		</p>
 		        		<p class="ocrPointDesc">
-		          			영수증 이미지에서 텍스트를 추출하고, 필요한 값만 정리해서
-		          			저장합니다.(수정 필)
+		          			영수증 이미지에서 텍스트를 자동 추출해 <br>
+		          			필요한 정보만 정리하여 저장합니다.
 		        		</p>
 		      		</div>
 		
@@ -114,14 +114,14 @@
 		      		</div>
 		
 		      		<div class="ocrCol">
-		        		<p class="ocrPointTitle">정확한 추출</p>
+		        		<p class="ocrPointTitle">자동 분류</p>
 		        		<p class="ocrPointHeadline">
-		          			항목을 자동 분류해<br>
-		          			필요한 정보만 남겨요(수정필)
+		          			항목을 자동으로 분류해<br>
+		          			핵심 정보만 남깁니다.
 		        		</p>
 		        		<p class="ocrPointDesc">
-		          			금액/상호/일자 등 핵심 필드를 우선 추출하고,
-		          			후처리 부담을 줄입니다.(수정필)
+		          			금액,상호,일자 등 핵심 항목을 우선 추출해 <br>
+		          			후처리 부담을 줄여줍니다.
 		        		</p>
 		      		</div>
 		    	</div>
@@ -159,7 +159,7 @@
 			    </div>
 			
 			    <div class="graphSubText reveal from-up">
-			      	<p>지출 패턴을 보면 재정 관리의 방향이 보입니다</p>
+			      	<p>지출 패턴을 알면 재정 관리의 방향이 보입니다</p>
 			    </div>
 			</div>
 		</section>
