@@ -87,9 +87,7 @@
 	        <section class="mypageSummary">
 	            <div class="mypageCard">
 	                <h3>이번 달 업로드한 영수증</h3>
-	                <p class="mypageCardMain">
-	                    ? 건
-	                </p>
+	                <p th:text="|${summary.getReceiptCount()}|" class="mypageCardMain"></p>
 	                <p class="mypageCardSub">지난 달 대비
 	                    ? 건 변화
 	                </p>
@@ -97,9 +95,7 @@
 	
 	            <div class="mypageCard">
 	                <h3>이번 달 총 지출 금액</h3>
-	                <p class="mypageCardMain">
-	                    ? 원
-	                </p>
+	                <p th:text="|${summary.getTotalAmount()}|" class="mypageCardMain"></p>
 	                <p class="mypageCardSub">가장 많이 소비한 날짜
 	                    ?월 ?일
 	                </p>
@@ -107,9 +103,7 @@
 	
 	            <div class="mypageCard">
 	                <h3>가장 많이 쓴 카테고리</h3>
-	                <p class="mypageCardMain">
-	                    편의점
-	                </p>
+	                <p th:text="${summary.getTopCategory()}" class="mypageCardMain">
 	                <p class="mypageCardSub">이번 달 기준</p>
 	            </div>
 	        </section>
