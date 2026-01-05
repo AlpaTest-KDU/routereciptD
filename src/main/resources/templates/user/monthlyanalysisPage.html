@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-  <meta charset="UTF-8" />
-  <title>월별 소비 패턴</title>
-
-  <!-- Chart.js (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- 컨트롤러 Model -> JS로 데이터 주입 -->
-  <script th:inline="javascript">
+<meta charset="UTF-8" />
+<!-- Chart.js (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- 컨트롤러 Model -> JS로 데이터 주입 -->
+<script th:inline="javascript">
     /*<![CDATA[*/
     window.receiptData = {
       dailyData:   /*[[${dailyData}]]*/ [],
@@ -16,29 +15,32 @@
       monthlyData: /*[[${monthlyData}]]*/ []
     };
     /*]]>*/
-  </script>
+</script>
+<title>월별 소비 패턴</title>
 </head>
-
 <body>
+	
+	<div layout:fragment="content">
+	
+		<h2>일별 지출</h2>
+  		<div style="width: 900px; height: 320px;">
+    		<canvas id="dailyChart"></canvas>
+  		</div>
 
-  <h2>일별 지출</h2>
-  <div style="width: 900px; height: 320px;">
-    <canvas id="dailyChart"></canvas>
-  </div>
+  		<h2>주별 지출</h2>
+  		<div style="width: 900px; height: 320px;">
+    		<canvas id="weeklyChart"></canvas>
+  		</div>
 
-  <h2>주별 지출</h2>
-  <div style="width: 900px; height: 320px;">
-    <canvas id="weeklyChart"></canvas>
-  </div>
+  		<h2>월별 지출</h2>
+  		<div style="width: 900px; height: 320px;">
+    		<canvas id="monthlyChart"></canvas>
+  		</div>
 
-  <h2>월별 지출</h2>
-  <div style="width: 900px; height: 320px;">
-    <canvas id="monthlyChart"></canvas>
-  </div>
-
-    <a href="/" class="btn-back">← 메인으로 돌아가기</a>
-
-  <!-- 페이지 전용 JS -->
-  <script th:src="@{/js/myreceiptresultMonthlyCharts.js}"></script>
+  		<!-- 페이지 전용 JS -->
+  		<script th:src="@{/js/myreceiptresultMonthlyCharts.js}"></script>
+  
+	</div>
+	
 </body>
 </html>
