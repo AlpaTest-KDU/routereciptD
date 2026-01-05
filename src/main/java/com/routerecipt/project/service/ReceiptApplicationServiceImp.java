@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.routerecipt.project.OpenAI.AiCategoryService;
+import com.routerecipt.project.OpenAI.OpenAiCategoryService;
 import com.routerecipt.project.dto.AiCategoryResponse;
 import com.routerecipt.project.dto.ItemCategory;
 import com.routerecipt.project.dto.ReceiptDTO;
@@ -29,7 +29,7 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
             LoggerFactory.getLogger(ReceiptApplicationServiceImp.class);
 
     private final ReceiptMapper receiptMapper;
-    private final AiCategoryService aiCategoryService;
+    private final OpenAiCategoryService aiCategoryService;
 
     /* =====================================================
      * 1️⃣ 영수증 + 아이템 + AI 분류 저장
