@@ -87,18 +87,14 @@
 	        <section class="mypageSummary">
 	            <div class="mypageCard">
 	                <h3>이번 달 업로드한 영수증</h3>
-	                <p th:text="|${summary.getReceiptCount()}|" class="mypageCardMain"></p>
-	                <p class="mypageCardSub">지난 달 대비
-	                    ? 건 변화
-	                </p>
+	                <p th:text="${summary.getReceiptCount()}" class="mypageCardMain"></p>
+					<p th:text="${summary.getCompareCountText()}" class="mypageCardSub"></p>
 	            </div>
 	
 	            <div class="mypageCard">
 	                <h3>이번 달 총 지출 금액</h3>
-	                <p th:text="|${summary.getTotalAmount()}|" class="mypageCardMain"></p>
-	                <p class="mypageCardSub">가장 많이 소비한 날짜
-	                    ?월 ?일
-	                </p>
+	                <p th:text="${summary.getTotalAmount()}" class="mypageCardMain"></p>
+	                <p th:text="${summary.getTopAmountReceipt()}" class="mypageCardSub"></p>
 	            </div>
 	
 	            <div class="mypageCard">

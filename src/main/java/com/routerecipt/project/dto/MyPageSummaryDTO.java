@@ -9,4 +9,6 @@ public class MyPageSummaryDTO {
     private int receiptCount;
     private long totalAmount;
     private String topCategory;
+    private String compareCountText;
+    private String topAmountReceipt;
 }
