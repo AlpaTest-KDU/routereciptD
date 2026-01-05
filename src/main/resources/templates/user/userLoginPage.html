@@ -30,10 +30,14 @@
 			</form>
 
 			<div class="loginBottom">
-				<a th:href="@{/user/userFindIdPage}" class="">아이디 찾기</a>
-				<a th:href="@{/user/userResetPwPage}" class="">비밀번호 재설정</a>
+				<a th:href="@{/user/userFindIdPage}">아이디 찾기</a>
+				<a th:href="@{/user/userResetPwPage}">비밀번호 재설정</a>
+				<a th:href="@{/}">메인으로 돌아가기</a>
+			</div>
+			
+			<div class="goSignup">
+				<p>계정이 없으신가요?</p>
 				<a th:href="@{/user/userSignUpPage}">회원가입하기</a>
-				<a th:href="@{/}" class="">메인으로 돌아가기</a>
 			</div>
 
 			<div th:if="${param.error}">
