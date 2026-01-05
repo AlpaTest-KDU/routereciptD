@@ -24,11 +24,11 @@
           th:action="@{/receipt/uploadReceipt}"
           method="post"
           enctype="multipart/form-data">
-
         <input type="file"
                id="receiptFile"
                name="receipt"
                accept="image/*"
+               multiple
                required>
 
         <input type="hidden"
