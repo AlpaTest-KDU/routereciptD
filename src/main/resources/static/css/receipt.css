@@ -1,40 +1,442 @@
 @charset "UTF-8";
 
 .container {
-   width: 1000px;
-   margin: 40px auto;
+	width: min(1040px, calc(100% - 48px));
+   	margin: 40px auto 90px;;
 }
 
-.receipt-list button {
-   display: block;
-   margin: 6px 0;
-   padding: 8px 12px;
-   cursor: pointer;
-   width: 100%;
-   text-align: left;
-   border: 1px solid #ccc;
-   background: #f7f7f7;
+.pageHeader {
+  	display: flex;
+  	justify-content: space-between;
+  	align-items: flex-start;
+  	gap: 18px;
+  	margin: 0 0 18px;
+  	padding: 18px;
+  	border: 1px solid rgba(79,70,229,.18);
 }
 
-.receipt-list button:hover {
-   background: #eaeaea;
+.pageTitle {
+  	margin: 0;
+  	font-size: 26px;
+  	font-weight: 900;
 }
 
-.info-box {
-   margin-top: 30px;
-   padding: 20px;
-   border: 1px solid #ccc;
-   background: #fff;
+.pageDesc {
+  	margin: 10px 0 12px;
+  	font-weight: 600;
+  	line-height: 1.55;
 }
 
-.category-box {
-   margin-top: 20px;
+.guideList {
+  	margin: 0;
+  	padding-left: 0;
+  	list-style: none;
+  	display: grid;
+  	gap: 7px;
 }
 
-.category-box h4 {
-   margin-top: 15px;
+.guideList li {
+  	position: relative;
+  	padding: 10px 12px 10px 36px;
+  	border: 1px solid rgba(229,231,235,.7);
+  	color: #4b5563;
+  	font-weight: 600;
 }
 
-ul {
-   margin-left: 20px;
+.pageHeaderArea {
+  	display: flex;
+  	align-items: flex-start;
+  	justify-content: flex-end;
+  	min-width: 160px;
+}
+
+#uploadForm {
+  	margin-top: 10px;
+  	padding: 18px;
+  	display: flex;
+  	align-items: center;
+  	justify-content: space-between;
+  	gap: 12px;
+  	border: 1px solid var(--border);
+  	border-radius: 16px;
+  	background: #fff;
+}
+
+/* 왼쪽 그룹 */
+.uploadLeft {
+  	display: flex;
+  	align-items: center;
+  	gap: 10px;
+  	min-width: 0;
+}
+
+/* 실제 파일 input 숨김(접근성 유지) */
+#receiptFile {
+  	position: absolute;
+  	width: 1px;
+  	height: 1px;
+  	padding: 0;
+  	margin: -1px;
+  	overflow: hidden;
+  	clip: rect(0,0,0,0);
+  	border: 0;
+}
+
+#receiptFile:focus { 
+	outline: none; 
+}
+
+/* 파일 선택 버튼(레이블) */
+.customFileBtn {
+  	height: 44px;
+  	padding: 0 14px;
+  	border-radius: 14px;
+  	border: 1px solid rgba(79,70,229,.25);
+  	background: rgba(255,255,255,.85);
+  	color: var(--text);
+  	font-weight: 800;
+  	cursor: pointer;
+  	display: inline-flex;
+  	align-items: center;
+  	white-space: nowrap;
+}
+
+.customFileBtn:hover {
+  	border-color: rgba(79,70,229,.45);
+}
+
+.customFileBtn:active { 
+	transform: translateY(1px); 
+}
+
+#manualBtn {
+  	height: 44px;
+  	padding: 0 14px;
+  	border-radius: 14px;
+  	border: 1px solid rgba(79,70,229,.25);
+  	background: rgba(255,255,255,.85);
+  	color: #111827;
+  	font-weight: 700;
+  	cursor: pointer;
+  	white-space: nowrap;
+}
+
+#manualBtn:hover {
+  	border-color: rgba(79,70,229,.45);
+}
+
+#manualBtn:active {
+  	transform: translateY(1px);
+}
+
+#receiptFile:focus {
+  	outline: none;
+}
+
+.ocrBtn {
+  	height: 46px;
+  	padding: 0 16px;
+  	border-radius: 14px;
+  	border: 1px solid transparent;
+  	background: #1f1c6f;
+  	color: #fff;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+.ocrBtn:hover {
+  	filter: brightness(0.98);
+}
+
+.ocrBtn:active {
+  	transform: translateY(1px);
+}
+
+.receiptList {
+  	margin-top: 18px;
+}
+
+.receiptList h3 {
+  	margin: 0 0 12px;
+  	font-size: 16px;
+  	font-weight: 500;
+}
+
+.receiptListNo {
+   	display: block;
+   	margin: 6px 0;
+   	padding: 8px 12px;
+   	cursor: pointer;
+   	width: 100%;
+   	text-align: left;
+   	border: 1px solid #ccc;
+   	background: #f7f7f7;
+}
+
+.receiptListNo:hover {
+   	background: #eaeaea;
+  	border-color: rgba(79,70,229,.35);
+}
+
+.receiptListNo:active {
+  	transform: translateY(1px);
+}
+
+.infoBox {
+   	margin-top: 30px;
+   	padding: 20px;
+   	border: 1px solid #ccc;
+   	background: #fff;
+}
+
+.infoBox h3 {
+  	margin: 0 0 12px;
+  	font-size: 16px;
+  	font-weight: 600;
+}
+
+.infoBox p {
+  	margin: 6px 0;
+  	font-weight: 600;
+}
+
+.infoBox p span {
+  	font-weight: 700;
+}
+
+.categoryBox {
+   	margin-top: 20px;
+}
+
+.categoryBox h4 {
+   	margin-top: 15px;
+   	font-size: 14px;
+   	font-weight: 500;
+}
+
+/* categoryArea 내부 ul 기본값 정리 */
+#categoryArea ul {
+  	margin: 0;
+  	padding-left: 0;
+}
+
+/* 항목 입력(동적 생성되는 input들) */
+#categoryArea input[type="text"],
+#categoryArea input[type="number"] {
+  	height: 40px;
+  	padding: 0 12px;
+  	border-radius: 12px;
+  	background: #fff;
+  	font-weight: 600;
+}
+
+#categoryArea input[type="text"]:focus,
+#categoryArea input[type="number"]:focus {
+  	outline: none;
+}
+
+/* 동적 생성되는 삭제 버튼 */
+#categoryArea button[type="button"] {
+  	height: 40px;
+  	padding: 0 12px;
+  	border-radius: 12px;
+  	border: 1px solid rgba(239,68,68,.35);
+  	color: #b91c1c;
+  	font-weight: 900;
+  	cursor: pointer;
+}
+
+#categoryArea button[type="button"]:hover {
+  	filter: brightness(0.98);
+}
+
+.btnRow {
+  	display: flex;
+  	gap: 10px;
+  	justify-content: flex-end;
+  	margin-top: 16px;
+  	flex-wrap: wrap;
+}
+
+.btnRow button {
+  	height: 44px;
+  	padding: 0 14px;
+  	border-radius: 14px;
+  	background: #fff;
+  	font-weight: 900;
+  	cursor: pointer;
+}
+
+.btnRow button:hover {
+  	box-shadow: 0 10px 20px rgba(17,24,39,.06);
+}
+
+/* 확정 버튼 */
+.uploadBtn {
+  	border-color: transparent !important;
+  	background: #1f1c6f;
+  	color: black;
+}
+
+.uploadBtn:active {
+  	transform: translateY(1px);
+}
+
+.modal {
+  	display: none; /* JS에서 flex로 열림 */
+  	position: fixed;
+  	inset: 0;
+  	z-index: 100;
+  	align-items: center;
+  	justify-content: center;
+  	padding: 18px;
+  	background: rgba(15,23,42,.55);
+  	backdrop-filter: blur(2px);
+}
+
+.modalContent {
+  	width: min(760px, 100%);
+  	border-radius: 18px;
+  	background: #fff;
+  	overflow: hidden;
+}
+
+.modalHeader {
+  	display: flex;
+  	align-items: center;
+  	justify-content: space-between;
+  	padding: 16px 18px;
+}
+
+.modalHeader h3 {
+  	margin: 0;
+  	font-size: 16px;
+  	font-weight: 700;
+}
+
+.modalHeader button {
+  	width: 40px;
+  	height: 40px;
+  	background: #fff;
+  	cursor: pointer;
+  	font-weight: 700;
+}
+
+.modalHeader button:hover {
+  	border-color: rgba(79,70,229,.35);
+}
+
+/* 모달 폼 */
+#manualForm {
+  	padding: 16px 18px 18px;
+}
+
+#manualForm .row {
+  	display: grid;
+  	grid-template-columns: 120px 1fr;
+  	gap: 12px;
+  	align-items: center;
+  	margin: 10px 0;
+}
+
+#manualForm label {
+  	color: var(--muted);
+  	font-weight: 700;
+}
+
+#manualForm input[type="text"],
+#manualForm input[type="date"],
+#manualForm input[type="number"],
+#manualForm select {
+  	height: 42px;
+  	padding: 0 12px;
+  	border-radius: 12px;
+  	background: #fff;
+  	font-weight: 600;
+}
+
+#manualForm input:focus,
+#manualForm select:focus {
+  	outline: none;
+}
+
+#manualForm h4 {
+  	margin: 18px 0 10px;
+  	font-size: 14px;
+  	font-weight: 700;
+}
+
+/* 상품 추가 라인 */
+.itemInputRow {
+  	display: grid;
+  	grid-template-columns: 140px 1fr 160px 90px;
+  	gap: 10px;
+  	align-items: center;
+}
+
+.itemInputRow button {
+  	height: 42px;
+  	border-radius: 12px;
+  	border: 1px solid transparent;
+  	color: #fff;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+.itemInputRow button:hover {
+  	filter: brightness(0.98);
+}
+
+.itemInputRow button:active {
+  	transform: translateY(1px);
+}
+
+/* 수기 테이블 */
+#manualForm table {
+  	width: 100%;
+  	margin-top: 12px;
+  	border-collapse: collapse;
+}
+
+#manualForm td {
+  	padding: 10px 8px;
+  	font-weight: 600;
+  	color: var(--text);
+}
+
+#manualForm td:last-child {
+  	text-align: right;
+}
+
+#manualForm td button {
+  	height: 34px;
+  	padding: 0 10px;
+  	border-radius: 10px;
+  	border: 1px solid rgba(239,68,68,.35);
+  	color: #b91c1c;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+/* 모달 하단 */
+.modalFooter {
+  	display: flex;
+  	justify-content: flex-end;
+  	gap: 10px;
+  	margin-top: 14px;
+  	padding-top: 14px;
+}
+
+.modalFooter button { 
+  	height: 44px;
+  	padding: 0 14px;
+  	border-radius: 14px;
+  	background: #fff;
+  	font-weight: 700;
+  	cursor: pointer;
+}
+
+.modalFooter button[type="submit"] {
+  	border-color: transparent;
+  	color: #fff;
 }

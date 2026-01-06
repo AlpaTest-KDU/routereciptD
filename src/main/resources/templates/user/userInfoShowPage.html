@@ -83,8 +83,27 @@
 	                <p>Routeceipt에서 영수증 업로드 내역과 소비 패턴을 한 눈에 확인해보세요.</p>
 	            </div>
 	        </header>
+	        
+	        <div class="mypageBody">
+	        	<main class="mypageMain">
+	        		<section class="mypageCenterCard">
+	        			<h3 class="mypageSectionTitle">캘린더</h3>
+	        			<!-- 달력 들어갈 자리 -->
+	        			<div class="calendarBox"></div>
+	        		</section>
+	        		
+	        		<section class="mypageCenterCard">
+	        			<h3 class="mypageSectionTitle">그래프</h3>
+	        			<!-- 그래프 들어갈 자리 -->
+	        			<div class="graphBox"></div>
+	        		</section>
+	        	</main>
+	        </div>
 	
-	        <section class="mypageSummary">
+<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+<!--│				            마이페이지 - 오른쪽 패널							      │ -->
+<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	
+	        <aside class="mypageSummary">
 	            <div class="mypageCard">
 	                <h3>이번 달 업로드한 영수증</h3>
 	                <p th:text="${summary.getReceiptCount()}" class="mypageCardMain"></p>
@@ -102,21 +121,21 @@
 	                <p th:text="${summary.getTopCategory()}" class="mypageCardMain">
 	                <p class="mypageCardSub">이번 달 기준</p>
 	            </div>
-	        </section>
+	        </aside>
 	
-	        <section class="mypageRecent">
+<!-- 	        <section class="mypageRecent">
 	            <div class="mypageRecentHeader">
 	                <h3>최근 업로드한 영수증</h3>
 	                <a th:href="@{/userInfoShowPage/receiptInfoShow}" class="mypageLinkSmall">
 	                    전체 내역 보기(필요하면 추가)
 	                </a>
 	            </div>
-	        </section>
+	        </section> -->
 	
 	    </section>
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				            마이페이지 - 메인화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+<!--│				            마이페이지 - 오른쪽 패널							      │ -->
+<!--└─────────────────────────────────────────────────────────────────────────────┘ -->>
 	
 	</div>
 
