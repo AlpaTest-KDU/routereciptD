@@ -2,12 +2,13 @@ package com.routerecipt.project.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.routerecipt.project.OpenAI.OpenAiOcrAssisService;
+import com.routerecipt.project.OpenAI.ReceiptAutoItemHelper;
 import com.routerecipt.project.dto.ItemCategory;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
@@ -21,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class ReceiptServiceImp implements ReceiptService {
 
     private final OcrService ocrService;
+    private final OpenAiOcrAssisService openAiOcrAssisService; // OCR 보조
+    private final ReceiptAutoItemHelper receiptAutoItemHelper; // 강제 아이템
     private final ReceiptApplicationService receiptApplicationService;
 
     @Override
@@ -60,7 +63,7 @@ public class ReceiptServiceImp implements ReceiptService {
                 // 5️⃣ r_place 기반 강제 아이템 RULE 적용
                 applyForcedItemsIfNeeded(receipt);
 
-                // 6️⃣ 🔥 DB 저장 전 item_category 최종 보정 (핵심)
+                // 6️⃣ DB 저장 전 item_category 최종 보정
                 applyCategoryFallback(receipt);
 
                 // 7️⃣ 영수증 + 아이템 저장
@@ -78,12 +81,11 @@ public class ReceiptServiceImp implements ReceiptService {
         result.setSuccessReceiptNos(successNos);
         result.setSuccessCount(success);
         result.setFailCount(fail);
-
         return result;
     }
 
     // ======================================================
-    // 🔒 item_category NOT NULL 보장 (DB 무결성 핵심 레이어)
+    // item_category NOT NULL 보장
     // ======================================================
     private void applyCategoryFallback(ReceiptDTO receipt) {
 
@@ -103,7 +105,7 @@ public class ReceiptServiceImp implements ReceiptService {
     }
 
     // =========================
-    // 자동 아이템 추가 규칙 정의
+    // 자동 아이템 추가 규칙
     // =========================
     private static final List<ForcedItemRule> FORCED_ITEM_RULES = List.of(
         new ForcedItemRule(
@@ -145,9 +147,6 @@ public class ReceiptServiceImp implements ReceiptService {
         }
     }
 
-    // ==================================
-    // r_place 기반 자동 아이템 추가 로직
-    // ==================================
     private void applyForcedItemsIfNeeded(ReceiptDTO receipt) {
 
         String place = safe(receipt.getR_place());
@@ -161,24 +160,19 @@ public class ReceiptServiceImp implements ReceiptService {
 
         for (ForcedItemRule rule : FORCED_ITEM_RULES) {
 
-            // 1️⃣ 장소 매칭
             boolean matched = rule.placeKeywords.stream()
                     .anyMatch(k -> upperPlace.contains(k.toUpperCase()));
 
             if (!matched) continue;
 
-            // 2️⃣ 중복 아이템 그룹 방지
             boolean alreadyInGroup = receipt.getItems().stream()
-                    .filter(Objects::nonNull)
-                    .map(ReceiptItemDTO::getItem_name)
-                    .filter(Objects::nonNull)
-                    .anyMatch(name ->
-                            rule.dedupKeywords.stream().anyMatch(name::contains)
+                    .filter(item -> item != null && item.getItem_name() != null)
+                    .anyMatch(item ->
+                            rule.dedupKeywords.stream().anyMatch(item.getItem_name()::contains)
                     );
 
             if (alreadyInGroup) continue;
 
-            // 3️⃣ 아이템 추가
             ReceiptItemDTO item = new ReceiptItemDTO();
             item.setItem_name(rule.itemName);
             item.setItem_category(rule.category);

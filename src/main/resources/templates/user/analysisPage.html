@@ -1,95 +1,73 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <title>나의 영수증 분석</title>
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="/css/myreceiptresult.css">
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- chart.js 데이터 라벨 표시 플러그인 -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="/css/myreceiptresult.css">
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- chart.js 데이터 라벨 표시 플러그인 (현재 코드에서는 사용 안 하면 제거 가능) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<title>나의 영수증 분석</title>
 </head>
 <body>
 
-    <h2>나의 영수증 분석</h2>
-    <p class="page-desc">
-        나의 일별 / 주별 / 월별 지출과 전체 사용자 성별 지출, 평균 비교를 한 눈에
-        볼 수 있는 페이지입니다.
-    </p>
+	<div layout:fragment="content">
 
-    <div class="chart-grid">
-        <div class="card">
-            <h3>일별 지출 <span class="badge">Daily</span></h3>
-            <div class="chart-wrapper">
-                <canvas id="dailyChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>주별 지출 <span class="badge">Weekly</span></h3>
-            <div class="chart-wrapper">
-                <canvas id="weeklyChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>월별 지출 <span class="badge">Monthly</span></h3>
-            <div class="chart-wrapper">
-                <canvas id="monthlyChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>성별 지출 <span class="badge">Gender</span></h3>
-            <div class="chart-wrapper gender-wrapper">
-                <canvas id="genderChart"></canvas>
-            </div>
-            <div id="genderSummary" class="gender-summary"></div>
-        </div>
-
-        <div class="card">
-            <h3>나의 평균 소비 vs 전체 평균</h3>
-            <div class="avg-box">
-                <div class="avg-text">
-                    <div>
-                        나의 1회 결제 평균 금액:
-                        <b th:text="${#numbers.formatInteger(myAvg, 0, 'COMMA')} + ' 원'">0 원</b>
-                    </div>
-                    <div>
-                        전체 사용자 1회 결제 평균 금액:
-                        <b th:text="${#numbers.formatInteger(allAvg, 0, 'COMMA')} + ' 원'">0 원</b>
-                    </div>
-                </div>
-                <div class="avg-chart-box">
-                    <canvas id="avgChart"></canvas>
-                </div>
-            </div>
-        </div>
+	    <h2>소비 통계 한눈에 보기</h2>
+	    <p class="page-desc">
+	        전체 사용자 성별 소비와 평균 지출을 비교한 통계 분석 페이지입니다.
+	    </p>
+	
+	    <div class="chart-grid">
+	
+	        <div class="card">
+	            <h3>성별 지출 <span class="badge">Gender</span></h3>
+	            <div class="chart-wrapper gender-wrapper">
+	                <canvas id="genderChart"></canvas>
+	            </div>
+	            <div id="genderSummary" class="gender-summary"></div>
+	        </div>
+	
+	        <div class="card">
+	            <h3>나의 평균 소비 vs 전체 평균</h3>
+	            <div class="avg-box">
+	                <div class="avg-text">
+	                    <div>
+	                        나의 1회 결제 평균 금액:
+	                        <b th:text="${#numbers.formatInteger(myAvg, 0, 'COMMA')} + ' 원'">0 원</b>
+	                    </div>
+	                    <div>
+	                        전체 사용자 1회 결제 평균 금액:
+	                        <b th:text="${#numbers.formatInteger(allAvg, 0, 'COMMA')} + ' 원'">0 원</b>
+	                    </div>
+	                </div>
+	                <div class="avg-chart-box">
+	                    <canvas id="avgChart"></canvas>
+	                </div>
+	            </div>
+	        </div>
+	
+	    </div>
+	
+	    <a href="/" class="btn-back">← 메인으로 돌아가기</a>
+	
+	    <!-- 1) 서버 데이터를 JS 전역 변수로 주입 (4,5,6만) -->
+	    <script th:inline="javascript">
+	    /*<![CDATA[*/
+	        window.receiptData = {
+	            genderData:  /*[[${genderData}]]*/ [],
+	            myAvg:       /*[[${myAvg}]]*/ 0,
+	            allAvg:      /*[[${allAvg}]]*/ 0
+	        };
+	    /*]]>*/
+	    </script>
+	
+	    <!-- 2) 차트 렌더링 JS (4,5,6 전용 파일 권장) -->
+	    <script src="/js/myreceiptresultCharts.js"></script>
+    
     </div>
-
-    <a href="/" class="btn-back">← 메인으로 돌아가기</a>
-
-
-    <!-- 1) 서버 데이터를 JS 전역 변수로 주입 -->
-    <script th:inline="javascript">
-    /*<![CDATA[*/
-        window.receiptData = {
-            dailyData:   /*[[${dailyData}]]*/ [],
-            weeklyData:  /*[[${weeklyData}]]*/ [],
-            monthlyData: /*[[${monthlyData}]]*/ [],
-            genderData:  /*[[${genderData}]]*/ [],
-            myAvg:       /*[[${myAvg}]]*/ 0,
-            allAvg:      /*[[${allAvg}]]*/ 0
-        };
-    /*]]>*/
-    </script>
-
-    <!-- 2) 차트 렌더링 JS -->
-    <script src="/js/myreceiptresultCharts.js"></script>
 
 </body>
 </html>

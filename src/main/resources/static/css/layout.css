@@ -71,6 +71,20 @@ header .btn {
 
 }
 
+.goChatBot {
+  	position: fixed;
+  	right: 24px;
+  	bottom: 24px;
+  	z-index: 10000; /* header(999)보다 크게 */
+}
+
+.goChatBot img {
+  	width: 70px;     
+  	height: 70px;
+  	border-radius: 30%;
+  	border: 2px solid rgba(17, 24, 39, 0.10);
+}
+
 
 
 

@@ -35,33 +35,52 @@ import com.routerecipt.project.dto.ReceiptItemDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
+
+/**
+ * OCR 서비스
+ *
+ * 역할:
+ *  1) CLOVA OCR 호출(JSON + Base64)
+ *  2) CLOVA 결과를 ReceiptDTO로 파싱
+ *  3) 파싱 결과에 누락(상호/날짜/총액/아이템)이 있으면 OpenAI로 보강
+ *  4) 업로드 이미지가 WEBP면 JPG로 변환 후 CLOVA로 전달
+ *
+ * 주로 사용되는 흐름:
+ *  - callClovaOCR(file) -> parseReceiptWithAssist(json, file) -> ReceiptDTO 반환
+ */
 @Service
 @RequiredArgsConstructor
 public class OcrService {
 
+	// CLOVA OCR API URL (application.yml/properties에서 주입)
     @Value("${clova.url}")
     private String clovaUrl;
 
+    // CLOVA OCR SECRET (application.yml/properties에서 주입)
     @Value("${clova.secret}")
     private String clovaSecret;
 
+    // CLOVA OCR 호출용 RestTemplate (현재는 new로 생성)
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // OCR 누락 보강
+    // OCR 누락 보강용 OpenAI Assist 서비스
     private final OpenAiOcrAssisService openAiOcrAssistService;
 
 
     /**
-     * 1) CLOVA 파싱
-     * 2) 누락 시 OpenAI로 보강
-     * 3) items 카테고리 OpenAI 분류
+     * (선택) ImageIO 플러그인 스캔
+     * - WEBP 지원 플러그인 존재 여부를 로깅
+     * - 운영에서 WEBP 변환이 계속 실패하면 여기 로그로 확인 가능
      */
     public ReceiptDTO parseReceiptWithAssist(JSONObject json, MultipartFile file) {
-
+    	
+    	// 1) CLOVA 결과를 ReceiptDTO로 1차 파싱
         ReceiptDTO parsed = parseReceipt(json);
-
+        
+        // 2) 핵심 값이 부족하면 OpenAI로 보강 시도
         if (needOpenAiFix(parsed)) {
-
+        	
+        	// CLOVA JSON에서 "필드 텍스트" 및 "receipt.result"를 기반으로 rawText 구성
             String rawText = extractRawText(json);
             System.out.println("[RAW_TEXT]\n" + rawText);
 
@@ -72,24 +91,24 @@ public class OcrService {
                 OpenAiReceiptResult fixed = openAiOcrAssistService.fixMissingFieldsWithVision(file, rawText);
 
                 if (fixed != null) {
-                    // place
+                    // (1) 상호 보강
                     if (isBlank(parsed.getR_place()) && !isBlank(fixed.getPlace())) {
                         parsed.setR_place(fixed.getPlace().trim());
                     }
 
-                    // date
+                    // (2) 날짜 보강 (문자열 -> LocalDate 파싱)
                     if (parsed.getR_date() == null && !isBlank(fixed.getDate())) {
                         try {
                             parsed.setR_date(LocalDate.parse(fixed.getDate().trim()));
                         } catch (Exception ignore) {}
                     }
 
-                    // total
+                    // (3) 총액 보강
                     if (parsed.getR_price() <= 0 && fixed.getTotal() != null && fixed.getTotal() > 0) {
                         parsed.setR_price(fixed.getTotal());
                     }
 
-                    // items 보강 (CLOVA items가 비었을 때만)
+                    // (4) 아이템 보강: CLOVA 아이템이 비었을 때만 AI 아이템을 채움
                     if (parsed.getItems() == null || parsed.getItems().isEmpty()) {
                         List<ReceiptItemDTO> fromAi = convertOpenAiItemsToReceiptItems(fixed);
                         if (!fromAi.isEmpty()) {
@@ -103,6 +122,8 @@ public class OcrService {
         return parsed;
     }
     
+    // CLOVA JSON에서 raw 텍스트를 최대한 추출
+    // OpenAI 보강 단계에서 텍스트 힌트를 최대한 제공하기 위함
     @PostConstruct
     public void initImageIO() {
         ImageIO.scanForPlugins();
@@ -120,7 +141,7 @@ public class OcrService {
         if (images != null) img0 = images.optJSONObject(0);
         if (img0 == null) return "";
 
-        // fields 기반
+        // 1) fields 기반으로 전체 인식 텍스트 수집
         JSONArray fields = img0.optJSONArray("fields");
         if (fields != null) {
             for (int i = 0; i < fields.length(); i++) {
@@ -131,7 +152,7 @@ public class OcrService {
             }
         }
 
-        // receipt.result 기반 보강
+        // 2) receipt.result 기반 보강 (구조화된 값들)
         JSONObject receipt = img0.optJSONObject("receipt");
         JSONObject result = (receipt == null) ? null : receipt.optJSONObject("result");
         if (result != null) {
@@ -142,7 +163,8 @@ public class OcrService {
             if (!store.isBlank()) sb.append(store).append("\n");
             if (!dateText.isBlank()) sb.append(dateText).append("\n");
             if (!totalText.isBlank()) sb.append(totalText).append("\n");
-
+            
+            // subResults -> items 반복
             JSONArray subResults = result.optJSONArray("subResults");
             if (subResults != null) {
                 for (int b = 0; b < subResults.length(); b++) {
@@ -168,7 +190,10 @@ public class OcrService {
         return sb.toString().trim();
     }
 
-    // ✅ 오타 수정(pprivate -> private)
+    /**
+     * OpenAI 보강이 필요한지 판단
+     * - 상호/날짜/총액/아이템 중 하나라도 누락이면 true
+     */
     private boolean needOpenAiFix(ReceiptDTO r) {
         if (r == null) return true;
         return isBlank(r.getR_place())
@@ -179,7 +204,7 @@ public class OcrService {
     }
 
 
-
+    // 2) CLOVA JSON -> ReceiptDTO 파싱
     public ReceiptDTO parseReceipt(JSONObject json) {
         ReceiptDTO dto = new ReceiptDTO();
         if (json == null) return dto;
@@ -191,9 +216,11 @@ public class OcrService {
                     .getJSONObject("receipt")
                     .getJSONObject("result");
 
+            // 1) 상호명
             String place = optTextString(result, "storeInfo", "name");
             dto.setR_place(isBlank(place) ? null : place.trim());
-
+            
+            // 2) 날짜 (formatted 우선, 없으면 text 기반 파싱)
             LocalDate date = null;
 
             JSONObject paymentInfo = result.optJSONObject("paymentInfo");
@@ -215,10 +242,12 @@ public class OcrService {
             }
 
             dto.setR_date(date);
-
+            
+            // 3) 총액
             String totalStr = optTextString(result, "totalPrice", "price");
             dto.setR_price(toIntMoney(totalStr));
-
+            
+            // 4) 아이템 목록
             List<ReceiptItemDTO> itemList = new ArrayList<>();
             List<String> goodsNames = new ArrayList<>();
 
@@ -234,11 +263,13 @@ public class OcrService {
                     for (int i = 0; i < items.length(); i++) {
                         JSONObject itemObj = items.optJSONObject(i);
                         if (itemObj == null) continue;
-
+                        
+                        // 상품명
                         String name = optTextString(itemObj, "name");
                         if (isBlank(name)) continue;
                         name = name.trim();
-
+                        
+                        // 가격(구조가 복잡할 수 있어 최대한 안전하게 접근)
                         String priceStr = "";
                         JSONObject priceWrap = itemObj.optJSONObject("price");
                         if (priceWrap != null) {
@@ -254,6 +285,8 @@ public class OcrService {
                         ReceiptItemDTO rid = new ReceiptItemDTO();
                         rid.setItem_name(name);
                         rid.setItem_price(price);
+                        
+                        // OCR 단계에서는 category를 확정하지 않고 null로 둠 (AI 분류/사용자 확정 단계에서 채움)
                         rid.setItem_category(null);
 
                         itemList.add(rid);
@@ -271,11 +304,13 @@ public class OcrService {
 
         return dto;
     }
-
+    
+    // 3) 파싱/보강 유틸
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
 
+    // CLOVA JSON에서 중첩된 text/value를 안전하게 꺼내는 유틸
     private String optTextString(JSONObject parent, String... path) {
         if (parent == null || path == null || path.length == 0) return "";
         JSONObject cur = parent;
@@ -298,19 +333,22 @@ public class OcrService {
 
         return cur.optString(lastKey, "");
     }
-
+    
+    // 금액 문자열 -> int 변환 유틸
     private int toIntMoney(String s) {
         if (s == null) return 0;
         String digits = s.replaceAll(",", "").replaceAll("[^0-9]", "");
         if (digits.isEmpty()) return 0;
         try { return Integer.parseInt(digits); } catch (Exception e) { return 0; }
     }
-
+    
+    // 다양한 날짜 포맷을 LocalDate로 파싱
     private LocalDate parseLocalDateFlexible(String dateStr) {
         if (dateStr == null) return null;
         String s = dateStr.trim();
         if (s.isEmpty()) return null;
-
+        
+        // "(월)" 같은 괄호 문구 제거
         s = s.replaceAll("\\(.*?\\)", "").trim();
 
         try { return LocalDate.parse(s); } catch (Exception ignore) {}
@@ -321,8 +359,8 @@ public class OcrService {
         return null;
     }
 
-    // ===================== CLOVA 호출부 =====================
-
+   
+    // 4) CLOVA OCR 호출부(JSON + Base64 방식)
     public JSONObject callClovaOCR(MultipartFile file) {
         try {
             if (file == null || file.isEmpty()) {
@@ -335,9 +373,11 @@ public class OcrService {
             if (secret.isEmpty()) throw new IllegalStateException("clova.secret 설정이 비어있습니다.");
 
             URI uri = URI.create(url);
-
+            
+            // 업로드 파일 -> 바이트
             byte[] bytes = file.getBytes();
-
+            
+            // 매직바이트로 실제 포맷 판별(확장자/Content-Type 신뢰 X)
             String actual = detectFormatByMagic(bytes);
 
             System.out.println("[UPLOAD] name=" + file.getOriginalFilename()
@@ -345,18 +385,24 @@ public class OcrService {
                     + ", actual=" + actual
                     + ", size=" + bytes.length
                     + ", head=" + toHex(bytes, 16));
-
+            
+            // CLOVA에 넘길 포맷
             String formatForClova = actual;
+            
+            // WEBP는 CLOVA가 직접 지원하지 않는 경우가 있어 JPG 변환
             if ("webp".equals(actual)) {
                 System.out.println("[CONVERT] WEBP detected. Converting to JPG... name=" + file.getOriginalFilename());
                 bytes = convertWebpToJpg(bytes);
                 formatForClova = "jpg";
             }
-
+            
+            // 최종 전송 포맷이 진짜 jpg/png인지 검증
             validateImage(bytes, formatForClova);
-
+            
+            // CLOVA는 base64만 받도록 구성 (data:image/... prefix 없이)
             String base64 = Base64.getEncoder().encodeToString(bytes);
 
+            // 요청 바디 구성
             JSONObject body = new JSONObject();
             body.put("version", "V2");
             body.put("requestId", UUID.randomUUID().toString());
@@ -370,13 +416,15 @@ public class OcrService {
             JSONArray images = new JSONArray();
             images.put(image);
             body.put("images", images);
-
+            
+            // 요청 헤더 구성
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-OCR-SECRET", secret);
 
             HttpEntity<String> request = new HttpEntity<>(body.toString(), headers);
-
+            
+            // POST 호출
             ResponseEntity<String> response = restTemplate.postForEntity(uri, request, String.class);
 
             String respBody = response.getBody();
@@ -396,6 +444,7 @@ public class OcrService {
         }
     }
 
+    // 5) OpenAI 결과 -> ReceiptItemDTO 변환
     private List<ReceiptItemDTO> convertOpenAiItemsToReceiptItems(OpenAiReceiptResult fixed) {
         List<ReceiptItemDTO> list = new ArrayList<>();
         if (fixed == null || fixed.getItems() == null) return list;
@@ -410,7 +459,7 @@ public class OcrService {
             int p = (it.getPrice() <= 0) ? 0 : it.getPrice();
             rid.setItem_price(p);
 
-            // OCR 단계에서는 category 확정 ❌
+         // OCR 단계에서는 category 확정 ❌ (AI 카테고리 분류/사용자 확정 단계에서 결정)
             rid.setItem_category(null);
 
             list.add(rid);
@@ -441,24 +490,35 @@ public class OcrService {
             throw new RuntimeException("WEBP → JPG 변환 실패: " + e.getMessage(), e);
         }
     }
-
+    
+    /**
+     * 매직바이트로 실제 이미지 포맷 판별
+     * - 확장자/Content-Type을 신뢰하지 않고 파일 헤더로 판단
+     *
+     * @return "jpg" / "png" / "webp" / "unknown"
+     */
     private String detectFormatByMagic(byte[] bytes) {
         if (bytes == null || bytes.length < 12) return "unknown";
-
+        
+        // JPG: FF D8 FF
         boolean isJpg = (bytes[0] & 0xFF) == 0xFF && (bytes[1] & 0xFF) == 0xD8 && (bytes[2] & 0xFF) == 0xFF;
         if (isJpg) return "jpg";
-
+        
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
         boolean isPng = (bytes[0] & 0xFF) == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47
                 && (bytes[4] & 0xFF) == 0x0D && (bytes[5] & 0xFF) == 0x0A && (bytes[6] & 0xFF) == 0x1A && (bytes[7] & 0xFF) == 0x0A;
         if (isPng) return "png";
-
+        
+        // WEBP: RIFF....WEBP
         boolean isRiff = bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46;
         boolean isWebp = bytes[8] == 0x57 && bytes[9] == 0x45 && (bytes[10] == 0x42) && (bytes[11] == 0x50);
         if (isRiff && isWebp) return "webp";
 
         return "unknown";
     }
-
+    
+    // CLOVA 전송 전에 이미지가 정말 jpg/png인지 1차 검증
+    // 잘못된 바이트가 들어가면 CLOVA에서 400이 날 수 있어 미리 차단
     private void validateImage(byte[] bytes, String format) {
         if (bytes == null || bytes.length < 8) {
             throw new IllegalArgumentException("이미지 파일이 너무 작거나 비어있음");
@@ -474,7 +534,8 @@ public class OcrService {
             throw new IllegalArgumentException("CLOVA 전송 포맷은 jpg/png만 허용하도록 처리 중입니다. format=" + format);
         }
     }
-
+    
+    // 디버깅용: 바이트 앞부분을 16진수 문자열로 출력 
     private static String toHex(byte[] b, int n) {
         if (b == null) return "null";
         StringBuilder sb = new StringBuilder();
@@ -484,19 +545,24 @@ public class OcrService {
         return sb.toString().trim();
     }
     
+    // 7) byte[] 로부터 OCR 처리하기(내부 재사용용)
+    // byte[]를 MultipartFile로 감싸서 CLOVA OCR -> 파싱/보강까지 수행
     public ReceiptDTO parseReceiptFromBytes(byte[] bytes, String filename) {
 
         try {
+        	// byte[] -> MultipartFile 어댑터로 래핑
             MultipartFile multipartFile =
                     new ByteArrayMultiPartFile(
                             bytes,          // ✅ byte[] 반드시 필요
                             filename,       // name
                             "image/jpeg"    // contentType
                     );
-
+            
+            // CLOVA OCR 호출
             JSONObject json = callClovaOCR(multipartFile);
             if (json == null) return null;
-
+            
+            // 파싱 + 누락 보강
             return parseReceiptWithAssist(json, multipartFile);
 
         } catch (Exception e) {

@@ -89,16 +89,10 @@ public class UserServiceImp implements UserService {
 		return userMapper.UserInfoShow();
 	}
 	
-	// 회원 정보 name으로 찾기
-	@Override
-	public List<Userdto> selectUserByName(String u_name) {
-		return userMapper.selectUserByName(u_name);
-	}
-
 	// 회원 정보 id로 찾기
 	@Override
-	public Userdto selectUserById(String u_id) {
-		return userMapper.selectUserById(u_id);
+	public Userdto UserSelectById(String u_id) {
+		return userMapper.UserSelectById(u_id);
 	}
 	
 	// 회원 정보 수정

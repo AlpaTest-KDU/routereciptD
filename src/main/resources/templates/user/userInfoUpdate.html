@@ -4,7 +4,7 @@
       layout:decorate="~{layout/base}">
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/index.css}">
+<link rel="stylesheet" th:href="@{/css/userInfoUpdate.css}">
 <script th:src="@{/js/userInfoDelete.js}" defer></script>
 <title>Insert title here</title>
 </head>
@@ -36,7 +36,10 @@
 	        		<label>성별</label>
 	        		<span th:text="${gender}"></span>
 	      		</div>
-	      		<button type="submit" class="saveBtn">정보 수정</button>
+	      		<!-- 취소버튼 -->
+	      		<button type="button" class="cancelBtn"
+	      			onclick="location.href='[[@{/user/userInfoShowPage}]]'">취소</button>
+	      		<button type="submit" class="saveBtn">회원정보수정</button>
 			</form>
 			
 			<form th:action="@{/user/userResetPwPage}" method="GET">
@@ -59,8 +62,9 @@
     			<p>u_email: <span th:text="${u_email}">없음</span></p>
     			<p>u_birthday: <span th:text="${u_birthday}">없음</span></p>
     			<p>gender: <span th:text="${gender}">없음</span></p>
+			</div>
 		</div>
-		</div>
+		
 	</div>
 </body>
 </html>

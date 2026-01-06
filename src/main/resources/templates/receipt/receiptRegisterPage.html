@@ -1,52 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-<meta charset="UTF-8">
-<title>영수증 등록</title>
+    <meta charset="UTF-8">
+    <title>영수증 등록</title>
 
-<link th:href="@{/css/Login.css}" rel="stylesheet">
-
-<style>
-    .container {
-        width: 1000px;
-        margin: 40px auto;
-    }
-
-    .receipt-list button {
-        display: block;
-        margin: 6px 0;
-        padding: 8px 12px;
-        cursor: pointer;
-        width: 100%;
-        text-align: left;
-        border: 1px solid #ccc;
-        background: #f7f7f7;
-    }
-
-    .receipt-list button:hover {
-        background: #eaeaea;
-    }
-
-    .info-box {
-        margin-top: 30px;
-        padding: 20px;
-        border: 1px solid #ccc;
-        background: #fff;
-    }
-
-    .category-box {
-        margin-top: 20px;
-    }
-
-    .category-box h4 {
-        margin-top: 15px;
-    }
-
-    ul {
-        margin-left: 20px;
-    }
-</style>
+    <!-- ✅ 기존에 만든 CSS -->
+    <link rel="stylesheet" th:href="@{/css/receipt.css}">
 </head>
 
 <body>
@@ -55,478 +17,178 @@
 
     <h2>영수증 등록</h2>
 
-    <!-- ================= 파일 업로드 ================= -->
-    <form th:action="@{/receipt/uploadReceipt}"
+    <!-- ===============================
+         1️⃣ OCR 업로드 (receipt.js 사용)
+    =============================== -->
+    <form id="uploadForm"
+          th:action="@{/receipt/uploadReceipt}"
           method="post"
           enctype="multipart/form-data">
-        <input type="file" name="receipt" multiple required>
+        <input type="file"
+               id="receiptFile"
+               name="receipt"
+               accept="image/*"
+               multiple
+               required>
+
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
+
         <button type="submit">영수증 분석</button>
     </form>
 
-    <!-- ================= 영수증 목록 ================= -->
-    <div class="receipt-list" th:if="${receipts != null and !receipts.isEmpty()}">
+    <!-- ===============================
+         2️⃣ OCR 결과 목록
+    =============================== -->
+    <div id="receiptList"
+         class="receipt-list"
+         th:if="${receipts != null and !receipts.isEmpty()}">
+
         <h3>영수증 목록</h3>
 
         <div th:each="receipt, stat : ${receipts}">
             <button type="button"
+                    class="receipt-btn"
                     th:text="${stat.index + 1} + '번 - ' + ${receipt.r_place}"
                     th:onclick="|showReceipt(${stat.index})|">
             </button>
         </div>
     </div>
 
-    <!-- ================= 선택된 영수증 정보 ================= -->
-	<div id="detailArea" class="info-box" style="display:none;">
+    <!-- ===============================
+         3️⃣ 선택 영수증 상세 + 확정
+    =============================== -->
+    <div id="detailArea" class="info-box" style="display:none;">
 
-	    <h3>기본 정보</h3>
-	    <p>가게명: <span id="placeText"></span></p>
-	    <p>날짜: <span id="dateText"></span></p>
-	    <p>총액: <span id="priceText"></span>원</p>
-	
-	    <!-- ✅ 확정(업데이트) 폼: items input이 반드시 이 form 안에 있어야 전송됨 -->
-	    <form id="confirmForm" th:action="@{/receipt/confirm}" method="post" onsubmit="return beforeSubmitConfirm();">
-	      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-	
-	      <!-- 기본정보는 수정 불가지만 서버로 전송 -->
-	      <input type="hidden" name="r_no"    id="rNoInput">
-	      <input type="hidden" name="r_place" id="rPlaceInput">
-	      <input type="hidden" name="r_date"  id="rDateInput">
-	      <input type="hidden" name="r_price" id="rPriceInput">
-	
-	      <h3>카테고리별 항목 (수정 가능)</h3>
-	
-	      <!-- ✅ 여기에 JS로 item_names/item_prices/item_categories input이 생성됨 -->
-	      <div id="categoryArea" class="category-box"></div>
-	
-	      <div style="margin-top:15px; display:flex; gap:10px;">
-	        <button type="button" onclick="recalcTotalToHidden()">총액 다시 계산</button>
-	        <button type="submit">영수증확정</button>
-	      </div>
-	    </form>
-	
-	  </div>
-	</div>
+        <h3>기본 정보</h3>
+        <p>가게명: <span id="placeText"></span></p>
+        <p>날짜: <span id="dateText"></span></p>
+        <p>총액: <span id="priceText"></span>원</p>
+
+        <form id="confirmForm"
+              th:action="@{/receipt/confirm}"
+              method="post"
+              onsubmit="return beforeSubmitConfirm();">
+
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}"/>
+
+            <!-- receipt.js가 채움 -->
+            <input type="hidden" name="r_no"    id="rNoInput">
+            <input type="hidden" name="r_place" id="rPlaceInput">
+            <input type="hidden" name="r_date"  id="rDateInput">
+            <input type="hidden" name="r_price" id="rPriceInput">
+
+            <h3>카테고리별 항목</h3>
+            <div id="categoryArea" class="category-box"></div>
+
+            <div class="btn-row">
+                <button type="button" onclick="recalcTotalToHidden()">
+                    총액 다시 계산
+                </button>
+                <button type="submit">
+                    영수증 확정
+                </button>
+            </div>
+        </form>
+    </div>
 
 </div>
 
+<!-- ===============================
+     4️⃣ 수기 입력 모달
+=============================== -->
+<button id="manualBtn" onclick="openManualModal()">수기입력</button>
 
-	
-	<!-- ================= 수기입력 버튼 ================= -->
-	<button type="button" id="manualBtn" onclick="openManualModal()">수기입력</button>
-	
-	<div id="manualModal" class="modal" style="display:none;">
-	  <div class="modal-content">
-	    <div class="modal-header">
-	      <h3>수기 영수증 입력</h3>
-	      <button type="button" class="close-btn" onclick="closeManualModal()">X</button>
-	    </div>
-	
-	    <!-- ✅ th:action 로 변경 + form 범위 정리 -->
-	    <form id="manualForm" th:action="@{/receipt/saveOne}" method="post" onsubmit="return beforeSubmitManualReceipt();">
-	
-	      <!-- ✅ Spring Security 사용 시 CSRF 필요 -->
-	      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-	
-	      <div class="modal-body">
-	        <div class="row">
-	          <label>가게명</label>
-	          <input type="text" id="m_place" name="r_place" placeholder="예: GS25" required>
-	        </div>
-	
-	        <div class="row">
-	          <label>날짜</label>
-	          <input type="date" id="m_date" name="r_date" required>
-	        </div>
-	
-	        <div class="row">
-	          <label>총액</label>
-	          <!-- 서버는 r_price String으로 받으니 number여도 전송됨 -->
-	          <input type="number" id="m_price" name="r_price" placeholder="자동 계산" min="0" readonly>
-	        </div>
-	
-	        <hr>
-	        <h4>상품 목록</h4>
-	
-	        <!-- ✅ '추가용 입력칸'은 name 제거 (서버로 1개만 같이 날아가는 것 방지) -->
-	        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-	          <select id="m_category">
-	            <option value="FOOD">음식</option>
-	            <option value="MEDICAL">의료</option>
-	            <option value="CLOTHES">의류</option>
-	            <option value="HOME">주거</option>
-	            <option value="LIVING">생활</option>
-	            <option value="CULTURE">문화</option>
-	            <option value="TRAFFIC">교통</option>
-	            <option value="ETC" selected>기타</option>
-	          </select>
-	
-	          <input type="text" id="m_itemName" placeholder="상품명 (예: 생수)">
-	          <input type="number" id="m_itemPrice" placeholder="가격" min="0">
-	          <button type="button" onclick="addManualItem()">추가</button>
-	        </div>
-	
-	        <table id="manualItemsTable" border="1" style="width:100%; border-collapse:collapse;">
-	          <thead>
-	            <tr>
-	              <th style="width:20%;">카테고리</th>
-	              <th>상품명</th>
-	              <th style="width:20%;">가격</th>
-	              <th style="width:12%;">삭제</th>
-	            </tr>
-	          </thead>
-	          <tbody id="manualItemsBody"></tbody>
-	        </table>
-	
-	        <!-- ✅ 여기에 itemNames/itemPrices/itemCategories hidden input들을 동적으로 꽂음 -->
-	        <div id="manualHiddenInputs"></div>
-	      </div>
-	
-	      <div class="modal-footer" style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end;">
-	        <!-- ✅ 실제 submit -->
-	        <button type="submit">저장</button>
-	        <button type="button" onclick="closeManualModal()">취소</button>
-	      </div>
-	
-	    </form>
-	  </div>
-	</div>
+<div id="manualModal" class="modal">
 
+    <div class="modal-content">
 
-<!-- ================= receipts → JS ================= -->
-<script th:inline="javascript">
-/*<![CDATA[*/
-const receipts = /*[[${receipts}]]*/ [];
-/*]]>*/
-</script>
+        <div class="modal-header">
+            <h3>수기 영수증 입력</h3>
+            <button type="button" onclick="closeManualModal()">X</button>
+        </div>
 
-<!-- ================= 핵심 JS ================= -->
-<script>
-function showReceipt(idx) {
-	  selectedIdx = idx;
-	  const receipt = receipts[idx];
-	  if (!receipt) return;
+        <form id="manualForm"
+              th:action="@{/receipt/saveOne}"
+              method="post"
+              onsubmit="return beforeSubmitManualReceipt();">
 
-	  // ✅ 기본 정보 (span 표시 + hidden 세팅)
-	  const place = receipt.r_place ?? "";
-	  const date  = (receipt.r_date ?? "").toString().substring(0, 10); // yyyy-MM-dd
-	  const price = Number(receipt.r_price ?? 0);
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}"/>
 
-	  document.getElementById("placeText").textContent = place;
-	  document.getElementById("dateText").textContent  = date;
-	  document.getElementById("priceText").textContent = price.toLocaleString();
+            <div class="row">
+                <label>가게명</label>
+                <input type="text" name="r_place" required>
+            </div>
 
-	  document.getElementById("rNoInput").value    = receipt.r_no ?? "";
-	  document.getElementById("rPlaceInput").value = place;
-	  document.getElementById("rDateInput").value  = date;
-	  document.getElementById("rPriceInput").value = price;
+            <div class="row">
+                <label>날짜</label>
+                <input type="date" name="r_date" required>
+            </div>
 
-	  const categoryMap = {
-	    FOOD: "음식",
-	    MEDICAL: "의료",
-	    CLOTHES: "의류",
-	    HOME: "주거",
-	    LIVING: "생활",
-	    CULTURE: "문화",
-	    TRAFFIC: "교통",
-	    ETC: "기타"
-	  };
+            <div class="row">
+                <label>총액</label>
+                <input type="number" id="m_price" name="r_price" readonly>
+            </div>
 
-	  let html = "";
+            <h4>상품 목록</h4>
 
-	  if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
-	    html = "<p>카테고리 정보가 없습니다.</p>";
-	  } else {
-	    for (const [key, label] of Object.entries(categoryMap)) {
-	      const items = receipt.items.filter(it => it.item_category === key);
-	      if (items.length === 0) continue;
+            <div class="item-input-row">
+                <select id="m_category"></select>
+                <input type="text" id="m_itemName">
+                <input type="number" id="m_itemPrice">
+                <button type="button" onclick="addManualItem()">추가</button>
+            </div>
 
-	      html += `<h4>${label}</h4>`;
-	      html += `<ul style="list-style:none; padding-left:0;">`;
+            <table>
+                <tbody id="manualItemsBody"></tbody>
+            </table>
 
-	      items.forEach((it) => {
-	        html += `
-	          <li style="margin:8px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-	            <!-- ✅ 반드시 복수형 name으로! -->
-	            <input type="hidden" name="item_categories" value="${escapeHtmlAttr(it.item_category)}">
+            <div id="manualHiddenInputs"></div>
 
-	            <span style="min-width:52px;">상품명</span>
-	            <input type="text" name="item_names" value="${escapeHtmlAttr(it.item_name ?? "")}" style="width:260px;">
+            <div class="modal-footer">
+                <button type="submit">저장</button>
+                <button type="button" onclick="closeManualModal()">취소</button>
+            </div>
 
-	            <span style="min-width:36px;">가격</span>
-	            <input type="number" name="item_prices" value="${Number(it.item_price ?? 0)}"
-	                   min="0" style="width:140px;" oninput="recalcTotalToHidden()">
-	            <span>원</span>
+        </form>
+    </div>
+</div>
 
-	            <button type="button" onclick="removeItemRow(this)">삭제</button>
-	          </li>
-	        `;
-	      });
-
-	      html += `</ul>`;
-	    }
-	  }
-
-	  document.getElementById("categoryArea").innerHTML = html;
-	  document.getElementById("detailArea").style.display = "block";
-
-	  recalcTotalToHidden();
-    
-    
-}
-
-
-</script>
+<!-- ===============================
+     receipts → JS
+=============================== -->
+<div id="receiptData"
+     th:data-receipts="${receiptsJson}">
+</div>
 
 <script>
-let manualItems = []; // 모달에서 입력한 상품들
+  var receipts = [];
+  (function () {
+    var el = document.getElementById("receiptData");
+    if (!el) return;
 
-function openManualModal() {
-  document.getElementById("manualModal").style.display = "flex";
-  resetManualForm();
-}
+    var raw = el.getAttribute("data-receipts");
+    if (!raw) {
+      receipts = [];
+      return;
+    }
 
-function closeManualModal() {
-  document.getElementById("manualModal").style.display = "none";
-}
-
-function resetManualForm() {
-  document.getElementById("m_place").value = "";
-  document.getElementById("m_date").value = "";
-  document.getElementById("m_price").value = "";
-  document.getElementById("m_category").value = "ETC";
-  document.getElementById("m_itemName").value = "";
-  document.getElementById("m_itemPrice").value = "";
-  manualItems = [];
-  renderManualItems();
-  updateManualTotal();
-}
-
-function addManualItem() {
-  const category = document.getElementById("m_category").value;
-  const itemName = (document.getElementById("m_itemName").value || "").trim();
-  const itemPriceRaw = document.getElementById("m_itemPrice").value;
-
-  if (!itemName) {
-    alert("상품명을 입력하세요.");
-    return;
-  }
-
-  const itemPrice = Number(itemPriceRaw);
-  if (Number.isNaN(itemPrice) || itemPrice < 0) {
-    alert("가격을 올바르게 입력하세요.");
-    return;
-  }
-
-  manualItems.push({
-    item_category: category,
-    item_name: itemName,
-    item_price: itemPrice
-  });
-
-  // 입력칸 초기화
-  document.getElementById("m_itemName").value = "";
-  document.getElementById("m_itemPrice").value = "";
-  renderManualItems();
-  updateManualTotal();
-}
-
-function removeManualItem(index) {
-  manualItems.splice(index, 1);
-  renderManualItems();
-  updateManualTotal();
-}
-
-	function renderManualItems() {
-	  const body = document.getElementById("manualItemsBody");
-	  const hiddenBox = document.getElementById("manualHiddenInputs");
-
-	  const categoryLabel = {
-	    FOOD: "음식",
-	    MEDICAL: "의료",
-	    CLOTHES: "의류",
-	    HOME: "주거",
-	    LIVING: "생활",
-	    CULTURE: "문화",
-	    TRAFFIC: "교통",
-	    ETC: "기타"
-	  };
-
-	// 테이블
-	  let html = "";
-	  manualItems.forEach((it, idx) => {
-	    html += `
-	      <tr>
-	        <td>${categoryLabel[it.item_category] ?? it.item_category}</td>
-	        <td>${escapeHtml(it.item_name)}</td>
-	        <td style="text-align:right;">${Number(it.item_price).toLocaleString()}</td>
-	        <td style="text-align:center;">
-	          <button type="button" onclick="removeManualItem(${idx})">삭제</button>
-	        </td>
-	      </tr>
-	    `;
-	  });
-	  body.innerHTML = html;
-
-	  // ✅ hidden inputs (서버로 List 전송)
-	  let hiddenHtml = "";
-	  manualItems.forEach((it) => {
-	    hiddenHtml += `<input type="hidden" name="item_name" value="${escapeHtmlAttr(it.item_name)}">`;
-	    hiddenHtml += `<input type="hidden" name="item_price" value="${Number(it.item_price)}">`;
-	    hiddenHtml += `<input type="hidden" name="item_category" value="${it.item_category}">`;
-	  });
-	  hiddenBox.innerHTML = hiddenHtml;
-	}
-
-	// attribute용 escape (value="")
-	function escapeHtmlAttr(str) {
-	  return String(str)
-	    .replaceAll("&", "&amp;")
-	    .replaceAll("<", "&lt;")
-	    .replaceAll(">", "&gt;")
-	    .replaceAll('"', "&quot;")
-	    .replaceAll("'", "&#039;");
-	}
-
-// 저장: receipts 배열에 "현재 showReceipt가 기대하는 형태"로 추가
-function saveManualReceipt() {
-  const place = (document.getElementById("m_place").value || "").trim();
-  const date = document.getElementById("m_date").value;
-
-  if (!place) { alert("가게명을 입력하세요."); return; }
-  if (!date) { alert("날짜를 선택하세요."); return; }
-  if (!manualItems || manualItems.length === 0) { alert("상품을 1개 이상 추가하세요."); return; }
-
-  const price = manualItems.reduce((sum, it) => sum + Number(it.item_price || 0), 0);
-
-  const newReceipt = {
-    r_place: place,
-    r_date: date,
-    r_price: price,
-    items: manualItems.map(it => ({
-      item_category: it.item_category,
-      item_name: it.item_name,
-      item_price: it.item_price
-    }))
-  };
-
-  receipts.push(newReceipt);
-  appendReceiptButton(receipts.length - 1, newReceipt);
-  closeManualModal();
-  showReceipt(receipts.length - 1);
-}
-
-
-	function appendReceiptButton(index, receipt) {
-	  // receipt-list가 없던 경우도 고려 (처음 수기입력으로만 추가할 때)
-	  let list = document.querySelector(".receipt-list");
-	  if (!list) {
-	    // receipt-list 컨테이너 생성
-	    const container = document.querySelector(".container");
-	    list = document.createElement("div");
-	    list.className = "receipt-list";
-	
-	    const h3 = document.createElement("h3");
-	    h3.textContent = "영수증 목록";
-	    list.appendChild(h3);
-	
-	    container.appendChild(list);
-	  }
-	
-	  // 버튼 생성
-	  const btn = document.createElement("button");
-	  btn.type = "button";
-	  btn.textContent = `${index + 1}번 - ${receipt.r_place}`;
-	  btn.onclick = () => showReceipt(index);
-	
-	  list.appendChild(btn);
-	}
-	
-	
-	
-	function updateManualTotal() {
-	  const total = manualItems.reduce((sum, it) => sum + Number(it.item_price || 0), 0);
-	  document.getElementById("m_price").value = total;
-	}
-
-	function beforeSubmitManualReceipt() {
-	  const place = (document.getElementById("m_place").value || "").trim();
-	  const date = document.getElementById("m_date").value;
-
-	  if (!place) { alert("가게명을 입력하세요."); return false; }
-	  if (!date) { alert("날짜를 선택하세요."); return false; }
-	  if (!manualItems || manualItems.length === 0) { alert("상품을 1개 이상 추가하세요."); return false; }
-
-	  // 총액 최신 반영
-	  updateManualTotal();
-	  renderManualItems();
-	  return true; // ✅ true면 form submit 진행
-	}
-	
-	function escapeHtml(str) {
-	  return String(str)
-	    .replaceAll("&", "&amp;")
-	    .replaceAll("<", "&lt;")
-	    .replaceAll(">", "&gt;")
-	    .replaceAll('"', "&quot;")
-	    .replaceAll("'", "&#039;");
-	}
+    try {
+      receipts = JSON.parse(raw);
+    } catch (e) {
+      console.error("❌ receipts JSON parse error", e, raw);
+      receipts = [];
+    }
+  })();
 </script>
 
-
-<!-- 데이터 분석 후 수정용 스크립트  -->
-<script>
-	
-	
-	// 화면에서 row 삭제(프론트에서만) -> 전송에서도 빠짐
-	function removeItemRow(btn) {
-	  const li = btn.closest("li");
-	  if (li) li.remove();
-	  recalcTotalToHidden();
-	}
-	
-	// 현재 화면의 item_price 합산 -> span 표시 + hidden r_price 갱신
-	function recalcTotalToHidden() {
-	  const priceInputs = document.querySelectorAll('#confirmForm input[name="item_prices"]');
-	  let total = 0;
-	  priceInputs.forEach(inp => {
-	    const v = Number(inp.value);
-	    if (!Number.isNaN(v)) total += v;
-	  });
-	
-	  document.getElementById("priceText").textContent = total.toLocaleString();
-	  document.getElementById("rPriceInput").value = total;
-	}
-	
-	// submit 직전 검증
-	function beforeSubmitConfirm() {
-	  const rNo = document.getElementById("rNoInput").value;
-	  if (!rNo) { alert("영수증 번호(r_no)가 없습니다."); return false; }
-	
-	  const names = document.querySelectorAll('#confirmForm input[name="item_names"]');
-	  if (!names || names.length === 0) { alert("상품이 1개 이상 있어야 합니다."); return false; }
-	
-	  // 총액 최신 반영
-	  recalcTotalToHidden();
-	
-	  // 최종 점검(개발 중 확인용)
-	  // console.log("names=", document.querySelectorAll('#confirmForm input[name="item_names"]').length);
-	
-	  return true;
-	}
-	
-	// attribute용 escape
-	function escapeHtmlAttr(str) {
-	  return String(str ?? "")
-	    .replaceAll("&", "&amp;")
-	    .replaceAll("<", "&lt;")
-	    .replaceAll(">", "&gt;")
-	    .replaceAll('"', "&quot;")
-	    .replaceAll("'", "&#039;");
-	}
-</script>
-
-
-
+<!-- ✅ 기존에 만든 JS -->
+<script th:src="@{/js/receipt.js}"></script>
 
 </body>
 </html>

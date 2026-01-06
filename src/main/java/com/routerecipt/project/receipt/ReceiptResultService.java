@@ -1,3 +1,4 @@
+// src/main/java/com/routerecipt/project/receipt/ReceiptResultService.java
 package com.routerecipt.project.receipt;
 
 import org.springframework.stereotype.Service;
@@ -8,31 +9,38 @@ import com.routerecipt.project.mapper.ReceiptResultMapper;
 import lombok.RequiredArgsConstructor;
 
 
+/**
+ * 영수증/지출 분석 결과(통계) 서비스
+ *
+ * 역할:
+ *  - 분석 페이지에서 필요한 통계 데이터를 DB에서 조회해
+ *    ReceiptAnalysisStatsdto에 담아 반환한다.
+ *
+ * 특징:
+ *  - 화면(페이지) 단위로 필요한 통계가 다르므로 메서드를 분리해 제공한다.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReceiptResultService {
-	 private final ReceiptResultMapper receiptresultmapper;
-	 
-	    public ReceiptAnalysisStatsdto getStats(String uId) {
+	
+	// 통계 조회 전용 Mapper
+    private final ReceiptResultMapper receiptresultmapper;
 
-	    	ReceiptAnalysisStatsdto radto = new ReceiptAnalysisStatsdto();
+    // /user/analysisMonthlyPage : 개인 사용자
+    public ReceiptAnalysisStatsdto getAnalysisMonthlyPageStats(String uId) {
+        ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
+        dto.setDailyData(receiptresultmapper.selectDailyTotalByUser(uId));
+        dto.setWeeklyData(receiptresultmapper.selectWeeklyTotalByUser(uId));
+        dto.setMonthlyData(receiptresultmapper.selectMonthlyTotalByUser(uId));
+        return dto;
+    }
 
-	        // 1) 일별
-	    	radto.setDailyData(receiptresultmapper.selectDailyTotalByUser(uId));
-
-	        // 2) 주별
-	    	radto.setWeeklyData(receiptresultmapper.selectWeeklyTotalByUser(uId));
-
-	        // 3) 월별
-	    	radto.setMonthlyData(receiptresultmapper.selectMonthlyTotalByUser(uId));
-
-	        // 4) 성별
-	    	radto.setGenderData(receiptresultmapper.selectTotalByGender());
-
-	        // 5) 평균
-	    	radto.setMyAvg(receiptresultmapper.selectMyAverage(uId));
-	    	radto.setAllAvg(receiptresultmapper.selectAllAverage());
-
-	        return radto;
-	    }
+    // /user/analysisPage : 전체 사용자
+    public ReceiptAnalysisStatsdto getAnalysisPageStats(String uId) {
+        ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
+        dto.setGenderData(receiptresultmapper.selectTotalByGender());
+        dto.setMyAvg(receiptresultmapper.selectMyAverage(uId));
+        dto.setAllAvg(receiptresultmapper.selectAllAverage());
+        return dto;
+    }
 }
