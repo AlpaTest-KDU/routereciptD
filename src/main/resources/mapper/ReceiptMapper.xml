@@ -194,7 +194,7 @@
 	  </delete>
 	
 	  <!-- 3) 아이템 배치 삽입 (foreach + index로 3개 리스트 동기화) -->
-	  <insert id="insertItemsBatch">
+	<insert id="insertItemsBatch">
   INSERT INTO receipt_item
   (
     r_no,
@@ -206,18 +206,23 @@
     suggested_label
   )
   VALUES
-  <foreach collection="items" item="it" separator=",">
+  <foreach collection="item_names"
+           item="name"
+           index="i"
+           separator=",">
     (
       #{r_no},
-      #{it.item_name},
-      #{it.item_category},
-      #{it.item_price},
-      #{it.ai_source},
-      #{it.ai_confidence},
-      #{it.suggested_label}
+      #{name},
+      #{item_categories[${i}]},
+      #{item_prices[${i}]},
+      'USER',
+      1.0,
+      NULL
     )
   </foreach>
 </insert>
+
+
 
 
 </mapper>

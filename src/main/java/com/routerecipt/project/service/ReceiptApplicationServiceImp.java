@@ -1,5 +1,8 @@
 package com.routerecipt.project.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,7 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
     private final ReceiptQueryService receiptQueryService;
     private final AiCategoryService aiCategoryService;
     private final AiTrainingItemService aiTrainingItemService;
+    private static final Logger log = LoggerFactory.getLogger(ReceiptApplicationServiceImp.class);
 
     /* ===============================
      * Write
@@ -38,10 +42,18 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
             item.setItem_category(ai.getCategory());
             item.setAi_confidence(ai.getConfidence());
             item.setAi_source(ai.getSource());
+            
+            log.info("AI RESULT name={}, category={}, source={}",
+                    item.getItem_name(),
+                    ai.getCategory(),
+                    ai.getSource());
+            
         });
 
         // 3️⃣ 영수증 + 아이템 저장
         receiptCommandService.saveReceiptWithItems(receipt);
+        
+        
     }
 
 

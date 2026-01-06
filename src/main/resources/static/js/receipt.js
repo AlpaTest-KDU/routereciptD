@@ -116,11 +116,28 @@ function recalcTotalToHidden() {
 }
 
 function beforeSubmitConfirm() {
-  var names = document.querySelectorAll('#confirmForm input[name="item_names"]');
-  if (!names.length) {
+  const rows = document.querySelectorAll('#confirmForm .item-row');
+
+  if (!rows.length) {
     alert("상품이 1개 이상 있어야 합니다.");
     return false;
   }
+
+  // 🔒 강제 동기화 검사
+  rows.forEach(row => {
+    const name  = row.querySelector('[name="item_names"]');
+    const price = row.querySelector('[name="item_prices"]');
+    const cat   = row.querySelector('[name="item_categories"]');
+
+    if (!name || !price || !cat) {
+      alert("아이템 데이터가 손상되었습니다. 새로고침 후 다시 시도하세요.");
+      throw new Error("item row broken");
+    }
+
+    // 숫자 보정
+    price.value = Number(price.value || 0);
+  });
+
   recalcTotalToHidden();
   return true;
 }
