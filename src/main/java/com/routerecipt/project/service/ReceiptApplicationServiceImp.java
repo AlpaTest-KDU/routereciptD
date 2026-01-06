@@ -1,5 +1,8 @@
 package com.routerecipt.project.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +28,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
 
-    private final ReceiptCommandService receiptCommandService;	// 영수증 저장/확정 등 "쓰기" 작업 담당
-    private final ReceiptQueryService receiptQueryService;		// 영수증 조회/가공 등 "읽기" 작업 담당
-    private final AiCategoryService aiCategoryService;			// 아이템명 기반 AI 카테고리 분류 서비스
-    private final AiTrainingItemService aiTrainingItemService;	// 영수증 확정 시 학습 데이터 저장 서비스
+
+    private final ReceiptCommandService receiptCommandService;
+    private final ReceiptQueryService receiptQueryService;
+    private final AiCategoryService aiCategoryService;
+    private final AiTrainingItemService aiTrainingItemService;
+    private static final Logger log = LoggerFactory.getLogger(ReceiptApplicationServiceImp.class);
+
 
     /* ===============================
      * Write
@@ -47,10 +53,18 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
             item.setItem_category(ai.getCategory());
             item.setAi_confidence(ai.getConfidence());
             item.setAi_source(ai.getSource());
+            
+            log.info("AI RESULT name={}, category={}, source={}",
+                    item.getItem_name(),
+                    ai.getCategory(),
+                    ai.getSource());
+            
         });
 
         // 3️⃣ 영수증 + 아이템 저장
         receiptCommandService.saveReceiptWithItems(receipt);
+        
+        
     }
 
     // 영수증 확정 처리
