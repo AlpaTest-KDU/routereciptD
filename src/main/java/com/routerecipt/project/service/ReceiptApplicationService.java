@@ -6,11 +6,21 @@ import java.util.Map;
 
 import com.routerecipt.project.dto.ReceiptDTO;
 
+
+/**
+ * 영수증(Receipt) 도메인의 애플리케이션 서비스 인터페이스
+ *
+ * - 컨트롤러(화면/요청) 기준의 유즈케이스 단위를 정의한다.
+ * - 저장/확정(Write) + 조회/화면구성(Read) 기능을 포함한다.
+ * - 구현체에서는 Mapper/Redis/AI/OCR 등의 하위 컴포넌트를 조합해 처리하는 위치가 된다.
+ */
 public interface ReceiptApplicationService {
 
-    // Write
+    // Write(저장/확정)
+	// 영수증(헤더) + 영수증 아이템 목록을 함께 저장한다.
     void saveReceiptWithItems(ReceiptDTO receipt);
 
+    // 임시(TEMP) 상태의 영수증을 사용자가 수정/확정할 때 호출되는 메서드
     void confirmReceipt(
             Long r_no,
             String r_place,
@@ -21,13 +31,17 @@ public interface ReceiptApplicationService {
             List<String> item_categories
     );
 
-    // Read
+    // Read(조회/화면 구성)
+    // 특정 사용자/특정 월(yyyyMM)의 저장된 영수증 목록 조회
     List<ReceiptDTO> getSavedReceiptsDate(String userId, String yearMonth);
 
+    // 영수증 목록을 기반으로 화면 출력용 메뉴 맵을 구성한다.
     Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts);
-
+    
+    // 달력 UI 구성을 위한 데이터 생성
     List<Integer> buildCalendar(String yearMonth);
 
     // Recent (Temp)
+    // 최근(임시/TEMP) 영수증 목록 조회
     List<ReceiptDTO> getRecentReceipts(List<Long> r_no);
 }

@@ -14,6 +14,14 @@ import com.routerecipt.project.mapper.ReceiptMapper;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 영수증 Command(쓰기) 서비스 구현체
+ *
+ * - 영수증/아이템의 DB 저장 및 확정(수정) 처리를 담당한다.
+ * - AI 분류 결과(item_category, ai_source, ai_confidence 등)는
+ *   상위 계층(딥러닝/애플리케이션 서비스)에서 채워져 넘어온다고 가정하고,
+ *   이 클래스는 "DB 반영"에만 집중한다.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReceiptCommandServiceImp implements ReceiptCommandService {
