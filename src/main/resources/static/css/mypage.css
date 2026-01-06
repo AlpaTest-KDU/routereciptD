@@ -1,155 +1,169 @@
 @charset "UTF-8";
 
 .mypageWrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 120px 40px 60px; 
-    display: flex;
-    gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 40px 60px;
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
 }
 
 .mypageSidebar {
-    width: 260px;
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    padding: 24px 20px;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-    align-self: flex-start;
-    position: sticky;
-    top: 100px; 
+  width: 260px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 24px 20px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+
+  position: sticky;
+  top: 100px;               /* 상단 고정 위치(헤더 높이에 맞춰 조정) */
+  max-height: calc(100vh - 120px);
+  overflow: auto;           /* 메뉴가 길어지면 사이드바 내부만 스크롤 */
 }
 
 .mypageSidebarSection + .mypageSidebarSection {
-    margin-top: 32px;
+  margin-top: 32px;
 }
 
 .mypageSidebarTitle {
-    font-size: 15px;
-    font-weight: 700;
-    color: #6b7280;
-    margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6b7280;
+  margin: 0 0 12px;
 }
 
 .mypageMenuList {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .mypageMenuList li + li {
-    margin-top: 4px;
+  margin-top: 4px;
 }
 
 .mypageMenuLink {
-    display: block;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 14px;
-    color: #111827;
-    text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .mypageMenuLink:hover {
-    background: rgba(80, 84, 239, 0.08);
-    color: #1d2cf4;
+  background: rgba(80, 84, 239, 0.08);
+  color: #1d2cf4;
 }
 
 .mypageContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 360px; /* 가운데 / 오른쪽 */
+  gap: 24px;
+  align-items: start;
 }
 
+/* Header는 전체 폭 */
 .mypageHeader {
-    background: linear-gradient(to right, #eef2ff, #f5f3ff);
-    border-radius: 16px;
-    padding: 20px 24px;
-    border: 1px solid #e5e7eb;
+  grid-column: 1 / -1;
+  background: linear-gradient(to right, #eef2ff, #f5f3ff);
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid #e5e7eb;
 }
 
 .mypageHeader h2 {
-    margin: 0 0 8px;
-    font-size: 22px;
-    font-weight: 800;
-    color: #111827;
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
 }
 
 .mypageHeader p {
-    margin: 0;
-    font-size: 14px;
-    color: #6b7280;
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.mypageBody {
+  grid-column: 1 / 2;
+}
+
+.mypageMain {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mypageCenterCard {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 18px 20px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.mypageSectionTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* 자리 박스 */
+.calendarBox,
+.graphBox {
+  border: 1px dashed #d1d5db;
+  border-radius: 14px;
+  min-height: 280px;
+  background: #fafafa;
 }
 
 .mypageSummary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
+  grid-column: 2 / 3;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  position: sticky;
+  top: 100px;               /* 상단 고정 위치(사이드바와 동일) */
+  max-height: calc(100vh - 120px);
+  overflow: auto;           /* 카드가 많아지면 오른쪽 패널 내부만 스크롤 */
 }
 
+/* 카드 */
 .mypageCard {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 18px 20px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .mypageCard h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: #374151;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
 }
 
 .mypageCardMain {
-    margin: 4px 0 0;
-    font-size: 22px;
-    font-weight: 800;
-    color: #111827;
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
 }
 
 .mypageCardSub {
-    margin: 0;
-    font-size: 13px;
-    color: #6b7280;
-}
-
-.mypageRecent {
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    padding: 18px 20px;
-    min-height: 120px; 
-}
-
-.mypageRecentHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.mypageRecentHeader h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.mypageLinkSmall {
-    font-size: 13px;
-    color: #4f46e5;
-    text-decoration: none;
-}
-
-.mypageLinkSmall:hover {
-    text-decoration: underline;
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
 }
 
