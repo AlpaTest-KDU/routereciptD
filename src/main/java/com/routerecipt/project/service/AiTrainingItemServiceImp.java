@@ -8,10 +8,20 @@ import com.routerecipt.project.mapper.AiTrainingItemMapper;
 
 import lombok.RequiredArgsConstructor;
 
+
+/**
+ * AI 학습용 데이터 저장 서비스 구현체
+ *
+ * - 영수증 확정 시 AI 예측값과 최종 값을 비교
+ * - 교정 여부(corrected_yn) 판단
+ * - 학습 반영 여부(used_for_training) 초기값 설정
+ * - DB에 학습 데이터 저장
+ */
 @Service
 @RequiredArgsConstructor
 public class AiTrainingItemServiceImp implements AiTrainingItemService {
 	
+	// AI 학습 데이터 DB 저장용 Mapper
 	private final AiTrainingItemMapper aiTrainingItemMapper;
 	
 	/* 영수증 확정 시 학습 데이터 저장 */

@@ -11,6 +11,12 @@ import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.UserMapper;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 
+/**
+ * 회원(User) 관련 서비스 구현체
+ *
+ * - 회원가입/조회/수정/탈퇴/비밀번호 변경 등 사용자 비즈니스 로직 수행
+ * - Bloom Filter(Redis)로 아이디 중복 체크를 최적화한다.
+ */
 @Service
 public class UserServiceImp implements UserService {
 	
@@ -23,6 +29,12 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	// 사용자 아이디 중복 여부 확인
+	/**
+    * 동작:
+    * 1) Bloom Filter에 "있다"면(중복 가능) → DB로 확정 검사(오탐 가능성 때문)
+    * 2) Bloom Filter에 "없다"면 → DB 확인 후 없으면 Bloom Filter에 등록
+    */
 	public boolean checkDuplicateUserId(String userId) {
 
 	    // 1단계: Bloom Filter 판단
@@ -45,19 +57,20 @@ public class UserServiceImp implements UserService {
 	}
 
 	
-	// Security 로그인 전용
+	// Spring Security 로그인 전용 사용자 조회
 	@Override
 	public Userdto loadUserByUsername(String u_id) {
 		return userMapper.loadUserByUsername(u_id);
 	}
 	
+	// 회원가입 
 	@Override
 	@Transactional
 	public void UserSignUp(Userdto u) {
 		userMapper.UserSignUp(u);
 	}
 	
-	// 계정 찾기
+	// 이메일로 계정 찾기
 	@Override
 	public Userdto UserFindID(String u_email) {
 		return userMapper.UserFindID(u_email);
@@ -74,7 +87,7 @@ public class UserServiceImp implements UserService {
 	public void UserUpdatePW(Userdto u) {
 		String encodedPw = passwordEncoder.encode(u.getU_pw());
 		u.setU_pw(encodedPw);
-		userMapper.UserUpdatePW(u);
+		userMapper.UserUpdatePW(u);		// DB 반영
 	}
 	
 	// 회원 탈퇴
