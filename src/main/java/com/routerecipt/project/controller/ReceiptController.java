@@ -8,13 +8,10 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -25,15 +22,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routerecipt.project.dto.ItemCategory;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.dto.UploadResult;
 import com.routerecipt.project.dto.Userdto;
-import com.routerecipt.project.dto.Userdto.Gender;
 import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.mapper.UserMapper;
 import com.routerecipt.project.service.ReceiptAnalyzeService;
@@ -72,8 +69,9 @@ public class ReceiptController {
 	/** 단일 분석(이미지 1장 OCR) */
 	private final ReceiptAnalyzeService receiptAnalyzeService;
 	
+
+	private final ObjectMapper objectMapper;
 	
-	/** 사용자 조회(성별 등) */
 	@Autowired
 	private final UserMapper usermapper;
 	
@@ -154,7 +152,7 @@ public class ReceiptController {
 	 @GetMapping("/receiptRegisterPage")
 	 public String receiptRegisterPage(Principal principal,
 	                                   HttpSession session,
-	                                   Model model) {
+	                                   Model model) throws JsonProcessingException {
 
 	     if (principal == null) return "redirect:/login";
 
@@ -171,7 +169,11 @@ public class ReceiptController {
 	     // recentNos에 해당하는 영수증들 조회 (items 포함되어야 함)
 	     List<ReceiptDTO> receipts = receiptQueryService.getRecentReceipts(recentNos);
 
-	     model.addAttribute("receipts", receipts);
+	     String receiptsJson = objectMapper.writeValueAsString(receipts);
+			
+			// model에 담기
+		model.addAttribute("receipts", receipts);
+		model.addAttribute("receiptsJson", receiptsJson);
 	     return "receipt/receiptRegisterPage";
 	 }
 
