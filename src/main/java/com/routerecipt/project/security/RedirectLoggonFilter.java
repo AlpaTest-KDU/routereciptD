@@ -13,8 +13,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
+/**
+ * 로그인 상태에 따라 페이지 접근을 제어하는 필터
+ * - 이미 로그인한 사용자가 로그인 페이지로 접근하면 메인으로 리다이렉트
+ * - 특정 경로는 인증 여부와 상관없이 통과
+ */
 @Component
-@Order(1)
+@Order(1)	// 필터 실행 우선순위 (숫자가 작을수록 먼저 실행)
 public class RedirectLoggonFilter extends OncePerRequestFilter {
 	
 	@Override
@@ -23,6 +29,7 @@ public class RedirectLoggonFilter extends OncePerRequestFilter {
 	                                FilterChain filterChain)
 	        throws ServletException, IOException {
 
+		// 현재 요청 URI
 	    String uri = request.getRequestURI();
 	    
 	    // ✅ AI / API 요청은 무조건 통과
@@ -45,7 +52,9 @@ public class RedirectLoggonFilter extends OncePerRequestFilter {
 	        filterChain.doFilter(request, response);
 	        return;
 	    }
-
+	    
+	    
+	    // 현재 인증(로그인) 정보 조회
 	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 	    // 로그인 상태인데 로그인 페이지 접근하면 메인으로
@@ -56,7 +65,8 @@ public class RedirectLoggonFilter extends OncePerRequestFilter {
 	        response.sendRedirect("/");
 	        return;
 	    }
-
+	    
+	    
 	    filterChain.doFilter(request, response);
 	}
 }
