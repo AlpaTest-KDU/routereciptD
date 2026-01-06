@@ -2,7 +2,7 @@
 
 .signUpArea {
     max-width: 520px;
-    margin: 140px auto 80px;
+    margin: 60px auto 80px;
     padding: 40px 34px;
     background: #ffffff;
     border-radius: 20px;
@@ -11,7 +11,7 @@
 
 .signUpTitle {
     font-size: 26px;
-    font-weight: 800;
+    font-weight: 600;
     margin-bottom: 28px;
     color: #111827;
 }
@@ -26,7 +26,7 @@
     display: block;
     margin-bottom: 6px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: #374151;
 }
 

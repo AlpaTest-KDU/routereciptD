@@ -10,7 +10,7 @@
 		<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/adminPage}" class="navbarMenu">관리자 페이지</a>
 		<a th:href="@{/user/analysisPage}" class="navbarMenu">지출 분석</a>
 		<a th:href="@{/notice/noticePage}" class="navbarMenu">공지 사항</a>
-		<a sec:authorize="hasRole('USER')" th:href="@{/user/userInfoShowPage}" class="navbarBtn">마이페이지</a>
+		<a sec:authorize="hasRole('USER')" th:href="@{/user/userInfoShowPage}" class="navbarMenu">마이페이지</a>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}" class="navbarBtn">로그인</a>
 		<a sec:authorize="isAnonymous()" th:href="@{/user/userSignUpPage}" class="navbarBtn">회원가입</a>
 		<span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
