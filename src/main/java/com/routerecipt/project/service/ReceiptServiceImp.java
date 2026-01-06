@@ -26,6 +26,18 @@ public class ReceiptServiceImp implements ReceiptService {
     private final ReceiptAutoItemHelper receiptAutoItemHelper; // 강제 아이템
     private final ReceiptApplicationService receiptApplicationService;
 
+    /**
+     * 영수증 파일 업로드 메인 진입점
+     *
+     * 처리 흐름:
+     * 1) 파일 유효성 검사
+     * 2) Clova OCR 호출
+     * 3) OCR 결과 파싱
+     * 4) 사용자 ID 바인딩
+     * 5) 장소 기반 자동 아이템 규칙 적용
+     * 6) item_category NOT NULL 보정
+     * 7) 영수증 + 아이템 저장
+     */
     @Override
     public UploadResult uploadReceipts(List<MultipartFile> files, String userId) {
 
@@ -84,9 +96,13 @@ public class ReceiptServiceImp implements ReceiptService {
         return result;
     }
 
-    // ======================================================
-    // item_category NOT NULL 보장
-    // ======================================================
+    /**
+     * item_category NOT NULL 보장을 위한 최종 방어 로직
+     *
+     * - 아이템이 존재하지만 category가 없을 경우
+     * - ETC + FALLBACK + confidence 0으로 강제 보정
+     * - DB 무결성 보장 목적
+     */
     private void applyCategoryFallback(ReceiptDTO receipt) {
 
         if (receipt.getItems() == null || receipt.getItems().isEmpty()) {
@@ -107,6 +123,14 @@ public class ReceiptServiceImp implements ReceiptService {
     // =========================
     // 자동 아이템 추가 규칙
     // =========================
+
+    /**
+     * 장소명(r_place)을 기반으로 자동 아이템을 추가하기 위한 규칙 집합
+     *
+     * - 교통(택시, 주차)
+     * - 의료(병원, 의원 등)
+     * - 중복 아이템 방지 키워드 포함
+     */
     private static final List<ForcedItemRule> FORCED_ITEM_RULES = List.of(
         new ForcedItemRule(
             List.of("택시", "TAXI"),
@@ -128,6 +152,14 @@ public class ReceiptServiceImp implements ReceiptService {
         )
     );
 
+    /**
+     * 자동 아이템 규칙 단위 객체
+     *
+     * - placeKeywords : 장소 매칭 키워드
+     * - itemName      : 추가할 아이템명
+     * - category      : 아이템 카테고리
+     * - dedupKeywords : 중복 방지 키워드
+     */
     private static class ForcedItemRule {
         private final List<String> placeKeywords;
         private final String itemName;
@@ -147,6 +179,13 @@ public class ReceiptServiceImp implements ReceiptService {
         }
     }
 
+    /**
+     * r_place 값을 기준으로 자동 아이템을 추가하는 로직
+     *
+     * - 장소 키워드 매칭
+     * - 기존 아이템과 중복 여부 검사
+     * - 조건 충족 시 RULE 기반 아이템 생성
+     */
     private void applyForcedItemsIfNeeded(ReceiptDTO receipt) {
 
         String place = safe(receipt.getR_place());
@@ -184,6 +223,12 @@ public class ReceiptServiceImp implements ReceiptService {
         }
     }
 
+    /**
+     * null-safe 문자열 처리 유틸
+     *
+     * - null → ""
+     * - 공백 trim
+     */
     private String safe(String s) {
         return (s == null) ? "" : s.trim();
     }
