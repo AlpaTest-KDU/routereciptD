@@ -167,14 +167,37 @@
 		<!-- ===============================
 		     receipts → JS
 		=============================== -->
-		<script th:inline="javascript">
-		/*<![CDATA[*/
-		const receipts = /*[[${receipts}]]*/ [];
-		/*]]>*/
-		</script>
-		
-		<!-- ✅ 기존에 만든 JS -->
-		<script th:src="@{/js/receipt.js}"></script>
+		<!-- ===============================
+     receipts → JS
+=============================== -->
+<div id="receiptData"
+     th:data-receipts="${receiptsJson}">
+</div>
+
+<script>
+  var receipts = [];
+  (function () {
+    var el = document.getElementById("receiptData");
+    if (!el) return;
+
+    var raw = el.getAttribute("data-receipts");
+    if (!raw) {
+      receipts = [];
+      return;
+    }
+
+    try {
+      receipts = JSON.parse(raw);
+    } catch (e) {
+      console.error("❌ receipts JSON parse error", e, raw);
+      receipts = [];
+    }
+  })();
+</script>
+
+<!-- ✅ 기존에 만든 JS -->
+<script th:src="@{/js/receipt.js}"></script>
+
 		
 		<!-- 모달창 바깥 클릭하면 닫기/esc로 닫기 관련 스크립트 -->
 		<script>

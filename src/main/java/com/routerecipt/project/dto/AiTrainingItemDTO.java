@@ -14,7 +14,7 @@ public class AiTrainingItemDTO {
 	
 	// AI 예측 정보
 	private String predicted_label;
-	private Double predicetd_confidence;
+	private Double predicted_confidence;
 	private String ai_source; // AI / RULE
 	private String model_version;
 	
