@@ -40,6 +40,8 @@ public class ReceiptAutoItemHelper {
             "MEDICAL",
             List.of("진료", "진료비", "의료", "처방", "약")
         )
+        
+        // 아래 같은 양식으로 계속 추가 가능
     );
 
     /* =========================
