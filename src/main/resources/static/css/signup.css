@@ -101,7 +101,12 @@
     background: #4338ca;
 }
 
+.isValidMsg {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: red;
+}
 
-
-
-
+.field-error {
+    border-color: red !important;
+}

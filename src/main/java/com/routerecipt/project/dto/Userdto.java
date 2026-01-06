@@ -2,6 +2,10 @@ package com.routerecipt.project.dto;
 
 import java.util.Date;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.AllArgsConstructor;
@@ -14,14 +18,31 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Userdto {
+	@NotBlank(message = "아이디를 입력해주세요")
+	@Size(min=6, max=16, message = "아이디는 6~16자여야 합니다.")
+	@Pattern(regexp = "^[a-zA-Z0-9]*$", message = "아이디는 영문/숫자 조합만 가능합니다.")
 	private String u_id;
+
+	@NotBlank(message = "비밀번호를 입력해주세요")
+	@Size(min=6, max=24, message = "비밀번호는 6~24자여야 합니다.")
+	@Pattern(regexp = "^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*])", message = "비밀번호는 특수문자를 포함한 6~24자여야 합니다.")
 	private String u_pw;
+
+	@NotBlank(message = "이름을 입력해주세요")
 	private String u_name;
+
+	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date u_birthday;
+
+	@NotBlank
 	private String u_email;
+
 	private Date u_date;
+
+	@NotNull
 	private Gender gender;
+
 	private Role role;
 	
 	public enum Gender {
