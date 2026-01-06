@@ -8,10 +8,22 @@ import com.routerecipt.project.mapper.ReceiptResultMapper;
 
 import lombok.RequiredArgsConstructor;
 
+
+/**
+ * 영수증/지출 분석 결과(통계) 서비스
+ *
+ * 역할:
+ *  - 분석 페이지에서 필요한 통계 데이터를 DB에서 조회해
+ *    ReceiptAnalysisStatsdto에 담아 반환한다.
+ *
+ * 특징:
+ *  - 화면(페이지) 단위로 필요한 통계가 다르므로 메서드를 분리해 제공한다.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReceiptResultService {
-
+	
+	// 통계 조회 전용 Mapper
     private final ReceiptResultMapper receiptresultmapper;
 
     // /user/analysisMonthlyPage : 개인 사용자
