@@ -1,20 +1,25 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <footer th:fragment="footer" class="footer">
 	<div class="footerInner">
-		<div>
-			<p>팀 로고/ABOUT US 내용 등 넣을 예정
-			수정 및 보완할 예정입니다</p>
+		<div class="footerTop">
+			<div class="footerBrand">
+				<p class="footerName">Routereceipt</p>
+				<p class="footerDesc">영수증 관리부터 소비 분석까지, 한 번에</p>
+			</div>
+			
+			<ul class="footerLinks">
+				<li><a th:href="@{/notice/noticePage}">공지사항</a></li>
+			</ul>
+			
+			<ul class="footerSns">
+				<li><a href="#" aria-label="Instagram">insta</a></li>
+				<li><a href="#" aria-label="X">X</a></li>
+				<li><a href="#" aria-label="Discord">Discord</a></li>
+			</ul>
 		</div>
-		<ul>
-			<li>
-				<a>인스타 로고 이미지</a>
-			</li>
-			<li>
-				<a>X 로고 이미지</a>
-			</li>
-			<li>
-				<a>디스코드 또는 네이버 블로그 로고 이미지</a>
-			</li>
-		</ul>
+		
+		<div class="footerBottom">
+			<p>© Routereceipt. All rights reserved.</p>
+		</div>
 	</div>
 </footer>
