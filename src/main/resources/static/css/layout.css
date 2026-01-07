@@ -40,7 +40,7 @@
 
 .logoText {
   	color: #111827;
-  	font-size: 22px;;
+  	font-size: 22px;
   	font-weight: 700;
 }
 
@@ -65,21 +65,70 @@
 .footer {
 	background: linear-gradient(to bottom, #0f172a, #1e1b4b);
 	color: white;
-	padding: 16px 40px;
+	padding: 28px 40px;
 }
 
 .footerInner {
-	text-align: center;
+	max-width: 1100px;
+	margin: 0 auto;
 	font-size: 15px;
 }
 
-.footer ul {
-	margin: 12px 0 0;
-	padding: 0;
-	list-style: none;
-	display: flex;
-	justify-content: center;
-	gap: 14px;
+.footerTop {
+  	display: flex;
+  	align-items: flex-start;
+  	justify-content: space-between;
+  	gap: 24px;
+  	padding-bottom: 18px;
+  	border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.footerBrand {
+  	text-align: left;
+  	min-width: 240px;
+}
+
+.footerName {
+  	margin: 0 0 6px;
+  	font-size: 16px;
+  	font-weight: 800;
+}
+
+.footerDesc {
+  	margin: 0;
+  	opacity: 0.85;
+  	line-height: 1.6;
+}
+
+.footerLinks,
+.footerSns {
+  	margin: 0;
+  	padding: 0;
+  	list-style: none;
+  	display: flex;
+  	gap: 12px;
+  	justify-content: flex-end;
+}
+
+.footerLinks a,
+.footerSns a {
+  	color: rgba(255,255,255,0.85);
+  	padding: 6px 10px;
+  	border-radius: 10px;
+  	font-weight: 500;
+}
+
+.footerLinks a:hover,
+.footerSns a:hover {
+  	background: rgba(255,255,255,0.10);
+  	color: #fff;
+}
+
+.footerBottom {
+  	padding-top: 14px;
+  	text-align: center;
+  	opacity: 0.75;
+  	font-size: 13px;
 }
 
 .goChatBot {
