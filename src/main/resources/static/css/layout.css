@@ -17,19 +17,17 @@
   	box-sizing: border-box;
 }
 
-header nav a {
-	margin: 0;
-	font-weight: 500;
-	color: #333;
-}
-
-header .btn {
+.navbarBtn {
 	padding: 8px 16px;
     background: #5054ef;
     border-radius: 8px;
     color: #fff;
-    font-weight: bold;
-    margin-left: 10px;
+    font-weight: 700;
+    margin-left: 6px;
+}
+
+.navbarBtn:hover {
+	filter: brightness(0.95);
 }
 
 .navbar {
@@ -45,30 +43,51 @@ header .btn {
 	font-weight: 700;
 }
 
-.menu:hover {
-	border-radius: 8px;
+.logo a {
+	color: #111827;
+}
+
+.logoText {
+  	color: #c7d2fe;
+  	font-weight: 700;
+}
+
+.navbarMenu {
+  	margin: 0;
+  	padding: 8px 10px;
+  	font-weight: 500;
+  	color: #333;
+  	border-radius: 8px;
+}
+
+.navbarMenu:hover {
 	background: rgba(2,32,71,0.05);
 }
 
-#routeceipt {
-	color: #c7d2fe;
+.navberUser {
+	margin-left: 6px;
+	font-weight: 600;
+	color: #111827;
 }
 
 .footer {
 	background: linear-gradient(to bottom, #0f172a, #1e1b4b);
 	color: white;
 	padding: 16px 40px;
-	align-items: center;
 }
 
-.footerIner {
+.footerInner {
 	text-align: center;
 	font-size: 15px;
 }
 
-.footer li {
-	list-style-type: none;
-
+.footer ul {
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	justify-content: center;
+	gap: 14px;
 }
 
 .goChatBot {
