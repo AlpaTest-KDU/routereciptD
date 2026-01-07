@@ -4,139 +4,164 @@
       layout:decorate="~{layout/base}">
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>마이페이지</title>
 <link rel="stylesheet" th:href="@{/css/mypage.css}">
 <script th:src="@{/js/userInfoDelete.js}" defer></script>
 </head>
 <body>
 
-	<div layout:fragment="content" class="mypageWrapper">
-
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				            마이페이지 - 사이드바							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
-	    <aside class="mypageSidebar">
-	        <div class="mypageSidebarSection">
-	            <h3 class="mypageSidebarTitle">나의 정보</h3>
-	            <ul class="mypageMenuList">
-	                <li>
-	                    <a th:href="@{/user/userInfoUpdatePage}" class="mypageMenuLink">
-	                        회원 정보 수정
-	                    </a>
-	                </li>
-	                <li>
-						<form id="mypageLogoutForm" th:action="@{/logout}" method="post">
-							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-						</form>
-						<a href="javascript:void(0);" onclick="confirmLogout('mypageLogoutForm');" class="mypageMenuLink">
-    						로그아웃
-						</a>
-	                </li>
-	                <li>
-						<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
-							<input type="hidden" id="currentUserId" th:value="${u_id}">
-							<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-						</form>
-
-	                    <a href="javascript:void(0);" onclick="confirmDelete()" class="mypageMenuLink">
-	                        회원 탈퇴
-	                    </a>
-	                </li>
-	            </ul>
-	        </div>
+	<div layout:fragment="content">
+		
+		<div class="contents">
+			<div class="mypageWrapper">
 	
-	        <div class="mypageSidebarSection">
-	            <h3 class="mypageSidebarTitle">활동 정보</h3>
-	            <ul class="mypageMenuList">
-	                <li>
-	                    <a th:href="@{/user/receiptInfoShow}" class="mypageMenuLink">
-	                        업로드 내역 조회
-	                    </a>
-	                </li>
-	                <li>
-	                    <a th:href="@{/user/monthlyAnalysisPage}" class="mypageMenuLink">
-	                        월별 소비 패턴
-	                    </a>
-	                </li>
-<!-- 	                <li>
-	                    <a th:href="@{/user/analysisPage}" class="mypageMenuLink">
-	                        소비 카테고리(없어도 무방)
-	                    </a>
-	                </li> -->	                
-	            </ul>
-	        </div>
-	    </aside>
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				            마이페이지 - 사이드바							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
-
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				            마이페이지 - 메인 화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	
-	    <section class="mypageContent">
-	
-	        <header class="mypageHeader">
-	            <div>
-	                <h2>
-	                    <span th:text="${u_name}">사용자</span> 님의 마이페이지
-	                </h2>
-	                <p>Routeceipt에서 영수증 업로드 내역과 소비 패턴을 한 눈에 확인해보세요.</p>
-	            </div>
-	        </header>
-	        
-	        <div class="mypageBody">
-	        	<main class="mypageMain">
-	        		<section class="mypageCenterCard">
-	        			<h3 class="mypageSectionTitle">캘린더</h3>
-	        			<!-- 달력 들어갈 자리 -->
-	        			<div class="calendarBox"></div>
-	        		</section>
-	        		
-	        		<section class="mypageCenterCard">
-	        			<h3 class="mypageSectionTitle">그래프</h3>
-	        			<!-- 그래프 들어갈 자리 -->
-	        			<div class="graphBox"></div>
-	        		</section>
-	        	</main>
-	        </div>
-	
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				            마이페이지 - 오른쪽 패널							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	
-	        <aside class="mypageSummary">
-	            <div class="mypageCard">
-	                <h3>이번 달 업로드한 영수증</h3>
-	                <p th:text="${summary.getReceiptCount()}" class="mypageCardMain"></p>
-					<p th:text="${summary.getCompareCountText()}" class="mypageCardSub"></p>
-	            </div>
-	
-	            <div class="mypageCard">
-	                <h3>이번 달 총 지출 금액</h3>
-	                <p th:text="${summary.getTotalAmount()}" class="mypageCardMain"></p>
-	                <p th:text="${summary.getTopAmountReceipt()}" class="mypageCardSub"></p>
-	            </div>
-	
-	            <div class="mypageCard">
-	                <h3>가장 많이 쓴 카테고리</h3>
-	                <p th:text="${summary.getTopCategory()}" class="mypageCardMain"></p>
-	                <p class="mypageCardSub">이번 달 기준</p>
-	            </div>
-	        </aside>
-	
-<!-- 	        <section class="mypageRecent">
-	            <div class="mypageRecentHeader">
-	                <h3>최근 업로드한 영수증</h3>
-	                <a th:href="@{/userInfoShowPage/receiptInfoShow}" class="mypageLinkSmall">
-	                    전체 내역 보기(필요하면 추가)
-	                </a>
-	            </div>
-	        </section> -->
-	
-	    </section>
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				            마이페이지 - 오른쪽 패널							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->>
-	
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				            마이페이지 - 사이드바							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+			    <aside class="mypageSidebar">
+			        <div class="mypageSidebarSection">
+			            <h3 class="mypageSidebarTitle">나의 정보</h3>
+			            <ul class="mypageMenuList">
+			                <li>
+			                    <a th:href="@{/user/userInfoUpdatePage}" class="mypageMenuLink">
+			                        회원 정보 수정
+			                    </a>
+			                </li>
+			                <li>
+								<form id="mypageLogoutForm" th:action="@{/logout}" method="post">
+									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								</form>
+								<a href="javascript:void(0);" onclick="confirmLogout('mypageLogoutForm');" class="mypageMenuLink">
+		    						로그아웃
+								</a>
+			                </li>
+			                <li>
+								<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
+									<input type="hidden" id="currentUserId" th:value="${u_id}">
+									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								</form>
+		
+			                    <a href="javascript:void(0);" onclick="confirmDelete()" class="mypageMenuLink">
+			                        회원 탈퇴
+			                    </a>
+			                </li>
+			            </ul>
+			        </div>
+			
+			        <div class="mypageSidebarSection">
+			            <h3 class="mypageSidebarTitle">활동 정보</h3>
+			            <ul class="mypageMenuList">
+			                <li>
+			                    <a th:href="@{/user/receiptInfoShow}" class="mypageMenuLink">
+			                        업로드 내역 조회
+			                    </a>
+			                </li>
+			                <li>
+			                    <a th:href="@{/user/monthlyAnalysisPage}" class="mypageMenuLink">
+			                        월별 소비 패턴
+			                    </a>
+			                </li>
+		<!-- 	                <li>
+			                    <a th:href="@{/user/analysisPage}" class="mypageMenuLink">
+			                        소비 카테고리(없어도 무방)
+			                    </a>
+			                </li> -->	                
+			            </ul>
+			        </div>
+			    </aside>
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				            마이페이지 - 사이드바							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+		
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				            마이페이지 - 메인 화면							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	
+			    <section class="mypageContent">
+			
+			        <header class="mypageHeader">
+			            <div>
+			                <h2>
+			                    <span th:text="${u_name}">사용자</span> 님의 마이페이지
+			                </h2>
+			                <p>Routeceipt에서 영수증 업로드 내역과 소비 패턴을 한 눈에 확인해보세요.</p>
+			            </div>
+			        </header>
+			        
+			        <div class="mypageBody">
+			        	<main class="mypageMain">
+			        		<section class="mypageCenterCard">
+			        			<h3 class="mypageSectionTitle">소비 달력</h3>
+			        			<!-- 달력(카테고리선택창) 들어갈 자리 -->
+			        			<div class="calendarRow">
+			        				<!-- 달력 -->
+			        				<div class="calendarBox"></div>
+			        				
+			        				<!-- 달력 옆 카테고리 선택 -->
+			        				<div class="categoryMini">
+			        					<h4 class="categoryMiniTitle">카테고리 선택</h4>
+			        					<select class="categoryMiniSelect">
+			        						<!-- 카테고리 항목 수정 예정입니다 -->
+			        						<option>전체</option>
+			        						<option>식비</option>
+			        						<option>교통</option>
+			        						<option>문화</option>
+			        						<option>의료</option>
+			        						<option>생활</option>
+			        						<option>?</option>
+			        						<option>?</option>
+			        						<option>기타</option>
+			        					</select>
+			        				</div>
+			        			</div>
+			        		</section>
+			        		
+			        		<section class="mypageCenterCard">
+			        			<h3 class="mypageSectionTitle">그래프</h3>
+			        			<!-- 그래프 들어갈 자리 -->
+			        			<div class="graphBox"></div>
+			        		</section>
+			        	</main>
+			        </div>
+			
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				            마이페이지 - 오른쪽 패널							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	
+			        <aside class="mypageSummary">
+			            <div class="mypageCard">
+			                <h3>이번 달 업로드한 영수증</h3>
+			                <p th:text="${summary.getReceiptCount()}" class="mypageCardMain"></p>
+							<p th:text="${summary.getCompareCountText()}" class="mypageCardSub"></p>
+			            </div>
+			
+			            <div class="mypageCard">
+			                <h3>이번 달 총 지출 금액</h3>
+			                <p th:text="${summary.getTotalAmount()}" class="mypageCardMain"></p>
+			                <p th:text="${summary.getTopAmountReceipt()}" class="mypageCardSub"></p>
+			            </div>
+			
+			            <div class="mypageCard">
+			                <h3>가장 많이 쓴 카테고리</h3>
+			                <p th:text="${summary.getTopCategory()}" class="mypageCardMain"></p>
+			                <p class="mypageCardSub">이번 달 기준</p>
+			            </div>
+			        </aside>
+			
+		<!-- 	        <section class="mypageRecent">
+			            <div class="mypageRecentHeader">
+			                <h3>최근 업로드한 영수증</h3>
+			                <a th:href="@{/userInfoShowPage/receiptInfoShow}" class="mypageLinkSmall">
+			                    전체 내역 보기(필요하면 추가)
+			                </a>
+			            </div>
+			        </section> -->
+			
+			    </section>
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				            마이페이지 - 오른쪽 패널							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+			</div>
+		</div>
+		
 	</div>
 
 </body>

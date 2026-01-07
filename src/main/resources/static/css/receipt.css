@@ -273,9 +273,8 @@
 
 /* 확정 버튼 */
 .uploadBtn {
-  	border-color: transparent !important;
   	background: #1f1c6f;
-  	color: black;
+  	color: #fff;
 }
 
 .uploadBtn:active {
