@@ -3,7 +3,7 @@
 <header th:fragment="header" class="header">
 	<script th:src="@{/js/logout.js}" defer></script>
 	<div class="logo">
-	<a th:href="@{/}" class="logoText">Routeceipt</a>
+	<a th:href="@{/}" class="logoText">Routereceipt</a>
 	</div>
 	<nav class="navbar">
 		<a sec:authorize="hasRole('USER')" th:href="@{/receipt/receiptRegisterPage}" class="navbarMenu">영수증 등록</a>
