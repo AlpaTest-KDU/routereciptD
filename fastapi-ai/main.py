@@ -1,6 +1,7 @@
 print("🔥🔥🔥 FASTAPI APP LOADED 🔥🔥🔥")
+
 # =========================
-# 🔥 UTF-8 고정 (반드시 최상단)
+# 🔥 UTF-8 고정 (최상단)
 # =========================
 import os
 
@@ -29,35 +30,43 @@ CATEGORY_ORDER = [
     "ETC"
 ]
 
-AI_THRESHOLD = 0.6   # 🔥 현재 데이터 기준
+AI_THRESHOLD = 0.6
 
 # =========================
-# 2. RULE 정의 (❗ 변경 없음)
+# 2. RULE 정의 (🔥 전부 유지)
 # =========================
 STORE_RULES = {
     "FOOD": [
         "스타벅스", "투썸", "이디야",
         "맥도날드", "버거킹", "롯데리아",
-        "KFC", "서브웨이", "김밥천국", "탕화쿵푸", "파이브가이즈", "하이디라오",
+        "KFC", "서브웨이", "김밥천국", "탕화쿵푸",
+        "파이브가이즈", "하이디라오",
         "장호덕손만두", "춘리마라탕", "니뽕내뽕",
-        "성심당", "빽다방", "메가커피", "다방", "킹콩부대찌개", "엽기떡볶이", 
-        "해찬들", "풀무원", "농심", "삼양", "델몬트", "비비고", "해태", "청정원", 
-        "오뚜기", "맥심", "동원", "크라운", "롯데제과", "삼립", "크리스피크림도넛",
+        "성심당", "빽다방", "메가커피", "다방",
+        "킹콩부대찌개", "엽기떡볶이",
+        "해찬들", "풀무원", "농심", "삼양",
+        "델몬트", "비비고", "해태", "청정원",
+        "오뚜기", "맥심", "동원", "크라운",
+        "롯데제과", "삼립", "크리스피크림도넛",
         "켈로그", "버거", "포스트", "누데이크", "쿠우쿠우"
     ],
     "CULTURE": [
         "CGV", "메가박스", "롯데시네마",
-        "교보문고", "알라딘", "예스24", "인터파크", "공방", "책방",
+        "교보문고", "알라딘", "예스24",
+        "인터파크", "공방", "책방"
     ],
     "LIVING": [
         "다이소", "이마트", "홈플러스", "롯데마트",
-        "CU", "GS25", "세븐일레븐", "트레이더스", "스타필드",
-        "스탠리", "올리브영", "랄라블라", "다비치안경", "피존", "다이슨",
-        "크리넥스", "딥씨크", "다우니", "락앤락", "샤넬", "디올", "루이비통",
+        "CU", "GS25", "세븐일레븐",
+        "트레이더스", "스타필드",
+        "스탠리", "올리브영", "랄라블라",
+        "다비치안경", "피존", "다이슨",
+        "크리넥스", "딥씨크", "다우니", "락앤락",
+        "샤넬", "디올", "루이비통",
         "젠틀몬스터", "돌체앤가바나"
     ],
     "HOME": [
-        "이케아", "한샘", "일룸",
+        "이케아", "한샘", "일룸"
     ],
     "TRAFFIC": [
         "카카오택시", "우버", "항공", "코레일", "고속"
@@ -72,9 +81,10 @@ ITEM_RULES = {
         "아메리카노", "라떼", "커피",
         "햄버거", "피자", "치킨",
         "김밥", "국밥", "분식",
-        "빵", "베이커리", "디저트", "우유", "훠궈",
-        "마라탕", "두바이쫀득쿠키", "마라샹궈", "곱창",
-        "곱창전골", "마들렌", "베이글", "소금빵", "바케트", "약과",
+        "빵", "베이커리", "디저트", "우유",
+        "훠궈", "마라탕", "마라샹궈",
+        "두바이쫀득쿠키", "곱창", "곱창전골",
+        "마들렌", "베이글", "소금빵", "바케트", "약과",
         "콜라", "사이다", "탄산", "음료"
     ],
     "CLOTHES": [
@@ -110,12 +120,12 @@ ITEM_RULES = {
 }
 
 # =========================
-# 3. 유틸 함수 (🔥 여기만 수정)
+# 3. 유틸 함수
 # =========================
 def normalize(text: str) -> str:
     return text.replace(" ", "").lower()
 
-def rule_based_classify(text: str) -> str | None:
+def rule_based_classify(text: str):
     text = normalize(text)
 
     for category, keywords in STORE_RULES.items():
@@ -130,7 +140,7 @@ def rule_based_classify(text: str) -> str | None:
 
     return None
 
-def ai_classify(text: str) -> tuple[str, float]:
+def ai_classify(text: str):
     preds = model(tf.constant([text], dtype=tf.string)).numpy()
     idx = int(np.argmax(preds, axis=1)[0])
     conf = float(preds[0][idx])
@@ -157,13 +167,10 @@ def health():
     return {"status": "ok"}
 
 # =========================
-# 6. 예측
+# 6. 예측 API
 # =========================
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
-    print("🔥 FASTAPI RECEIVED REQUEST")
-    print("🔥 FASTAPI RECEIVED TEXT =", req.text)
-
     rule_category = rule_based_classify(req.text)
     if rule_category:
         return {
@@ -185,3 +192,13 @@ def predict(req: PredictRequest):
         "confidence": round(conf, 4),
         "source": "FALLBACK"
     }
+
+# =========================
+# 7. 재학습 트리거 API (🔥 호출만)
+# =========================
+from retrain_trigger import trigger_retrain
+
+
+@app.post("/ai/retrain/check")
+def retrain_check():
+    return trigger_retrain()
