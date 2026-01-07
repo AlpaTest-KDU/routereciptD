@@ -75,7 +75,7 @@ function renderItemsByCategory(items) {
         selectHtml += `</select>`;
 
         html += `
-          <li style="margin:8px 0; display:flex; gap:10px; flex-wrap:wrap;">
+          <li class="item-row" style="margin:8px 0; display:flex; gap:10px; flex-wrap:wrap;">
             ${selectHtml}
             <input type="text" name="item_names"
                    value="${escapeHtmlAttr(it.item_name ?? "")}">

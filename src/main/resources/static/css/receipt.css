@@ -440,3 +440,18 @@
   	border-color: transparent;
   	color: #fff;
 }
+
+/* =========================
+ * OCR 결과 영역 select 복구
+ * ========================= */
+#categoryArea select {
+  height: 40px;
+  min-width: 120px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #111827;
+  font-weight: 600;
+  appearance: auto;       /* 중요 */
+}

@@ -196,7 +196,7 @@
 </script>
 
 <!-- ✅ 기존에 만든 JS -->
-<script th:src="@{/js/receipt.js}"></script>
+<script th:src="@{/js/receipt.js(v=${#dates.createNow().time})}"></script>
 
 		
 		<!-- 모달창 바깥 클릭하면 닫기/esc로 닫기 관련 스크립트 -->
