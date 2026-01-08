@@ -14,34 +14,38 @@
 	    
 	    	<h2 class="signUpTitle">회원가입</h2>
 	    	
-	        <form th:action="@{/user/userSignUp}" method="post">
-	            <div>
-	                <label for="u_id">아이디</label>
-	                <input id="u_id" type="text" name="u_id" required oninput="checkUserInfo()">
-	            </div>
-	            <div>
-	                <label for="u_pw">비밀번호</label>
-	                <input id="u_pw" type="password" name="u_pw" required oninput="checkUserInfo()">
-	            </div>
-	            <div>
-	                <label for="u_pw_confirm">비밀번호 확인</label>
-	                <input id="u_pw_confirm" type="password" name="u_pw_confirm" required oninput="checkUserInfo()">
-	            </div>
-				<span id="isValidMsg" style="display:block; margin-bottom:10px; font-size:14px;"></span>
-	            <div>
-	                <label for="u_name">이름</label>
-	                <input id="u_name" type="text" name="u_name" required oninput="checkUserInfo()">
+	        <form th:action="@{/user/userSignUp}" th:object="${userDto}" method="post">
+				<div>
+					<label for="u_id">아이디</label>
+					<input id="u_id" type="text" th:field="*{u_id}" th:errorclass="field-error" required oninput="validateField(this)">
+					<span class="isValidMsg" th:if="${#fields.hasErrors('u_id')}" th:errors="*{u_id}"></span>
+				</div>
+				<div>
+					<label for="u_pw">비밀번호</label>
+					<input id="u_pw" type="password" th:field="*{u_pw}" th:errorclass="field-error" required oninput="checkSamePw()">
+					<span class="isValidMsg" th:if="${#fields.hasErrors('u_pw')}" th:errors="*{u_pw}"></span>
+				</div>
+				<div>
+					<label for="u_pw_confirm">비밀번호 확인</label>
+					<input id="u_pw_confirm" type="password" name="u_pw_confirm" required oninput="checkSamePw()">
+					<span id="pwConfirmMsg" style="color: red; display: none;"></span>
+				</div>
+				<div>
+					<label for="u_name">이름</label>
+	                <input id="u_name" type="text" th:field="*{u_name}" th:errorclass="field-error" required oninput="validateField(this)">
+					<span class="isValidMsg" th:if="${#fields.hasErrors('u_name')}" th:errors="*{u_name}"></span>
 	            </div>
 	            <div>
 	                <label for="u_birthday">생년월일</label>
-	                <input id="u_birthday" type="date" name="u_birthday" required oninput="checkUserInfo()">
+	                <input id="u_birthday" type="date" th:field="*{u_birthday}" th:errorclass="field-error" required onchange="validateField(this)">
+	                <span class="isValidMsg" th:if="${#fields.hasErrors('u_birthday')}" th:errors="*{u_birthday}"></span>
 	            </div>
             	<div>
                 	<label for="u_email">이메일</label>
                 	<div>
-                    	<input id="u_email" type="text" name="u_email" required oninput="checkUserInfo()">
+                    	<input id="u_email" type="text" th:field="*{u_email}" th:errorclass="field-error" required oninput="validateField(this)">
                     	<span>@</span>
-                    	<select name="emailDomain" required onchange="checkUserInfo()">
+                    	<select name="emailDomain" required onchange="checkCustomDomain()">
                        		<option value="naver.com">naver.com</option>
                         	<option value="daum.net">daum.net</option>
                         	<option value="gmail.com">gmail.com</option>
@@ -49,48 +53,35 @@
                        	 	<option value="etc">직접입력</option>
                     	</select>
                 	</div>
+                	<span class="isValidMsg" th:if="${#fields.hasErrors('u_email')}" th:errors="*{u_email}"></span>
 					<!-- required가 있으면 반드시 채워넣어야 하는데 직접입력 하지 않았을때 Hidden으로 되고
 					 	 입력값을 받을 수 없어서 회원가입이 안되는 오류 발생하여 required 제거하고
 					 	 javaScript로 해당 부분 조정 -->
-                	<input id="emailCustom" type="text" name="emailDomainCustom" oninput="checkUserInfo()">
+                	<input id="emailCustom" type="text" name="emailDomainCustom">
             	</div>
 	            <div>
 	            	<span>성별</span>
 	                <label for="gender">
-	                	<input type="radio" name="gender" value="MALE" required onchange="checkUserInfo()">
+	                	<input type="radio" th:field="*{gender}" value="MALE" th:errorclass="field-error" required onchange="validateField(this)">
 	                	남성
 	                </label>
 	                <label for="gender">
-	                	<input type="radio" name="gender" value="FEMALE" required onchange="checkUserInfo()">
+	                	<input type="radio" th:field="*{gender}" value="FEMALE" th:errorclass="field-error" required onchange="validateField(this)">
 	                	여성
 	                </label>
+	                <span class="isValidMsg" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></span>
 	            </div>
 	            <div>
 	            	 저희는 개인정보를 무단으로 사용하지 않습니다.
 	            </div>
-	            <button type="submit" class="" id="signUpBtn" disabled>회원가입</button>		
+	            <button type="submit" id="signUpBtn">회원가입</button>
 	        </form>
-	        
-		    <script th:inline="javascript" th:if="${message}">
-		    	alert(/*[[${message}]]*/ '메시지');
-		    </script>
 	    </div>
 
 		<script>
-			function checkUserInfo() {
-				const id = document.getElementById("u_id");
-				const pw = document.getElementById("u_pw");
-				const pwConfirm = document.getElementById("u_pw_confirm");
-				const name = document.getElementById("u_name");
-				const birthday = document.getElementById("u_birthday");
-				const email = document.getElementById("u_email");
+			function checkCustomDomain() {
 				const emailDomain = document.querySelector('select[name="emailDomain"]');
 				const emailCustom = document.getElementById("emailCustom");
-				const gender = document.querySelector('input[name="gender"]:checked');
-				const btn = document.getElementById("signUpBtn");
-				const isValidMsg = document.getElementById("isValidMsg");
-
-				let isValid = true;
 
 				// 이메일 도메인 직접입력시에만 입력 부분 보이도록
 				if (emailDomain.value === "etc") {
@@ -101,54 +92,52 @@
 					emailCustom.required = false;       // 필수 입력 해제
 					emailCustom.value = "";             // 값 초기화
 				}
+			}
+
+			function checkSamePw() {
+				const password = document.getElementById("u_pw");
+				const passwordConfirm = document.getElementById("u_pw_confirm");
+				const msg = document.getElementById("pwConfirmMsg");
 				
-				function validate(input, msg) {
-					if(input.value.trim() === "") {
-						input.placeholder = msg;
-						input.style.borderColor = "red";
-						isValid = false;
-					} else {
-						input.style.borderColor = "";
-					}
+				const pwRegex = /^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*]).{6,24}$/;
+				if (pwRegex.test(password.value)) {
+					password.classList.remove('field-error');
+					const pwErrorMsg = password.parentElement.querySelector('.isValidMsg');
+					if (pwErrorMsg) pwErrorMsg.style.display = 'none';
 				}
 
-				validate(id, "아이디를 입력해주세요.");
-				validate(pw, "비밀번호를 입력해주세요.");
-				validate(pwConfirm, "비밀번호 확인을 입력해주세요.");
-				validate(name, "이름을 입력해주세요.");
-				validate(birthday, "생년월일을 입력해주세요.");
-				validate(email, "이메일을 입력해주세요.");
-
-				if(emailDomain.value === "etc") {
-					validate(emailCustom, "도메인을 입력해주세요.");
+				if (passwordConfirm.value !== "" && password.value !== passwordConfirm.value) {
+					msg.innerText = "비밀번호가 같지 않습니다"
+					msg.style.display = "block";
 				} else {
-					emailCustom.style.borderColor = "";
+					msg.style.display = "none";
+				}
+			}
+			
+			function validateField(input) {
+				const id = input.id;
+				const value = input.value;
+				let isValid = false;
+
+				if (id === 'u_id') {
+					// 아이디: 6~16자, 영문/숫자
+					isValid = /^[a-zA-Z0-9]{6,16}$/.test(value);
+				} else if (id === 'u_name' || id === 'u_email' || id === 'u_birthday') {
+					isValid = value.trim().length > 0;
+				} else if (input.name === 'gender') {
+					isValid = true;
 				}
 
-				if(!gender) {
-					isValid = false;
-				}
-
-				if (id.value.length > 16) {
-					validate(id, "아이디는 16자를 넘을 수 없습니다.")
-				} else if (/[^a-zA-Z0-9]/.test(id.value)) {
-					validate(id, "아이디에 특수문자는 넣을 수 없습니다.")
-				}
-
-				if (pw.value !== "" && pwConfirm.value !== "") {
-					if (pw.value !== pwConfirm.value) {
-						isValidMsg.innerText = "비밀번호가 일치하지 않습니다.";
-						isValidMsg.style.color = "red";
-						isValid = false;
-					} else {
-						isValidMsg.innerText = "비밀번호가 일치합니다.";
-						isValidMsg.style.color = "green";
+				if (isValid) {
+					input.classList.remove('field-error');
+					// 에러 메시지 찾기 (부모, 조부모 순으로 탐색하여 .isValidMsg 찾기)
+					let parent = input.parentElement;
+					let msg = parent.querySelector('.isValidMsg');
+					if (!msg && parent.parentElement) {
+						msg = parent.parentElement.querySelector('.isValidMsg');
 					}
-				} else {
-					isValidMsg.innerText = "";
+					if (msg) msg.style.display = 'none';
 				}
-				
-				btn.disabled = !isValid;
 			}
 		</script>
 	</div>

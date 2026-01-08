@@ -51,7 +51,8 @@ public class MainController {
 	
 	// 회원가입 화면
 	@GetMapping("/user/userSignUpPage")
-	public String userSignUpPage() {
+	public String userSignUpPage(Model model) {
+		model.addAttribute("userDto", new Userdto());
 		return "user/userSignUpPage";
 	}
 	

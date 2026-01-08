@@ -18,7 +18,7 @@
 	    		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 				<div class="infoRow">
 	        		<label>아이디</label>
-	        		<input type="hidden" name="u_id" th:value="${u_id}">
+					<span th:text="${u_id}"></span>
 	      		</div>
 	      		<div class="infoRow">
 	        		<label for="u_name">이름</label>
@@ -38,7 +38,7 @@
 	      		</div>
 	      		<!-- 취소버튼 -->
 	      		<button type="button" class="cancelBtn"
-	      			onclick="location.href='[[@{/user/userInfoShowPage}]]'">취소</button>
+	      			th:onclick="|location.href='@{/user/userInfoShowPage}'|">취소</button>
 	      		<button type="submit" class="saveBtn">회원정보수정</button>
 			</form>
 			
