@@ -7,6 +7,7 @@
 <title>마이페이지</title>
 <link rel="stylesheet" th:href="@{/css/mypage.css}">
 <script th:src="@{/js/userInfoDelete.js}" defer></script>
+<script th:src="@{/js/mypageCalendar.js}" defer></script>
 </head>
 <body>
 
@@ -99,17 +100,17 @@
 			        				<!-- 달력 옆 카테고리 선택 -->
 			        				<div class="categoryMini">
 			        					<h4 class="categoryMiniTitle">카테고리 선택</h4>
-			        					<select class="categoryMiniSelect">
+			        					<select class="categoryMiniSelect" id="categoryFilter">
 			        						<!-- 카테고리 항목 수정 예정입니다 -->
-			        						<option>전체</option>
-			        						<option>식비</option>
-			        						<option>교통</option>
-			        						<option>문화</option>
-			        						<option>의료</option>
-			        						<option>생활</option>
-			        						<option>?</option>
-			        						<option>?</option>
-			        						<option>기타</option>
+			        						<option value="ALL">전체</option>
+			        						<option value="FOOD">식비</option>
+			        						<option value="TRAFFIC">교통</option>
+			        						<option value="CULTURE">문화</option>
+			        						<option value="MEDICAL">의료</option>
+			        						<option value="LIVING">생활</option>
+			        						<option value="CLOTHES">의류</option>
+			        						<option value="BEAUTY">뷰티</option>
+			        						<option value="ETC">기타</option>
 			        					</select>
 			        				</div>
 			        			</div>
@@ -162,6 +163,20 @@
 			</div>
 		</div>
 		
+		<!-- 상세 내역 모달 -->
+		<div id="dateDetailModal" class="modal-overlay">
+		    <div class="modal-window">
+		        <div class="modal-header">
+		            <h3 class="modal-title" id="modalDateTitle">날짜 상세</h3>
+		            <button class="modal-close-btn" onclick="CalendarManager.closeModal()">&times;</button>
+		        </div>
+		        <div class="modal-body">
+		            <ul id="modalList" class="modal-list">
+		                <!-- JS로 리스트 아이템 동적 생성 -->
+		            </ul>
+		        </div>
+		    </div>
+		</div>
 	</div>
 
 </body>

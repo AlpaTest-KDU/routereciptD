@@ -18,6 +18,9 @@ import com.routerecipt.project.security.LoginDetails;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+
 @Controller
 @RequiredArgsConstructor
 public class MainController {
@@ -71,7 +74,6 @@ public class MainController {
 		// 통계 데이터 조회 및 모델 추가
 		MyPageSummaryDTO summary = receiptQueryService.getMyPageSummary(user.getU_id());
 		model.addAttribute("summary", summary);
-
 		return "user/userInfoShowPage";
 	}
 		

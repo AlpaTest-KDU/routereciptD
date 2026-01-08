@@ -30,18 +30,4 @@ public interface ReceiptApplicationService {
             List<Integer> item_prices,
             List<String> item_categories
     );
-
-    // Read(조회/화면 구성)
-    // 특정 사용자/특정 월(yyyyMM)의 저장된 영수증 목록 조회
-    List<ReceiptDTO> getSavedReceiptsDate(String userId, String yearMonth);
-
-    // 영수증 목록을 기반으로 화면 출력용 메뉴 맵을 구성한다.
-    Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts);
-    
-    // 달력 UI 구성을 위한 데이터 생성
-    List<Integer> buildCalendar(String yearMonth);
-
-    // Recent (Temp)
-    // 최근(임시/TEMP) 영수증 목록 조회
-    List<ReceiptDTO> getRecentReceipts(List<Long> r_no);
 }
