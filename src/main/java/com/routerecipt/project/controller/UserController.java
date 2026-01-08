@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,28 +53,18 @@ public class UserController {
 	
 	// 회원가입 기능
 	@PostMapping("/userSignUp")
-	public String userSignUp(@Valid @ModelAttribute("userdto") Userdto u, Model model,@RequestParam(name = "emailDomain") String emailDomain,@RequestParam(name = "emailDomainCustom",required = false) String emailDomainCustom) {
-		String domain = emailDomain.equals("etc") ? emailDomainCustom : emailDomain;
-		u.setU_email(u.getU_email() + "@" + domain);
-
-		// 로그 확인용 코드
-		System.out.println("===== userSignUp 호출됨 =====");
-		System.out.println("u_id=" + u.getU_id());
-		System.out.println("u_pw=" + u.getU_pw());
-		System.out.println("u_name=" + u.getU_name());
-		System.out.println("u_email=" + u.getU_email());
-		System.out.println("u_birthday=" + u.getU_birthday());
-		System.out.println("gender=" + u.getGender());
-		System.out.println("role=" + u.getRole());
-		
-		if (u.getU_birthday() == null) {
-			model.addAttribute("birthdayError", "생년월일을 입력하세요");
+	public String userSignUp(@Valid @ModelAttribute("userDto") Userdto u, BindingResult bindingResult, Model model,
+							 @RequestParam(name = "emailDomain") String emailDomain,
+							 @RequestParam(name = "emailDomainCustom", required = false) String emailDomainCustom) {
+		if (bindingResult.hasErrors()) {
 			return "user/userSignUpPage";
 		}
 
+		String domain = emailDomain.equals("etc") ? emailDomainCustom : emailDomain;
+		u.setU_email(u.getU_email() + "@" + domain);
+
 		// 주입받은 PasswordEncoder 인스턴스로 암호화
 		u.setU_pw(passwordEncoder.encode(u.getU_pw()));
-		
 		u.setRole(Role.ROLE_USER);
 		
 		try {
