@@ -39,7 +39,10 @@ public class ReceiptResultService {
     public ReceiptAnalysisStatsdto getAnalysisPageStats(String uId) {
         ReceiptAnalysisStatsdto dto = new ReceiptAnalysisStatsdto();
         dto.setGenderData(receiptresultmapper.selectTotalByGender());
-        dto.setMyAvg(receiptresultmapper.selectMyAverage(uId));
+        dto.setMyAvg(0);
+        if (uId != null) {
+            dto.setMyAvg(receiptresultmapper.selectMyAverage(uId));
+        }
         dto.setAllAvg(receiptresultmapper.selectAllAverage());
         return dto;
     }
