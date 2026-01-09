@@ -1,28 +1,24 @@
 package com.routerecipt.project.stream;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.config.RedisStreamConfig;
 import com.routerecipt.project.dto.ReceiptDTO;
-import com.routerecipt.project.ocr.OcrService;
 import com.routerecipt.project.service.ReceiptApplicationService;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
 /**
@@ -41,133 +37,141 @@ import jakarta.annotation.PreDestroy;
 
 
 @Service
-public class OcrStreamConsumer {
+public class OcrStreamConsumer implements Runnable {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(OcrStreamConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(OcrStreamConsumer.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final OcrService ocrService;
     private final ReceiptApplicationService receiptApplicationService;
 
     private volatile boolean running = true;
+    private Thread worker;
 
     public OcrStreamConsumer(
             RedisTemplate<String, Object> redisTemplate,
-            OcrService ocrService,
             ReceiptApplicationService receiptApplicationService
     ) {
         this.redisTemplate = redisTemplate;
-        this.ocrService = ocrService;
         this.receiptApplicationService = receiptApplicationService;
     }
 
-    /**
-     * ✅ Spring Boot 완전 기동 후 Consumer 시작
-     */
-    @EventListener(ApplicationReadyEvent.class)
-    public void startConsumer() {
-
-        log.info("✅ ApplicationReadyEvent 수신 → OCR Stream Consumer 시작");
-
+    /* ===============================
+     * Consumer 시작
+     * =============================== */
+    @PostConstruct
+    public void start() {
         createGroupIfNotExists();
 
-        Thread consumerThread =
-                new Thread(this::pollStream, "ocr-stream-consumer");
-        consumerThread.setDaemon(true);
-        consumerThread.start();
+        worker = new Thread(this, "ocr-stream-consumer");
+        worker.start();
+
+        log.info("[OCR-STREAM] Consumer started");
     }
 
-    private void createGroupIfNotExists() {
-        try {
-            redisTemplate.opsForStream().createGroup(
-                    RedisStreamConfig.OCR_STREAM,
-                    RedisStreamConfig.OCR_GROUP
-            );
-            log.info("✅ Redis Stream Group 생성 완료");
-        } catch (Exception e) {
-            log.info("ℹ️ Redis Stream Group 이미 존재");
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void pollStream() {
-
-        Consumer consumer =
-                Consumer.from(RedisStreamConfig.OCR_GROUP, "ocr-consumer-1");
-
+    @Override
+    public void run() {
         while (running) {
             try {
-                List<MapRecord<String, Object, Object>> messages =
-                        redisTemplate.opsForStream().read(
-                                consumer,
-                                StreamReadOptions.empty()
-                                        .count(5)
-                                        .block(Duration.ofSeconds(2)),
-                                StreamOffset.create(
-                                        RedisStreamConfig.OCR_STREAM,
-                                        ReadOffset.lastConsumed()
-                                )
-                        );
-
-                if (messages == null || messages.isEmpty()) {
-                    continue;
-                }
-
-                for (MapRecord<String, Object, Object> record : messages) {
-
-                    processMessage(record);
-
-                    redisTemplate.opsForStream().acknowledge(
-                            RedisStreamConfig.OCR_STREAM,
-                            RedisStreamConfig.OCR_GROUP,
-                            record.getId()
-                    );
-                }
-
+                pollStream();
             } catch (Exception e) {
-                log.error("❌ Redis Stream 처리 중 오류", e);
-                sleep();
+                log.error("[OCR-STREAM] polling error", e);
+                sleep(2000);
             }
         }
     }
 
-    private void processMessage(MapRecord<String, Object, Object> record) {
+    private void pollStream() {
 
-        Map<Object, Object> value = record.getValue();
+        List<MapRecord<String, Object, Object>> messages =
+                redisTemplate.opsForStream().read(
+                        Consumer.from(
+                                RedisStreamConfig.OCR_GROUP,
+                                RedisStreamConfig.OCR_CONSUMER
+                        ),
+                        StreamReadOptions.empty()
+                                .block(Duration.ofSeconds(5))
+                                .count(1),
+                        StreamOffset.create(
+                                RedisStreamConfig.OCR_STREAM,
+                                ReadOffset.lastConsumed()
+                        )
+                );
 
-        String userId = (String) value.get("userId");
-        String imagePath = (String) value.get("imagePath");
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
 
-        try {
-            byte[] bytes = Files.readAllBytes(Paths.get(imagePath));
+        for (MapRecord<String, Object, Object> record : messages) {
+            try {
+                handleMessage(record);
 
-            ReceiptDTO receipt =
-                    ocrService.parseReceiptFromBytes(
-                            bytes,
-                            Paths.get(imagePath).getFileName().toString()
-                    );
+                redisTemplate.opsForStream().acknowledge(
+                        RedisStreamConfig.OCR_STREAM,
+                        RedisStreamConfig.OCR_GROUP,
+                        record.getId()
+                );
 
-            if (receipt == null) return;
-
-            receipt.setR_u(userId);
-
-            receiptApplicationService.saveReceiptWithItems(receipt);
-
-        } catch (Exception e) {
-            log.error("❌ OCR 처리 실패: {}", imagePath, e);
+            } catch (Exception e) {
+                log.error("[OCR-STREAM] message 처리 실패 id={}", record.getId(), e);
+            }
         }
     }
 
-    private void sleep() {
+    /* ===============================
+     * 메시지 처리
+     * =============================== */
+    private void handleMessage(MapRecord<String, Object, Object> record) {
+
+        Object receiptObj = record.getValue().get("receipt");
+
+        if (!(receiptObj instanceof ReceiptDTO receipt)) {
+            log.warn("[OCR-STREAM] invalid receipt payload: {}", record.getValue());
+            return;
+        }
+
+        log.info("[OCR-STREAM] saving receipt r_no={}", receipt.getR_no());
+
+        // ✅ DB 저장만 수행
+        receiptApplicationService.saveReceiptWithItems(receipt);
+    }
+
+    /* ===============================
+     * Consumer Group 생성
+     * =============================== */
+    private void createGroupIfNotExists() {
         try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ignored) {}
+            // 1️⃣ Stream 존재 보장 (더미 레코드 1개)
+            redisTemplate.opsForStream().add(
+                    RedisStreamConfig.OCR_STREAM,
+                    Map.of("init", "init")
+            );
+
+            // 2️⃣ Consumer Group 생성 (가장 안정적인 시그니처)
+            redisTemplate.opsForStream().createGroup(
+                    RedisStreamConfig.OCR_STREAM,
+                    RedisStreamConfig.OCR_GROUP
+            );
+
+            log.info("[OCR-STREAM] Consumer group created");
+
+        } catch (Exception e) {
+            log.info("[OCR-STREAM] Consumer group already exists");
+        }
     }
 
     @PreDestroy
     public void shutdown() {
-        log.info("🔻 OCR Stream Consumer 종료");
         running = false;
+        if (worker != null) {
+            worker.interrupt();
+        }
+        log.info("[OCR-STREAM] Consumer stopped");
+    }
+
+    private void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ignored) {
+        }
     }
 }
