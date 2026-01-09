@@ -29,7 +29,7 @@
   height: fit-content;
   max-height: calc(100vh - var(--header-h) - 36px);
   overflow: auto;      
-  padding: 0;
+  padding: 20px;
   border: none;
 }
 
@@ -69,7 +69,7 @@
 }
 
 .mypageContent {
-  padding: 0;
+  padding: 20px;
 }
 
 .mypageHeader {
@@ -93,7 +93,7 @@
 }
 
 .mypageBody {
-  grid-column: 1 / 2;
+  padding: 20px;
 }
 
 .mypageMain {
@@ -141,7 +141,7 @@
 .categoryMini{
   background:#fff;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 10px;
   box-shadow: 0 8px 20px rgba(15,23,42,.06);
   overflow: hidden;
   position: sticky;
@@ -151,7 +151,7 @@
 .categoryMiniTitle{
   margin: 0 0 10px;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 600;
   color: #111827;
 }
 
@@ -199,8 +199,8 @@
 
 .mypageCardMain {
   margin: 4px 0 0;
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
   color: #111827;
 }
 
