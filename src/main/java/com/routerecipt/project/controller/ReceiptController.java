@@ -72,7 +72,7 @@ public class ReceiptController {
 
 	private final ObjectMapper objectMapper;
 	
-	@Autowired
+	
 	private final UserMapper usermapper;
 	
 	/** 영수증 저장/아이템 저장 Mapper */
@@ -218,10 +218,6 @@ public class ReceiptController {
 	     return "redirect:/receipt/receiptRegisterPage";
 	 }
 	 
-	private final ReceiptMapper receiptWriteMapper;
-	    
-    private static final int RECENT_LIMIT = 50; // 최근 50개만 유지
-    private final ConcurrentMap<String, Deque<Long>> recentNosByUser = new ConcurrentHashMap<>();
  
     // =========================
     // 5) 수기 영수증 저장 (부모 receipt + 자식 items)

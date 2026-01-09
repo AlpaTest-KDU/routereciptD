@@ -1,5 +1,11 @@
 package com.routerecipt.project.service;
 
+
+
+
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +21,11 @@ import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.dto.UploadResult;
 import com.routerecipt.project.ocr.OcrService;
 
-import lombok.RequiredArgsConstructor;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReceiptServiceImp implements ReceiptService {
@@ -47,24 +56,51 @@ public class ReceiptServiceImp implements ReceiptService {
         int success = 0;
         int fail = 0;
 
+        log.info("[UPLOAD] START userId={}, fileCount={}",
+                userId, (files == null ? 0 : files.size()));
+
         for (MultipartFile file : files) {
+
+            String fname = (file == null ? "null" : file.getOriginalFilename());
+            long fileStart = System.currentTimeMillis();
+
             try {
                 // 1️⃣ 파일 유효성
                 if (file == null || file.isEmpty()) {
+                    log.warn("[UPLOAD] FILE EMPTY name={}", fname);
                     fail++;
                     continue;
                 }
 
-                // 2️⃣ OCR 호출
+                log.info("[UPLOAD] FILE START name={}, size={}",
+                        fname, file.getSize());
+
+                // 2️⃣ CLOVA OCR 호출
+                long t1 = System.currentTimeMillis();
+                log.info("[OCR] CLOVA CALL START name={}", fname);
+
                 JSONObject json = ocrService.callClovaOCR(file);
+
+                log.info("[OCR] CLOVA CALL END name={}, elapsed={}ms",
+                        fname, System.currentTimeMillis() - t1);
+
                 if (json == null) {
+                    log.warn("[OCR] CLOVA RESULT NULL name={}", fname);
                     fail++;
                     continue;
                 }
 
-                // 3️⃣ OCR 파싱 → ReceiptDTO 생성
+                // 3️⃣ OCR 파싱 + OpenAI 보강
+                long t2 = System.currentTimeMillis();
+                log.info("[OCR] PARSE+ASSIST START name={}", fname);
+
                 ReceiptDTO receipt = ocrService.parseReceiptWithAssist(json, file);
+
+                log.info("[OCR] PARSE+ASSIST END name={}, elapsed={}ms",
+                        fname, System.currentTimeMillis() - t2);
+
                 if (receipt == null) {
+                    log.warn("[OCR] PARSE RESULT NULL name={}", fname);
                     fail++;
                     continue;
                 }
@@ -78,23 +114,37 @@ public class ReceiptServiceImp implements ReceiptService {
                 // 6️⃣ DB 저장 전 item_category 최종 보정
                 applyCategoryFallback(receipt);
 
-                // 7️⃣ 영수증 + 아이템 저장
+                // 7️⃣ DB 저장
+                long t3 = System.currentTimeMillis();
+                log.info("[DB] SAVE START name={}", fname);
+
                 receiptApplicationService.saveReceiptWithItems(receipt);
+
+                log.info("[DB] SAVE END name={}, r_no={}, elapsed={}ms",
+                        fname, receipt.getR_no(),
+                        System.currentTimeMillis() - t3);
 
                 successNos.add(receipt.getR_no());
                 success++;
 
+                log.info("[UPLOAD] FILE SUCCESS name={}, totalElapsed={}ms",
+                        fname, System.currentTimeMillis() - fileStart);
+
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("[UPLOAD] FILE FAIL name={}", fname, e);
                 fail++;
             }
         }
+
+        log.info("[UPLOAD] END userId={}, success={}, fail={}",
+                userId, success, fail);
 
         result.setSuccessReceiptNos(successNos);
         result.setSuccessCount(success);
         result.setFailCount(fail);
         return result;
     }
+
 
     /**
      * item_category NOT NULL 보장을 위한 최종 방어 로직

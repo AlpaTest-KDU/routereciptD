@@ -26,8 +26,8 @@ public class RestTemplateConfig {
     public RestTemplate clovaRestTemplate() {
         SimpleClientHttpRequestFactory factory =
             new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5_000);
-        factory.setReadTimeout(10_000);
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(15000);
         return new RestTemplate(factory);
     }
 }
