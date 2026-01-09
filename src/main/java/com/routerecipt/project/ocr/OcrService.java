@@ -61,8 +61,7 @@ public class OcrService {
     private String clovaSecret;
 
     // CLOVA OCR 호출용 RestTemplate (현재는 new로 생성)
-    private final RestTemplate restTemplate = new RestTemplate();
-
+    private final RestTemplate clovaRestTemplate;
     // OCR 누락 보강용 OpenAI Assist 서비스
     private final OpenAiOcrAssisService openAiOcrAssistService;
 
@@ -425,7 +424,7 @@ public class OcrService {
             HttpEntity<String> request = new HttpEntity<>(body.toString(), headers);
             
             // POST 호출
-            ResponseEntity<String> response = restTemplate.postForEntity(uri, request, String.class);
+            ResponseEntity<String> response = clovaRestTemplate.postForEntity(uri, request, String.class);
 
             String respBody = response.getBody();
             System.out.println("[CLOVA JSON] status=" + response.getStatusCode());
