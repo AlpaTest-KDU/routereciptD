@@ -190,6 +190,7 @@
      th:data-receipts="${receiptsJson}">
 </div>
 
+<div>
 <script>
   var receipts = [];
   (function () {
@@ -306,6 +307,26 @@
   		})();
 		
   		</script>
+  		
+  		<!-- 무한 로딩 방지 init()종료 함수 -->
+  		<script>
+			window.addEventListener("load", function () {
+  				const overlay = document.getElementById("loadingOverlay");
+  				const btn = document.querySelector(".ocrBtn");
+
+  			if (overlay) {
+   			 	overlay.classList.remove("isOpen");
+   				overlay.setAttribute("aria-hidden", "true");
+    			document.body.classList.remove("isLoading");
+  			}
+
+  			if (btn) {
+    		btn.disabled = false;
+    		btn.textContent = "영수증 분석";
+  			}
+		});
+		</script>
+  		
   		
 	</div>
 	
