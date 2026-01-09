@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" th:href="@{/css/userfind.css}">
-<title>Insert title here</title>
+<title>비밀번호 수정</title>
 </head>
 <body>
 	<div layout:fragment="content">
@@ -13,7 +13,7 @@
 		<div class="userFindPage">
 			<div class="userFindArea">
 				<div>
-					<a th:href="@{/}" class="routeceipt">Routeceipt</a>
+					<a th:href="@{/}" class="routeceipt">Routereceipt</a>
 				</div>
 				<form th:action="@{/user/userCheckId}" method="post" th:unless="${verifiedId}">
 					<div class="userFindPw">
