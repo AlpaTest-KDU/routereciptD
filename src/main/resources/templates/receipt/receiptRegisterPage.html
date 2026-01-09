@@ -66,7 +66,7 @@
 		        <h3>영수증 목록</h3>
 		
 		        <div th:each="receipt, stat : ${receipts}">
-		            <button type="button" class="receiptListNo" th:text="${stat.index + 1} + '번 - ' + ${receipt.r_place}"
+		            <button type="button" class="receiptListNo" th:text="${stat.index + 1} + '번 - ' + receipt.r_place"
 		                    th:onclick="|showReceipt(${stat.index})|">
 		            </button>
 		        </div>
