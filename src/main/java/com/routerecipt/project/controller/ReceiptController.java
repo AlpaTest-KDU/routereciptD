@@ -78,11 +78,11 @@ public class ReceiptController {
 	/** 영수증 저장/아이템 저장 Mapper */
 	private final ReceiptMapper receiptmapper;
 	
-	/** 영수증 등록 페이지 관련(현재는 뷰만 반환) */
-	@PostMapping("/receiptRegisterPage/ReceiptRegister")
-	public String receiptRegister() {
-		return "receiptRegisterPage";
-	}
+//	/** 영수증등록관련  */
+//	@PostMapping("/receiptRegisterPage/ReceiptRegister")
+//	public String receiptRegister() {
+//		return "receiptRegisterPage";
+//	}
 	
 	// 영수증 삭제 기능
 	@DeleteMapping("/userInfoShowPage/receiptInfoDelete/{receiptNo}")
