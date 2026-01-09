@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // 5) 나의 평균 vs 전체 평균 (bar)  (6 데이터 사용)
   // -----------------------------
   const avgCanvas = document.getElementById("avgChart");
-  if (avgCanvas) {
+  if (avgCanvas && myAvg > 0) {
     new Chart(avgCanvas, {
       type: "bar",
       data: {
@@ -162,6 +162,30 @@ document.addEventListener("DOMContentLoaded", function () {
         plugins: { legend: { display: false } }
       }
     });
+  } else {
+    new Chart(avgCanvas, {
+      type: "bar",
+      data: {
+        labels: ["전체 평균"],
+        datasets: [{
+          label: "일별 지출 평균",
+          data: [allAvg],
+          backgroundColor: [
+            "rgba(201, 203, 207, 0.7)"
+          ],
+          borderColor: [
+            "rgba(201, 203, 207, 1)"
+          ],
+          borderWidth: 1,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false } }
+      }
+    });
   }
-
 });

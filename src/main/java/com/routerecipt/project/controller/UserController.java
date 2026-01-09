@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.routerecipt.project.service.ReceiptQueryService;
+import com.routerecipt.project.service.ReceiptQueryServiceImp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
@@ -45,12 +47,11 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	private final ReceiptResultService receiptResultService;
+	private final ReceiptQueryServiceImp receiptQueryServiceImp;
 	private final UserServiceImp userServiceImp;
 	private final PasswordEncoder passwordEncoder;
 	private final RedisBloomService bloomService;
-    private final ReceiptApplicationServiceImp usi;
-	private final ReceiptMapper rm;
-	
+
 	// 회원가입 기능
 	@PostMapping("/userSignUp")
 	public String userSignUp(@Valid @ModelAttribute("userDto") Userdto u, BindingResult bindingResult, Model model,
@@ -91,84 +92,7 @@ public class UserController {
 		
 		return "redirect:/";
 	}
-	
-	@GetMapping("/mypage")
-    public String mypage(
-            @RequestParam(value = "yearMonth", required = false) String yearMonth,
-            @RequestParam(value = "day", required = false) Integer day,
-            Principal principal,
-            Model model) {
 
-        // 1️⃣ 로그인 체크
-        if (principal == null) {
-            return "redirect:/";
-        }
-        String r_u = principal.getName();
-
-        // 2️⃣ yearMonth 기본값
-        if (yearMonth == null || yearMonth.isBlank()) {
-            yearMonth = YearMonth.now().toString(); // yyyy-MM
-        }
-
-        YearMonth ym = YearMonth.parse(yearMonth);
-        String prevYearMonth = ym.minusMonths(1).toString();
-
-        log.warn("mypage: yearMonth={}, user={}", yearMonth, r_u);
-
-        // 3️⃣ 이번 달 영수증 조회
-        List<ReceiptDTO> receipts =
-                rm.getSavedReceiptsDate(r_u, prevYearMonth);
-
-        // 4️⃣ menuMap 생성 (🔥 빠져 있던 핵심)
-        Map<String, List<String>> menuMap =
-                usi.buildMenuMap(receipts);
-
-        // 5️⃣ 월 합계
-        int monthTotal = receipts.stream()
-                .mapToInt(ReceiptDTO::getR_price)
-                .sum();
-
-        // 6️⃣ 지난 달 합계
-        List<ReceiptDTO> prevReceipts =
-                usi.getSavedReceiptsDate(r_u, prevYearMonth);
-        log.warn(">>> [CTRL] receipts.size() = {}", receipts.size());
-
-        int prevMonthTotal = prevReceipts.stream()
-                .mapToInt(ReceiptDTO::getR_price)
-                .sum();
-
-        // 7️⃣ 날짜별 그룹핑 (상세 보기용)
-        Map<Integer, List<ReceiptDTO>> grouped = new HashMap<>();
-        for (ReceiptDTO r : receipts) {
-            if (r.getR_date() == null) continue;
-            int d = r.getR_date().getDayOfMonth();
-            grouped.computeIfAbsent(d, k -> new ArrayList<>()).add(r);
-        }
-
-        // 8️⃣ 캘린더
-        List<Integer> calendar = usi.buildCalendar(yearMonth);
-
-        // 9️⃣ 모델에 전부 세팅 (🔥 중요)
-        model.addAttribute("calendar", calendar);
-        model.addAttribute("menuMap", menuMap);
-        model.addAttribute("yearMonth", yearMonth);
-
-        model.addAttribute("monthTotal", monthTotal);
-        model.addAttribute("prevMonthTotal", prevMonthTotal);
-        model.addAttribute("diffTotal", monthTotal - prevMonthTotal);
-
-        // 🔟 날짜 선택 시 상세 데이터
-        if (day != null) {
-            model.addAttribute("selectedDay", day);
-            model.addAttribute(
-                    "selectedReceipts",
-                    grouped.getOrDefault(day, Collections.emptyList())
-            );
-        }
-
-        return "info";
-    }
-	
 	// 회원정보수정 화면
 	@GetMapping("/userInfoUpdatePage")
 	public String userInfoUpdatePage(Authentication authentication, Model model) {

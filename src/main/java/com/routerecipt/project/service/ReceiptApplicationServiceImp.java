@@ -30,7 +30,6 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
 
 
     private final ReceiptCommandService receiptCommandService;
-    private final ReceiptQueryService receiptQueryService;
     private final AiCategoryService aiCategoryService;
     private final AiTrainingItemService aiTrainingItemService;
     private static final Logger log = LoggerFactory.getLogger(ReceiptApplicationServiceImp.class);
@@ -101,32 +100,5 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
 
             aiTrainingItemService.saveTrainingItem(ai);
         }
-    }
-
-    /* ===============================
-     * Read
-     * =============================== */
-    // 특정 사용자/월(yyyyMM)의 영수증 목록 조회
-    @Override
-    public List<ReceiptDTO> getSavedReceiptsDate(String userId, String yearMonth) {
-        return receiptQueryService.getSavedReceiptsDate(userId, yearMonth);
-    }
-
-    // 영수증 목록을 기반으로 화면 출력용 메뉴 맵 구성
-    @Override
-    public Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts) {
-        return receiptQueryService.buildMenuMap(receipts);
-    }
-
-    // 달력 UI 구성을 위한 날짜/칸 데이터 생성
-    @Override
-    public List<Integer> buildCalendar(String yearMonth) {
-        return receiptQueryService.buildCalendar(yearMonth);
-    }
-    
-    // 최근(임시/TEMP) 영수증 목록 조회
-    @Override
-    public List<ReceiptDTO> getRecentReceipts(List<Long> r_no) {
-        return receiptQueryService.getRecentReceipts(r_no);
     }
 }

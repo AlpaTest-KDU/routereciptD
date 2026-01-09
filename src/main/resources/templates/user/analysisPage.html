@@ -34,7 +34,7 @@
 	            <h3>나의 평균 소비 vs 전체 평균</h3>
 	            <div class="avg-box">
 	                <div class="avg-text">
-	                    <div>
+	                    <div th:if="${myAvg > 0}">
 	                        나의 1회 결제 평균 금액:
 	                        <b th:text="${#numbers.formatInteger(myAvg, 0, 'COMMA')} + ' 원'">0 원</b>
 	                    </div>
@@ -50,7 +50,7 @@
 	        </div>
 	
 	    </div>
-	
+
 	    <a href="/" class="btn-back">← 메인으로 돌아가기</a>
 	
 	    <!-- 1) 서버 데이터를 JS 전역 변수로 주입 (4,5,6만) -->
