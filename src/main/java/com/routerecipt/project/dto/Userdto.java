@@ -32,7 +32,7 @@ public class Userdto {
 	private String u_id;
 
 	@NotBlank(message = "비밀번호를 입력해주세요")
-	@Pattern(regexp = "^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*]{6,24}$)", message = "비밀번호는 특수문자를 포함한 6~24자여야 합니다.")
+	@Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{6,24}$", message = "비밀번호는 영문, 숫자, 특수문자를 포함한 6~24자여야 합니다.")
 	private String u_pw;
 
 	@NotBlank(message = "이름을 입력해주세요")

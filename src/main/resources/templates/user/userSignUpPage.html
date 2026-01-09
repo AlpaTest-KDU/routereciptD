@@ -99,7 +99,8 @@
 				const passwordConfirm = document.getElementById("u_pw_confirm");
 				const msg = document.getElementById("pwConfirmMsg");
 				
-				const pwRegex = /^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*]).{6,24}$/;
+				// 영문, 숫자, 특수문자(!@#$%^&*)를 각각 최소 1개 이상 포함, 6~24자
+				const pwRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{6,24}$/;
 				if (pwRegex.test(password.value)) {
 					password.classList.remove('field-error');
 					const pwErrorMsg = password.parentElement.querySelector('.isValidMsg');
