@@ -27,6 +27,7 @@ public class SecurityConfig {
 			// CSRF 설정 (AI API는 예외 처리)
 			 .csrf(csrf -> csrf	
             .ignoringRequestMatchers("/ai/**")
+            .ignoringRequestMatchers("/receipt/uploadReceipt")
         	)
 			// 요청별 접근 권한 설정
 			.authorizeHttpRequests(auth -> auth
