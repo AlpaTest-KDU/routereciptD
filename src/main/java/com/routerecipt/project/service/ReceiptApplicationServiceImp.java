@@ -15,7 +15,6 @@ import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -25,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * - Write(저장/확정)는 CommandService에 위임하고, 필요 시 AI 분류/학습데이터 저장을 함께 수행
  * - Read(조회/달력/메뉴맵/최근 조회)는 QueryService에 위임
  */
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
