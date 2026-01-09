@@ -9,61 +9,63 @@
 </head>
 <body>
 	<div layout:fragment="content">
-	
-		<div class="userFindArea">
-			<div>
-				<a th:href="@{/}" class="routeceipt">Routeceipt</a>
-			</div>
-			<form th:action="@{/user/userCheckId}" method="post" th:unless="${verifiedId}">
-				<div class="userFindPw">
-					<div>
-						<h3>비밀번호 변경</h3>
-						<p>아이디와 이메일을 입력하세요.</p>
-					</div>
-					<div class="findRow">
-						<div class="field">
-							<input id="findPw_id" type="text" name="u_id" placeholder=" " required>
-							<label for="findPw_id">아이디</label>
-						</div>
-						<div class="field">
-							<input id="findPw_email" type="text" name="u_email" placeholder=" " required>
-							<label for="findPw_email">이메일</label>
-						</div>
-						<button type="submit" class="findBtn">재설정</button>
-					</div>
-					<div class="findError" th:if="${idError}">
-		        		<p th:text="${idError}"></p>
-		    		</div>
+		
+		<div class="userFindPage">
+			<div class="userFindArea">
+				<div>
+					<a th:href="@{/}" class="routeceipt">Routeceipt</a>
 				</div>
-			</form>
-					
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				               비밀번호 변경 화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
-			<form th:action="@{/user/userUpdatePw}" method="post" th:if="${verifiedId}">
-				<div class="resetPw">
-					<div>
-						<h3>비밀번호 변경</h3>
-						<p>변경하실 비밀번호를 입력하세요.</p>
-					</div>
-					<div class="resetRow">
-						<input type="hidden" name="u_id" th:value="${verifiedId}">
-						<div class="field">
-							<input id="new_pw" type="password" name="u_pw" placeholder=" " required oninput="checkPwMatch()">
-							<label for="new_pw">새 비밀번호</label>
+				<form th:action="@{/user/userCheckId}" method="post" th:unless="${verifiedId}">
+					<div class="userFindPw">
+						<div>
+							<h3>비밀번호 변경</h3>
+							<p>아이디와 이메일을 입력하세요.</p>
 						</div>
-						<div class="field">
-							<input id="new_pw_confirm" type="password" name="new_pw_confirm" placeholder=" " required oninput="checkPwMatch()">
-							<label for="new_pw_confirm">새 비밀번호 확인</label>
+						<div class="findRow">
+							<div class="field">
+								<input id="findPw_id" type="text" name="u_id" placeholder=" " required>
+								<label for="findPw_id">아이디</label>
+							</div>
+							<div class="field">
+								<input id="findPw_email" type="text" name="u_email" placeholder=" " required>
+								<label for="findPw_email">이메일</label>
+							</div>
+							<button type="submit" class="findBtn">재설정</button>
 						</div>
-						<span id="pwMatchMsg" style="display:block; margin-bottom:10px; font-size:14px;"></span>
-						<button type="submit" class="findBtn" id="changePwBtn" disabled>비밀번호 변경</button>
+						<div class="findError" th:if="${idError}">
+			        		<p th:text="${idError}"></p>
+			    		</div>
 					</div>
-				</div>
-			</form>
+				</form>
+						
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				               비밀번호 변경 화면							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+				<form th:action="@{/user/userUpdatePw}" method="post" th:if="${verifiedId}">
+					<div class="resetPw">
+						<div>
+							<h3>비밀번호 변경</h3>
+							<p>변경하실 비밀번호를 입력하세요.</p>
+						</div>
+						<div class="resetRow">
+							<input type="hidden" name="u_id" th:value="${verifiedId}">
+							<div class="field">
+								<input id="new_pw" type="password" name="u_pw" placeholder=" " required oninput="checkPwMatch()">
+								<label for="new_pw">새 비밀번호</label>
+							</div>
+							<div class="field">
+								<input id="new_pw_confirm" type="password" name="new_pw_confirm" placeholder=" " required oninput="checkPwMatch()">
+								<label for="new_pw_confirm">새 비밀번호 확인</label>
+							</div>
+							<span id="pwMatchMsg" style="display:block; margin-bottom:10px; font-size:14px;"></span>
+							<button type="submit" class="findBtn" id="changePwBtn" disabled>비밀번호 변경</button>
+						</div>
+					</div>
+				</form>
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 <!--│				               비밀번호 변경 화면							      │ -->
 <!--└─────────────────────────────────────────────────────────────────────────────┘ -->			
+			</div>
 		</div>
 		
 		<script th:if="${verifiedId}">

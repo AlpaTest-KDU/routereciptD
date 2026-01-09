@@ -70,6 +70,58 @@
   	min-width: 0;
 }
 
+.fileNameBox {
+  	display: flex;
+  	align-items: center;
+  	height: 44px;
+  	padding: 0 12px;
+  	border-radius: 14px;
+  	border: 1px dashed rgba(79,70,229,.25);
+  	background: rgba(249,250,251,.8);
+  	min-width: 260px;
+  	max-width: 420px;
+  	overflow: hidden;
+}
+
+.fileNamePlaceholder {
+  	font-weight: 700;
+  	color: #6b7280;
+  	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+}
+
+.fileNameList {
+  	display: flex;
+  	gap: 6px;
+  	flex-wrap: nowrap;
+  	overflow: hidden;
+}
+
+.fileChip {
+  	display: inline-flex;
+  	align-items: center;
+  	gap: 6px;
+  	height: 30px;
+  	padding: 0 10px;
+  	border-radius: 999px;
+  	border: 1px solid rgba(79,70,229,.18);
+  	background: #fff;
+  	font-weight: 700;
+  	color: #111827;
+  	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+  	max-width: 220px;
+}
+
+/* 파일이 너무 많을 때 요약 텍스트 */
+.fileMore {
+  	font-weight: 800;
+  	color: #4f46e5;
+ 	white-space: nowrap;
+}
+
 /* 실제 파일 input 숨김(접근성 유지) */
 #receiptFile {
   	position: absolute;
@@ -90,11 +142,11 @@
 .customFileBtn {
   	height: 44px;
   	padding: 0 14px;
-  	border-radius: 14px;
+  	border-radius: 12px;
   	border: 1px solid rgba(79,70,229,.25);
   	background: rgba(255,255,255,.85);
   	color: var(--text);
-  	font-weight: 800;
+  	font-weight: 600;
   	cursor: pointer;
   	display: inline-flex;
   	align-items: center;
@@ -453,4 +505,53 @@
   color: #111827;
   font-weight: 600;
   appearance: auto;       /* 중요 */
+}
+
+.loadingOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15,23,42,.55);
+  backdrop-filter: blur(2px);
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingOverlay.isOpen {
+  display: flex;
+}
+
+.loadingBox {
+  width: min(420px, 92vw);
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px 22px;
+  text-align: center;
+  box-shadow: 0 18px 50px rgba(15,23,42,.12);
+}
+
+/* 로딩 GIF */
+.loadingImage {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 14px;
+}
+
+.loadingTitle {
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.loadingDesc {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* 로딩 중 스크롤 방지 */
+body.isLoading {
+  overflow: hidden;
 }

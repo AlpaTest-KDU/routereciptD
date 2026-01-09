@@ -1,10 +1,32 @@
 @charset "UTF-8";
 
+:root {
+  	--card-w: 520px;
+  	--radius: 20px;
+  	--border: #e5e7eb;
+  	--text: #111827;
+  	--muted: #6b7280;
+  	--bg: #f6f7fb;
+  	--brand: #4f46e5;
+  	--brand2: #4338ca;
+}
+
+.userFindPage {
+    min-height: calc(100vh - var(--header-h, 80px));
+  	padding: 20px 16px 120px;
+  	background:
+    radial-gradient(900px 400px at 20% 10%, rgba(79,70,229,.10), transparent 60%),
+    radial-gradient(700px 350px at 80% 30%, rgba(99,102,241,.10), transparent 55%),
+    var(--bg);
+  	display: grid;
+  	place-items: start center;
+}
+
 .userFindArea {
-    max-width: 520px;
-    margin: 60px auto 157px;
-    padding: 40px 34px;
-    border-radius: 20px;
+    width: min(var(--card-w), 100%);
+  	margin: 0;               
+  	padding: 40px 34px;
+  	border-radius: 20px;
 }
 
 .routeceipt {
@@ -92,11 +114,19 @@
 }
 
 /* 입력 시 라벨 위로 */
-.field input:focus + label {
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label {
   	top: 10px;
   	transform: translateY(0);
   	font-size: 12px;
   	color: #9ca3af;
+}
+
+/* 값 입력후에 라벨 내려오지 않게 */
+.field input:-webkit-autofill + label {
+    top: 10px;
+    transform: translateY(0);
+    font-size: 12px;
 }
 
 .findBtn {

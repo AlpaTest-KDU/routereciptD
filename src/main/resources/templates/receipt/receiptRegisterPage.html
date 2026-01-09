@@ -44,6 +44,11 @@
     			<div class="uploadLeft">
     				<input type="file" id="receiptFile" name="receipt" accept="image/*" multiple required>
     				<label for="receiptFile" class="customFileBtn">파일 선택</label>
+
+					<!-- aria-live="polite": 파일명이 바뀌면 화면에 나옴 -->    				
+					<div id="selectedFileNames" class="fileNameBox" aria-live="polite"> 
+    					<span class="fileNamePlaceholder">선택된 파일 없음</span>
+					</div>
     				
     				<button id="manualBtn" type="button" onclick="openManualModal()">직접 입력하기</button>
     			</div>
@@ -164,6 +169,17 @@
 		    </div>
 		</div>
 		
+		<!-- 로딩 중 화면 -->
+		<div id="loadingOverlay" class="loadingOverlay" aria-hidden="true">
+			<div class="loadingBox">
+				<img th:src="@{/img/loading.gif}" alt="영수증 분석 중" class="loadingImage">
+				<p class="loadingTitle">영수증을 분석 중입니다.</p>
+				<p class="loadingDesc">OCR 분석에는 수 초가 걸릴 수 있습니다. <br>
+				잠시만 기다려주세요.
+				</p>
+			</div>
+		</div>
+		
 		<!-- ===============================
 		     receipts → JS
 		=============================== -->
@@ -216,7 +232,81 @@
     		});
   		})();
   		</script>
-	
+  		
+  		<!-- 로딩창 제어 -->
+		<script>
+    	(function initLoading() {
+      		const form = document.getElementById("uploadForm");
+      		const overlay = document.getElementById("loadingOverlay");
+      		const btn = document.querySelector(".ocrBtn");
+
+      		if (!form || !overlay || !btn) return;
+
+      		form.addEventListener("submit", () => {
+        	overlay.classList.add("isOpen");
+        	overlay.setAttribute("aria-hidden", "false");
+        	document.body.classList.add("isLoading");
+        	btn.disabled = true;
+        	btn.textContent = "분석 중...";
+      		});
+    	})();
+  		</script>
+  		
+  		<!-- 파일명 나오게 하는 스크립트 -->
+  		<script>
+  		(function initSelectedFileNames() {
+  		  const input = document.getElementById("receiptFile");
+  		  const box = document.getElementById("selectedFileNames");
+  		  if (!input || !box) return;
+
+  		  function render(files) {
+  		    box.innerHTML = "";
+
+  		    if (!files || files.length === 0) {
+  		      const span = document.createElement("span");
+  		      span.className = "fileNamePlaceholder";
+  		      span.textContent = "선택된 파일 없음";
+  		      box.appendChild(span);
+  		      return;
+  		    }
+
+  		    // 너무 많이 선택했을 때 UI 깨짐 방지: 앞의 2개만 보여주고 나머지는 +n개
+  		    const MAX_SHOW = 2;
+  		    const list = document.createElement("div");
+  		    list.className = "fileNameList";
+
+  		    const shown = Array.from(files).slice(0, MAX_SHOW);
+  		    shown.forEach((f) => {
+  		      const chip = document.createElement("span");
+  		      chip.className = "fileChip";
+  		      chip.title = f.name; // 마우스 올리면 전체 이름
+  		      chip.textContent = f.name;
+  		      list.appendChild(chip);
+  		    });
+
+  		    if (files.length > MAX_SHOW) {
+  		      const more = document.createElement("span");
+  		      more.className = "fileMore";
+  		      more.textContent = `+${files.length - MAX_SHOW}개`;
+  		      list.appendChild(more);
+  		    }
+
+  		    box.appendChild(list);
+  		  }
+
+  		  // 최초 1회 렌더(혹시 값이 남아있는 케이스)
+  		  render(input.files);
+
+  		  // 파일 선택 시 업데이트
+  		  input.addEventListener("change", () => {
+  		    render(input.files);
+  		  });
+
+  		  // 폼 submit 후 페이지가 그대로 남는 환경(ajax 등) 대비: 필요 시 reset 처리 가능
+  		})();
+		
+  		</script>
+  		
 	</div>
 	
 </body>
