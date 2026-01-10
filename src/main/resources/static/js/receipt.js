@@ -1,5 +1,24 @@
 console.log("receipt.js LOADED");
 
+/* =====================================================
+ * 🔴 로딩 오버레이 강제 해제 (가장 중요)
+ * ===================================================== */
+window.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.getElementById("loadingOverlay");
+  const btn = document.querySelector(".ocrBtn");
+
+  if (overlay) {
+    overlay.classList.remove("isOpen");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("isLoading");
+  }
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = "영수증 분석";
+  }
+});
+
 /* =========================
  * 공통 유틸
  * ========================= */
@@ -50,9 +69,14 @@ function showReceipt(idx) {
  * ========================= */
 function renderItemsByCategory(items) {
   const categoryMap = {
-    FOOD: "음식", MEDICAL: "의료", CLOTHES: "의류",
-    HOME: "주거", LIVING: "생활", CULTURE: "문화",
-    TRAFFIC: "교통", ETC: "기타"
+    FOOD: "음식",
+    MEDICAL: "의료",
+    CLOTHES: "의류",
+    HOME: "주거",
+    LIVING: "생활",
+    CULTURE: "문화",
+    TRAFFIC: "교통",
+    ETC: "기타"
   };
 
   let html = "";
@@ -81,7 +105,8 @@ function renderItemsByCategory(items) {
                    value="${escapeHtmlAttr(it.item_name ?? "")}">
             <input type="number" name="item_prices"
                    value="${Number(it.item_price ?? 0)}"
-                   min="0" oninput="recalcTotalToHidden()">
+                   min="0"
+                   oninput="recalcTotalToHidden()">
             <button type="button" onclick="removeItemRow(this)">삭제</button>
           </li>`;
       });
@@ -90,11 +115,8 @@ function renderItemsByCategory(items) {
     }
   }
 
-  // ✅ 반드시 function 내부, else 바깥
   document.getElementById("categoryArea").innerHTML = html;
 }
-
-
 
 /* =========================
  * 가격 계산
@@ -108,13 +130,18 @@ function removeItemRow(btn) {
 function recalcTotalToHidden() {
   var total = 0;
   var prices = document.querySelectorAll('#confirmForm input[name="item_prices"]');
+
   for (var i = 0; i < prices.length; i++) {
     total += Number(prices[i].value || 0);
   }
+
   document.getElementById("priceText").textContent = total.toLocaleString();
   document.getElementById("rPriceInput").value = total;
 }
 
+/* =========================
+ * 확정 전 검증
+ * ========================= */
 function beforeSubmitConfirm() {
   const rows = document.querySelectorAll('#confirmForm .item-row');
 
@@ -123,7 +150,6 @@ function beforeSubmitConfirm() {
     return false;
   }
 
-  // 🔒 강제 동기화 검사
   rows.forEach(row => {
     const name  = row.querySelector('[name="item_names"]');
     const price = row.querySelector('[name="item_prices"]');
@@ -134,7 +160,6 @@ function beforeSubmitConfirm() {
       throw new Error("item row broken");
     }
 
-    // 숫자 보정
     price.value = Number(price.value || 0);
   });
 
