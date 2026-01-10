@@ -1,10 +1,16 @@
 package com.routerecipt.project.service;
 
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +21,6 @@ import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.dto.UploadResult;
 import com.routerecipt.project.ocr.OcrService;
-
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -276,5 +281,32 @@ public class ReceiptServiceImp implements ReceiptService {
      */
     private String safe(String s) {
         return (s == null) ? "" : s.trim();
+    }
+    
+    @Value("${receipt.upload.temp-dir}")
+    private String uploadDir;
+    
+    @Override
+    public List<String> saveTempFiles(List<MultipartFile> files) {
+
+        List<String> paths = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) continue;
+
+            try {
+                String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                Path target = Paths.get(uploadDir, filename);
+
+                Files.createDirectories(target.getParent());
+                Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+                paths.add(target.toString());
+
+            } catch (Exception e) {
+                throw new RuntimeException("파일 저장 실패", e);
+            }
+        }
+        return paths;
     }
 }

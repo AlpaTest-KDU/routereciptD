@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import com.routerecipt.project.OpenAI.OpenAiReceiptResult;
 import com.routerecipt.project.dto.ByteArrayMultiPartFile;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
+import com.routerecipt.project.service.ReceiptApplicationService;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +70,8 @@ public class OcrService {
     private final RestTemplate clovaRestTemplate;
     // OCR 누락 보강용 OpenAI Assist 서비스
     private final OpenAiOcrAssisService openAiOcrAssistService;
+    
+    private final ReceiptApplicationService receiptApplicationService;
 
 
     /**
@@ -655,27 +661,31 @@ public class OcrService {
     
     // 7) byte[] 로부터 OCR 처리하기(내부 재사용용)
     // byte[]를 MultipartFile로 감싸서 CLOVA OCR -> 파싱/보강까지 수행
-    public ReceiptDTO parseReceiptFromBytes(byte[] bytes, String filename) {
 
+    public ReceiptDTO processReceiptFromImagePath(String imagePath) {
         try {
-        	// byte[] -> MultipartFile 어댑터로 래핑
-            MultipartFile multipartFile =
-                    new ByteArrayMultiPartFile(
-                            bytes,          // ✅ byte[] 반드시 필요
-                            filename,       // name
-                            "image/jpeg"    // contentType
-                    );
-            
-            // CLOVA OCR 호출
-            JSONObject json = callClovaOCR(multipartFile);
+            Path path = Paths.get(imagePath);
+
+            if (!Files.exists(path)) {
+                log.error("[OCR] IMAGE FILE NOT FOUND path={}", imagePath);
+                return null;
+            }
+
+            byte[] bytes = Files.readAllBytes(path);
+            String filename = path.getFileName().toString();
+
+            MultipartFile file =
+                new ByteArrayMultiPartFile(bytes, filename, "image/jpeg");
+
+            JSONObject json = callClovaOCR(file);
             if (json == null) return null;
-            
-            // 파싱 + 누락 보강
-            return parseReceiptWithAssist(json, multipartFile);
+
+            return parseReceiptWithAssist(json, file);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[OCR] FAILED TO PROCESS IMAGE path={}", imagePath, e);
             return null;
         }
     }
+
 }

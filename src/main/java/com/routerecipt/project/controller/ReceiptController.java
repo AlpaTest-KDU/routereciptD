@@ -5,12 +5,8 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routerecipt.project.dto.ItemCategory;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
-import com.routerecipt.project.dto.UploadResult;
 import com.routerecipt.project.dto.Userdto;
 import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.mapper.UserMapper;
@@ -37,6 +32,7 @@ import com.routerecipt.project.service.ReceiptAnalyzeService;
 import com.routerecipt.project.service.ReceiptApplicationService;
 import com.routerecipt.project.service.ReceiptQueryService;
 import com.routerecipt.project.service.ReceiptService;
+import com.routerecipt.project.stream.OcrStreamProducer;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +74,8 @@ public class ReceiptController {
 	/** 영수증 저장/아이템 저장 Mapper */
 	private final ReceiptMapper receiptmapper;
 	
+	private final OcrStreamProducer ocrStreamProducer;
+	
 //	/** 영수증등록관련  */
 //	@PostMapping("/receiptRegisterPage/ReceiptRegister")
 //	public String receiptRegister() {
@@ -99,52 +97,34 @@ public class ReceiptController {
 	// =========================
     // 1) 업로드 분석: 여러 장 업로드 (OCR + 저장)
     // =========================
-	 @PostMapping("/uploadReceipt")
-	    public String uploadReceipt(
-	            @RequestParam("receipt") List<MultipartFile> files,
-	            Principal principal,
-	            HttpSession session,
-	            RedirectAttributes ra) {
+	@PostMapping("/uploadReceipt")
+	public String uploadReceipt(
+	        @RequestParam("receipt") List<MultipartFile> files,
+	        Principal principal,
+	        RedirectAttributes ra
+	) {
+	    if (principal == null) {
+	        return "redirect:/login";
+	    }
 
-	        // 1️⃣ 로그인 체크
-	        if (principal == null) {
-	            return "redirect:/login";
-	        }
-
-	        // 2️⃣ 파일 유효성 체크
-	        if (files == null || files.isEmpty()) {
-	            ra.addFlashAttribute("saveMsg", "파일을 선택해 주세요.");
-	            return "redirect:/receipt/receiptRegisterPage";
-	        }
-
-
-	        // 3️⃣ Service 호출 (OCR + 저장 + 부분 성공 처리)
-	        UploadResult result =
-	                receiptService.uploadReceipts(files, principal.getName());
-
-	        // 4️⃣ 결과 분기
-	        if (result.isAllFailed()) {
-	            ra.addFlashAttribute("saveMsg", "모든 영수증 분석에 실패했습니다.");
-	            return "redirect:/receipt/receiptRegisterPage";
-	        }
-
-	        // 성공한 영수증 번호 세션 저장
-	        session.setAttribute("recentReceiptNos",
-	                result.getSuccessReceiptNos());
-
-	        // 부분 성공 메시지 처리
-	        if (result.isPartialSuccess()) {
-	            ra.addFlashAttribute(
-	                "saveMsg",
-	                "일부 영수증만 분석되었습니다. (성공 "
-	                + result.getSuccessCount() + "건)"
-	            );
-	        } else {
-	            ra.addFlashAttribute("saveMsg", "영수증 분석이 완료되었습니다.");
-	        }
-
+	    if (files == null || files.isEmpty()) {
+	        ra.addFlashAttribute("saveMsg", "파일을 선택해 주세요.");
 	        return "redirect:/receipt/receiptRegisterPage";
 	    }
+
+	    String userId = principal.getName();
+
+	    // ✅ 1️⃣ 파일 저장만 수행 (OCR ❌)
+	    List<String> imagePaths = receiptService.saveTempFiles(files);
+
+	    // ✅ 2️⃣ Redis Stream에 OCR 요청 발행
+	    for (String path : imagePaths) {
+	        ocrStreamProducer.publishOcrEvent(userId, path);
+	    }
+
+	    ra.addFlashAttribute("saveMsg", "영수증 분석을 시작했습니다.");
+	    return "redirect:/receipt/receiptRegisterPage";
+	}
 
     // =========================
     // 2) 페이지 조회: "이번에 분석한 것만" 보여주기

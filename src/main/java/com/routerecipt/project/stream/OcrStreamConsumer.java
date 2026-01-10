@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -16,10 +14,12 @@ import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.config.RedisStreamConfig;
 import com.routerecipt.project.dto.ReceiptDTO;
+import com.routerecipt.project.ocr.OcrService;
 import com.routerecipt.project.service.ReceiptApplicationService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 📌 OcrStreamConsumer
@@ -37,34 +37,31 @@ import jakarta.annotation.PreDestroy;
 
 
 @Service
+@Slf4j
 public class OcrStreamConsumer implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(OcrStreamConsumer.class);
-
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final OcrService ocrService;
     private final ReceiptApplicationService receiptApplicationService;
 
     private volatile boolean running = true;
     private Thread worker;
 
     public OcrStreamConsumer(
-            RedisTemplate<String, Object> redisTemplate,
+            RedisTemplate<String, String> redisTemplate,
+            OcrService ocrService,
             ReceiptApplicationService receiptApplicationService
     ) {
         this.redisTemplate = redisTemplate;
+        this.ocrService = ocrService;
         this.receiptApplicationService = receiptApplicationService;
     }
 
-    /* ===============================
-     * Consumer 시작
-     * =============================== */
     @PostConstruct
     public void start() {
         createGroupIfNotExists();
-
         worker = new Thread(this, "ocr-stream-consumer");
         worker.start();
-
         log.info("[OCR-STREAM] Consumer started");
     }
 
@@ -72,106 +69,87 @@ public class OcrStreamConsumer implements Runnable {
     public void run() {
         while (running) {
             try {
-                pollStream();
+                poll();
             } catch (Exception e) {
-                log.error("[OCR-STREAM] polling error", e);
+                log.error("[OCR-STREAM] error", e);
                 sleep(2000);
             }
         }
     }
 
-    private void pollStream() {
+    private void poll() {
+        List<MapRecord<String, Object, Object>> records =
+            redisTemplate.opsForStream().read(
+                Consumer.from(
+                    RedisStreamConfig.OCR_GROUP,
+                    RedisStreamConfig.OCR_CONSUMER
+                ),
+                StreamReadOptions.empty()
+                    .block(Duration.ofSeconds(5))
+                    .count(1),
+                StreamOffset.create(
+                    RedisStreamConfig.OCR_STREAM,
+                    ReadOffset.lastConsumed()
+                )
+            );
 
-        List<MapRecord<String, Object, Object>> messages =
-                redisTemplate.opsForStream().read(
-                        Consumer.from(
-                                RedisStreamConfig.OCR_GROUP,
-                                RedisStreamConfig.OCR_CONSUMER
-                        ),
-                        StreamReadOptions.empty()
-                                .block(Duration.ofSeconds(5))
-                                .count(1),
-                        StreamOffset.create(
-                                RedisStreamConfig.OCR_STREAM,
-                                ReadOffset.lastConsumed()
-                        )
-                );
+        if (records == null) return;
 
-        if (messages == null || messages.isEmpty()) {
-            return;
-        }
-
-        for (MapRecord<String, Object, Object> record : messages) {
+        for (MapRecord<String, Object, Object> record : records) {
             try {
-                handleMessage(record);
-
+                handle(record);
                 redisTemplate.opsForStream().acknowledge(
-                        RedisStreamConfig.OCR_STREAM,
-                        RedisStreamConfig.OCR_GROUP,
-                        record.getId()
+                    RedisStreamConfig.OCR_STREAM,
+                    RedisStreamConfig.OCR_GROUP,
+                    record.getId()
                 );
-
             } catch (Exception e) {
-                log.error("[OCR-STREAM] message 처리 실패 id={}", record.getId(), e);
+                log.error("[OCR-STREAM] 처리 실패 id={}", record.getId(), e);
             }
         }
     }
 
-    /* ===============================
-     * 메시지 처리
-     * =============================== */
-    private void handleMessage(MapRecord<String, Object, Object> record) {
+    private void handle(MapRecord<String, Object, Object> record) {
 
-        Object receiptObj = record.getValue().get("receipt");
+        String userId = (String) record.getValue().get("userId");
+        String imagePath = (String) record.getValue().get("imagePath");
 
-        if (!(receiptObj instanceof ReceiptDTO receipt)) {
-            log.warn("[OCR-STREAM] invalid receipt payload: {}", record.getValue());
+        log.info("[OCR-STREAM] OCR START image={}", imagePath);
+
+        ReceiptDTO receipt =
+            ocrService.processReceiptFromImagePath(imagePath);
+
+        if (receipt == null) {
+            log.error("[OCR-STREAM] OCR FAILED image={}", imagePath);
             return;
         }
 
-        log.info("[OCR-STREAM] saving receipt r_no={}", receipt.getR_no());
-
-        // ✅ DB 저장만 수행
+        receipt.setR_u(userId);
         receiptApplicationService.saveReceiptWithItems(receipt);
     }
 
-    /* ===============================
-     * Consumer Group 생성
-     * =============================== */
+
     private void createGroupIfNotExists() {
         try {
-            // 1️⃣ Stream 존재 보장 (더미 레코드 1개)
             redisTemplate.opsForStream().add(
-                    RedisStreamConfig.OCR_STREAM,
-                    Map.of("init", "init")
+                RedisStreamConfig.OCR_STREAM,
+                Map.of("init", "init")
             );
-
-            // 2️⃣ Consumer Group 생성 (가장 안정적인 시그니처)
             redisTemplate.opsForStream().createGroup(
-                    RedisStreamConfig.OCR_STREAM,
-                    RedisStreamConfig.OCR_GROUP
+                RedisStreamConfig.OCR_STREAM,
+                RedisStreamConfig.OCR_GROUP
             );
-
-            log.info("[OCR-STREAM] Consumer group created");
-
-        } catch (Exception e) {
-            log.info("[OCR-STREAM] Consumer group already exists");
-        }
+        } catch (Exception ignored) {}
     }
 
     @PreDestroy
     public void shutdown() {
         running = false;
-        if (worker != null) {
-            worker.interrupt();
-        }
-        log.info("[OCR-STREAM] Consumer stopped");
+        if (worker != null) worker.interrupt();
     }
 
     private void sleep(long ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException ignored) {
-        }
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
     }
 }
+
