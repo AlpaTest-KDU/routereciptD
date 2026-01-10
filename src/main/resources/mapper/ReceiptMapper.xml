@@ -222,7 +222,7 @@
   </foreach>
 </insert>
 
-<select id="selectRecentReceiptsByUser" resultMap="ReceiptResultMap">
+<select id="selectRecentReceiptsByUser" resultMap="ReceiptMap">
     SELECT r.*
     FROM recipt r
     WHERE r.r_u = #{userId}
