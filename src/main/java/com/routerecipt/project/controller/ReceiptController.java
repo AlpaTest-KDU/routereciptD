@@ -2,6 +2,7 @@ package com.routerecipt.project.controller;
 
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import com.routerecipt.project.service.ReceiptQueryService;
 import com.routerecipt.project.service.ReceiptService;
 import com.routerecipt.project.stream.OcrStreamProducer;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,26 +55,25 @@ public class ReceiptController {
     public String uploadReceipt(
             @RequestParam("receipt") List<MultipartFile> files,
             Principal principal,
+            HttpSession session,
             RedirectAttributes ra
     ) {
-        if (principal == null) {
-            return "redirect:/login";
-        }
-
-        if (files == null || files.isEmpty()) {
-            ra.addFlashAttribute("saveMsg", "파일을 선택해 주세요.");
-            return "redirect:/receipt/receiptRegisterPage";
-        }
+        if (principal == null) return "redirect:/login";
 
         String userId = principal.getName();
 
-        // ✅ 1) 파일 임시 저장
+        // 1️⃣ 임시 파일 저장
         List<String> imagePaths = receiptService.saveTempFiles(files);
 
-        // ✅ 2) Redis Stream에 OCR 이벤트 발행
+        // 2️⃣ receipt 생성 + receipt_id 확보
+        List<Long> receiptIds = receiptService.createPendingReceipts(userId, imagePaths);
+
+        // 3️⃣ 세션에 저장 (⭐ 핵심)
+        session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
+
+        // 4️⃣ OCR 이벤트 발행
         for (String path : imagePaths) {
             ocrStreamProducer.publishOcrEvent(userId, path);
-            log.info("[OCR-ASYNC] publish userId={}, path={}", userId, path);
         }
 
         ra.addFlashAttribute("saveMsg", "영수증 분석을 시작했습니다.");
@@ -83,22 +84,27 @@ public class ReceiptController {
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
     // =========================
     @GetMapping("/receiptRegisterPage")
-    public String receiptRegisterPage(Principal principal,
-                                      Model model) throws JsonProcessingException {
+    public String receiptRegisterPage(
+            Principal principal,
+            HttpSession session,
+            Model model
+    ) throws JsonProcessingException {
 
         if (principal == null) return "redirect:/login";
 
-        String userId = principal.getName();
+        @SuppressWarnings("unchecked")
+        List<Long> receiptIds =
+            (List<Long>) session.getAttribute("CURRENT_RECEIPT_IDS");
 
-        // ✅ DB 기준 최근 영수증 조회 (비동기 대응)
-        List<ReceiptDTO> receipts =
-                receiptQueryService.getRecentReceiptsByUser(userId, 20);
+        List<ReceiptDTO> receipts = Collections.emptyList();
 
-        String receiptsJson =
-                objectMapper.writeValueAsString(receipts);
+        if (receiptIds != null && !receiptIds.isEmpty()) {
+            receipts = receiptQueryService.getReceiptsByIds(receiptIds);
+        }
 
         model.addAttribute("receipts", receipts);
-        model.addAttribute("receiptsJson", receiptsJson);
+        model.addAttribute("receiptsJson",
+                objectMapper.writeValueAsString(receipts));
 
         return "receipt/receiptRegisterPage";
     }

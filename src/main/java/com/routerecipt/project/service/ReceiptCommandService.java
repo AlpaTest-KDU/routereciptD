@@ -34,4 +34,6 @@ public interface ReceiptCommandService {
     void updateOcrStatus(Long r_no, String status);
 
     void updateOcrStatusByImagePath(String imagePath, String status);
+    
+    void insertPendingReceipt(ReceiptDTO receipt);
 }

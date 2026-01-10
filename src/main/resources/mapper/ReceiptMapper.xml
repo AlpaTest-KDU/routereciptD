@@ -15,7 +15,10 @@
         <result property="r_price" column="r_price"/>
         <result property="r_date" column="r_date"
                 javaType="java.time.LocalDate"/>
-
+		
+		<result property="imagePath" column="image_path"/>
+   		<result property="ocr_status" column="ocr_status"/>
+		
         <!-- user -->
         <result property="gender" column="gender"/>
 
@@ -160,6 +163,8 @@
   <result property="r_price" column="r_price"/>
   <result property="r_date" column="r_date" javaType="java.time.LocalDate"/>
   <result property="gender" column="gender"/>
+  <result property="imagePath" column="image_path"/>
+  <result property="ocr_status" column="ocr_status"/>
 </resultMap>
 
 <!-- Item 단건 -->
@@ -231,16 +236,44 @@
 </select>
 
 <update id="updateOcrStatus">
-    UPDATE receipt
+    UPDATE recipt
     SET ocr_status = #{status}
     WHERE r_no = #{r_no}
 </update>
 
 <update id="updateOcrStatusByImagePath">
-    UPDATE receipt
+    UPDATE recipt
     SET ocr_status = #{status}
     WHERE image_path = #{imagePath}
 </update>
+
+<insert id="insertPendingReceipt"
+        parameterType="com.routerecipt.project.dto.ReceiptDTO"
+        useGeneratedKeys="true"
+        keyProperty="r_no"
+        keyColumn="r_no">
+
+    INSERT INTO recipt
+    (
+        r_u,
+        image_path,
+        ocr_status
+    )
+    VALUES
+    (
+        #{r_u},
+        #{imagePath},
+        #{ocr_status}
+    )
+</insert>
+
+<select id="selectReceiptByImagePath"
+        parameterType="string"
+        resultMap="ReceiptMap">
+    SELECT *
+    FROM recipt
+    WHERE image_path = #{imagePath}
+</select>
 
 
 </mapper>

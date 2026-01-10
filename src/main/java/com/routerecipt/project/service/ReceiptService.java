@@ -24,11 +24,23 @@ public interface ReceiptService {
      * @return 저장된 이미지 경로 목록
      */
     List<String> saveTempFiles(List<MultipartFile> files);
+    
+    /**
+     * ✅ 임시 receipt(PENDING) 생성
+     * - OCR ❌
+     * - item 생성 ❌
+     * - 상태만 PENDING
+     *
+     * @return 생성된 receipt_id 목록
+     */
+    
 
     /**
      * ❌ (비동기 전환 후 사용 중단 예정)
      * @deprecated 동기 OCR 구조용 메서드
      */
-    @Deprecated
+    
     UploadResult uploadReceipts(List<MultipartFile> files, String userId);
+    
+    
 }

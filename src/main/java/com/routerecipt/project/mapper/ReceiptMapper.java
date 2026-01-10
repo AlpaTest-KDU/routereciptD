@@ -181,4 +181,6 @@ public interface ReceiptMapper {
     void updateOcrStatusByImagePath(@Param("imagePath") String imagePath,
             @Param("status") String status);
     
+    void insertPendingReceipt(ReceiptDTO receipt);
+    
 }
