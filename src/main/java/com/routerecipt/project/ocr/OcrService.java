@@ -662,7 +662,7 @@ public class OcrService {
     // 7) byte[] 로부터 OCR 처리하기(내부 재사용용)
     // byte[]를 MultipartFile로 감싸서 CLOVA OCR -> 파싱/보강까지 수행
 
-    public ReceiptDTO processReceiptFromImagePath(String imagePath) {
+    public ReceiptDTO processReceiptFromImagePath(String imagePath, String userId) {
         try {
             Path path = Paths.get(imagePath);
 
@@ -680,12 +680,18 @@ public class OcrService {
             JSONObject json = callClovaOCR(file);
             if (json == null) return null;
 
-            return parseReceiptWithAssist(json, file);
+            ReceiptDTO receipt = parseReceiptWithAssist(json, file);
+            if (receipt == null) return null;
+
+            receipt.setR_u(userId); // ✅ 여기서 확정
+
+            return receipt;
 
         } catch (Exception e) {
             log.error("[OCR] FAILED TO PROCESS IMAGE path={}", imagePath, e);
             return null;
         }
     }
+
 
 }

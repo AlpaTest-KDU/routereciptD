@@ -111,23 +111,25 @@ public class OcrStreamConsumer implements Runnable {
 
     private void handle(MapRecord<String, Object, Object> record) {
 
-        String userId = (String) record.getValue().get("userId");
-        String imagePath = (String) record.getValue().get("imagePath");
+        Map<Object, Object> value = record.getValue();
+
+        String userId = (String) value.get("userId");
+        String imagePath = (String) value.get("imagePath");
 
         log.info("[OCR-STREAM] OCR START image={}", imagePath);
 
         ReceiptDTO receipt =
-            ocrService.processReceiptFromImagePath(imagePath);
+            ocrService.processReceiptFromImagePath(imagePath, userId);
 
         if (receipt == null) {
             log.error("[OCR-STREAM] OCR FAILED image={}", imagePath);
             return;
         }
 
-        receipt.setR_u(userId);
         receiptApplicationService.saveReceiptWithItems(receipt);
-    }
 
+        log.info("[OCR-STREAM] OCR DONE r_no={}", receipt.getR_no());
+    }
 
     private void createGroupIfNotExists() {
         try {
