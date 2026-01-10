@@ -133,10 +133,11 @@ public class OcrStreamConsumer implements Runnable {
 
     private void createGroupIfNotExists() {
         try {
-            redisTemplate.opsForStream().add(
-                RedisStreamConfig.OCR_STREAM,
-                Map.of("init", "init")
-            );
+        	redisTemplate.opsForStream().createGroup(
+                    RedisStreamConfig.OCR_STREAM,
+                    ReadOffset.latest(),
+                    RedisStreamConfig.OCR_GROUP
+                );
             redisTemplate.opsForStream().createGroup(
                 RedisStreamConfig.OCR_STREAM,
                 RedisStreamConfig.OCR_GROUP
