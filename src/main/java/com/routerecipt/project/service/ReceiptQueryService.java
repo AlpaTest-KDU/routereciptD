@@ -27,5 +27,7 @@ public interface ReceiptQueryService {
     // 최근(임시) 영수증 + 아이템
 	List<ReceiptDTO> getRecentReceipts(List<Long> r_no);
 	MyPageSummaryDTO getMyPageSummary(String userId);
+	
+	List<ReceiptDTO> getRecentReceiptsByUser(String userId, int limit);
 
 }

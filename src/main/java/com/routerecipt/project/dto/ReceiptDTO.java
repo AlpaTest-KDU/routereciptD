@@ -29,4 +29,6 @@ public class ReceiptDTO {
 	private Gender gender;					// 사용자 성별
 	
 	private List<ReceiptItemDTO> items;		// 영수증에 포함된 상품(아이템) 목록
+	
+	private String ocr_status;
 }

@@ -169,4 +169,33 @@ public class ReceiptApplicationServiceImp implements ReceiptApplicationService {
     public List<ReceiptDTO> getRecentReceipts(List<Long> r_no) {
         return receiptQueryService.getRecentReceipts(r_no);
     }
+    
+    @Override
+    @Transactional
+    public void updateOcrStatus(Long r_no, String status) {
+
+        if (r_no == null || status == null) {
+            log.warn("[OCR-STATUS] update skipped r_no={}, status={}", r_no, status);
+            return;
+        }
+
+        log.info("[OCR-STATUS] UPDATE r_no={}, status={}", r_no, status);
+
+        receiptCommandService.updateOcrStatus(r_no, status);
+    }
+    
+    @Override
+    @Transactional
+    public void updateOcrStatusByImagePath(String imagePath, String status) {
+
+        if (imagePath == null || imagePath.isBlank() || status == null) {
+            log.warn("[OCR-STATUS] updateByPath skipped imagePath={}, status={}",
+                     imagePath, status);
+            return;
+        }
+
+        log.info("[OCR-STATUS] UPDATE imagePath={}, status={}", imagePath, status);
+
+        receiptCommandService.updateOcrStatusByImagePath(imagePath, status);
+    }
 }

@@ -89,4 +89,14 @@ public class ReceiptCommandServiceImp implements ReceiptCommandService {
         // 3) 새 items insert
         receiptMapper.insertItemsBatch(r_no, item_names, item_prices, item_categories);
     }
+    
+    @Override
+    public void updateOcrStatus(Long r_no, String status) {
+        receiptMapper.updateOcrStatus(r_no, status);
+    }
+
+    @Override
+    public void updateOcrStatusByImagePath(String imagePath, String status) {
+        receiptMapper.updateOcrStatusByImagePath(imagePath, status);
+    }
 }

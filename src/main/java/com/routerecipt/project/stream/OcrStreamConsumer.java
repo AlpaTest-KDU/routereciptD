@@ -1,5 +1,7 @@
 package com.routerecipt.project.stream;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,7 @@ import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.config.RedisStreamConfig;
@@ -76,10 +79,15 @@ public class OcrStreamConsumer implements Runnable {
             }
         }
     }
+    
+    private StreamOperations<String, String, String> streamOps() {
+        return redisTemplate.opsForStream();
+    }
 
     private void poll() {
-        List<MapRecord<String, Object, Object>> records =
-            redisTemplate.opsForStream().read(
+
+        List<MapRecord<String, String, String>> records =
+            streamOps().read(
                 Consumer.from(
                     RedisStreamConfig.OCR_GROUP,
                     RedisStreamConfig.OCR_CONSUMER
@@ -93,12 +101,12 @@ public class OcrStreamConsumer implements Runnable {
                 )
             );
 
-        if (records == null) return;
+        if (records == null || records.isEmpty()) return;
 
-        for (MapRecord<String, Object, Object> record : records) {
+        for (MapRecord<String, String, String> record : records) {
             try {
                 handle(record);
-                redisTemplate.opsForStream().acknowledge(
+                streamOps().acknowledge(
                     RedisStreamConfig.OCR_STREAM,
                     RedisStreamConfig.OCR_GROUP,
                     record.getId()
@@ -109,27 +117,62 @@ public class OcrStreamConsumer implements Runnable {
         }
     }
 
-    private void handle(MapRecord<String, Object, Object> record) {
 
-        Map<Object, Object> value = record.getValue();
+    private void handle(MapRecord<String, String, String> record) {
 
-        String userId = (String) value.get("userId");
-        String imagePath = (String) value.get("imagePath");
+        Map<String, String> value = record.getValue();
 
-        log.info("[OCR-STREAM] OCR START image={}", imagePath);
+        String userId = value.get("userId");
+        String imagePath = value.get("imagePath");
 
-        ReceiptDTO receipt =
-            ocrService.processReceiptFromImagePath(imagePath, userId);
-
-        if (receipt == null) {
-            log.error("[OCR-STREAM] OCR FAILED image={}", imagePath);
+        if (userId == null || imagePath == null) {
+            log.error("[OCR-STREAM] INVALID PAYLOAD {}", value);
             return;
         }
 
-        receiptApplicationService.saveReceiptWithItems(receipt);
+        log.info("[OCR-STREAM] OCR START userId={}, image={}", userId, imagePath);
 
-        log.info("[OCR-STREAM] OCR DONE r_no={}", receipt.getR_no());
+        try {
+            ReceiptDTO receipt =
+                ocrService.processReceiptFromImagePath(imagePath, userId);
+
+            // ❌ OCR 실패 (결과 없음)
+            if (receipt == null) {
+                receiptApplicationService.updateOcrStatusByImagePath(
+                    imagePath, "FAILED"
+                );
+                log.error("[OCR-STREAM] OCR FAILED image={}", imagePath);
+                return;
+            }
+
+            // ✅ OCR 성공 → 저장
+            receiptApplicationService.saveReceiptWithItems(receipt);
+
+            // ✅ 상태 DONE 확정
+            receiptApplicationService.updateOcrStatus(
+                receipt.getR_no(), "DONE"
+            );
+
+            // ✅ 성공 시에만 temp 파일 삭제
+            try {
+                Files.deleteIfExists(Paths.get(imagePath));
+            } catch (Exception e) {
+                log.warn("[OCR-STREAM] TEMP FILE DELETE FAIL path={}", imagePath, e);
+            }
+
+            log.info("[OCR-STREAM] OCR DONE r_no={}", receipt.getR_no());
+
+        } catch (Exception e) {
+            // ❌ 예외도 OCR 실패로 처리
+            receiptApplicationService.updateOcrStatusByImagePath(
+                imagePath, "FAILED"
+            );
+            log.error("[OCR-STREAM] EXCEPTION image={}", imagePath, e);
+        }
     }
+
+
+
 
     private void createGroupIfNotExists() {
         try {

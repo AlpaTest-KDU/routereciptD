@@ -27,4 +27,11 @@ public interface ReceiptCommandService {
             List<Integer> item_prices,
             List<String> item_categories
     );
+    
+ // =========================
+    // OCR 상태 변경 (비동기 전용)
+    // =========================
+    void updateOcrStatus(Long r_no, String status);
+
+    void updateOcrStatusByImagePath(String imagePath, String status);
 }

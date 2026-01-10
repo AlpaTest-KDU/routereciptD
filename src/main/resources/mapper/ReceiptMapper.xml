@@ -222,7 +222,25 @@
   </foreach>
 </insert>
 
+<select id="selectRecentReceiptsByUser" resultMap="ReceiptResultMap">
+    SELECT r.*
+    FROM recipt r
+    WHERE r.r_u = #{userId}
+    ORDER BY r.r_no DESC
+    LIMIT #{limit}
+</select>
 
+<update id="updateOcrStatus">
+    UPDATE receipt
+    SET ocr_status = #{status}
+    WHERE r_no = #{r_no}
+</update>
+
+<update id="updateOcrStatusByImagePath">
+    UPDATE receipt
+    SET ocr_status = #{status}
+    WHERE image_path = #{imagePath}
+</update>
 
 
 </mapper>
