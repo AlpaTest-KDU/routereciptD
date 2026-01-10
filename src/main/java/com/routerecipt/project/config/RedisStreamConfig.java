@@ -26,9 +26,9 @@ public class RedisStreamConfig {
     public static final String OCR_GROUP  = "ocr-group";
     public static final String OCR_CONSUMER = "ocr-consumer-1";
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public RedisStreamConfig(RedisTemplate<String, Object> redisTemplate) {
+    public RedisStreamConfig(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
