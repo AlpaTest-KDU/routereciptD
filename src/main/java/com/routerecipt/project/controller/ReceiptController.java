@@ -82,7 +82,7 @@ public class ReceiptController {
     // =========================
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
     // =========================
-    @GetMapping("/receipt/receiptRegisterPage")
+    @GetMapping("/receiptRegisterPage")
     public String receiptRegisterPage(Principal principal,
                                       Model model) throws JsonProcessingException {
 
