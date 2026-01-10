@@ -68,6 +68,12 @@
     <div id="receiptList"
          class="receiptList"
          th:if="${receipts != null and !receipts.isEmpty()}">
+         
+         <p class="pendingTitle">영수증을 분석 중입니다.</p>
+  <p class="pendingDesc">
+    업로드는 정상적으로 완료되었습니다.<br>
+    분석에는 약간의 시간이 소요될 수 있습니다.
+  </p>
 
       <h3>영수증 목록</h3>
 
