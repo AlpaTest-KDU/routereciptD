@@ -3,11 +3,17 @@ console.log("📦 receipt.js LOADED");
 /* =====================================================
  * ✅ 페이지 진입 시 초기화
  * ===================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🟢 init page");
+function initPage() {
+  console.log("🟢 initPage() CALLED");
   hideLoadingOverlay();
   renderReceiptList();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initPage);
+} else {
+  initPage();
+}
 
 
 /* =====================================================
