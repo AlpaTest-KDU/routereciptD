@@ -62,24 +62,17 @@ public class ReceiptController {
 
         String userId = principal.getName();
 
-        // 1️⃣ 임시 파일 저장
-        List<String> imagePaths = receiptService.saveTempFiles(files);
+        // ✅ 단일 진입점
+        List<Long> receiptIds =
+                receiptService.uploadReceipts(files, userId)
+                              .getSuccessReceiptNos();
 
-        // 2️⃣ receipt 생성 + receipt_id 확보
-        List<Long> receiptIds = receiptService.createPendingReceipts(userId, imagePaths);
-
-        // 3️⃣ 세션에 저장 (⭐ 핵심)
+        // ✅ 세션에 receiptId 저장
         session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
-
-        // 4️⃣ OCR 이벤트 발행
-        for (String path : imagePaths) {
-            ocrStreamProducer.publishOcrEvent(userId, path);
-        }
 
         ra.addFlashAttribute("saveMsg", "영수증 분석을 시작했습니다.");
         return "redirect:/receipt/receiptRegisterPage";
     }
-
     // =========================
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
     // =========================
@@ -99,12 +92,15 @@ public class ReceiptController {
         List<ReceiptDTO> receipts = Collections.emptyList();
 
         if (receiptIds != null && !receiptIds.isEmpty()) {
-            receipts = receiptQueryService.getReceiptsByIds(receiptIds);
+            // ✅ 방금 업로드한 receipt만 조회
+            receipts = receiptQueryService.getRecentReceipts(receiptIds);
         }
 
         model.addAttribute("receipts", receipts);
-        model.addAttribute("receiptsJson",
-                objectMapper.writeValueAsString(receipts));
+        model.addAttribute(
+            "receiptsJson",
+            objectMapper.writeValueAsString(receipts)
+        );
 
         return "receipt/receiptRegisterPage";
     }
