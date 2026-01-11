@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.UploadResult;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,12 @@ public class ReceiptServiceImp implements ReceiptService {
     @Value("${receipt.upload.temp-dir}")
     private String uploadDir;
 
+    /**
+     * 영수증 업로드
+     * - 파일 저장
+     * - PENDING receipt 생성
+     * - Redis Stream 발행 (비동기 OCR 트리거)
+     */
     @Override
     @Transactional
     public UploadResult uploadReceipts(List<MultipartFile> files, String userId) {
@@ -56,10 +63,24 @@ public class ReceiptServiceImp implements ReceiptService {
             // 1️⃣ 파일 저장 (IO 전용)
             List<String> imagePaths = saveTempFiles(files);
 
-            // 2️⃣ PENDING receipt 생성 (DB 최소 작업)
+            // 2️⃣ PENDING receipt 생성 (여기가 핵심)
             List<Long> receiptNos = new ArrayList<>();
 
-            // 3️⃣ Redis Stream 발행
+            for (String imagePath : imagePaths) {
+
+                ReceiptDTO receipt = new ReceiptDTO();
+                receipt.setR_u(userId);
+                receipt.setImagePath(imagePath);
+                receipt.setOcr_status("PENDING");
+
+                // ✅ 반드시 호출되어야 함
+                receiptCommandService.insertPendingReceipt(receipt);
+
+                // insert 후 r_no가 세팅돼 있어야 정상
+                receiptNos.add(receipt.getR_no());
+            }
+
+            // 3️⃣ Redis Stream 발행 (비동기 OCR 트리거)
             for (int i = 0; i < receiptNos.size(); i++) {
 
                 Map<String, String> payload = new HashMap<>();
@@ -89,6 +110,11 @@ public class ReceiptServiceImp implements ReceiptService {
         return result;
     }
 
+    /**
+     * 임시 파일 저장
+     * - OCR 처리 전용
+     * - 삭제는 OCR Consumer에서 처리
+     */
     @Override
     public List<String> saveTempFiles(List<MultipartFile> files) {
 
@@ -102,7 +128,11 @@ public class ReceiptServiceImp implements ReceiptService {
                 Path target = Paths.get(uploadDir, filename);
 
                 Files.createDirectories(target.getParent());
-                Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(
+                        file.getInputStream(),
+                        target,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
 
                 paths.add(target.toString());
 
