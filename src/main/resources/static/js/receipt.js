@@ -1,9 +1,9 @@
 console.log("receipt.js LOADED");
 
 /* =====================================================
- * 🔴 로딩 오버레이 강제 해제 (가장 중요)
+ * 🔴 페이지 진입 시 로딩 오버레이 강제 해제
  * ===================================================== */
-window.addEventListener("DOMContentLoaded", () => {
+(function () {
   const overlay = document.getElementById("loadingOverlay");
   const btn = document.querySelector(".ocrBtn");
 
@@ -17,7 +17,7 @@ window.addEventListener("DOMContentLoaded", () => {
     btn.disabled = false;
     btn.textContent = "영수증 분석";
   }
-});
+})();
 
 /* =========================
  * 공통 유틸
@@ -129,7 +129,9 @@ function removeItemRow(btn) {
 
 function recalcTotalToHidden() {
   var total = 0;
-  var prices = document.querySelectorAll('#confirmForm input[name="item_prices"]');
+  var prices = document.querySelectorAll(
+    '#confirmForm input[name="item_prices"]'
+  );
 
   for (var i = 0; i < prices.length; i++) {
     total += Number(prices[i].value || 0);
@@ -150,18 +152,18 @@ function beforeSubmitConfirm() {
     return false;
   }
 
-  rows.forEach(row => {
+  for (const row of rows) {
     const name  = row.querySelector('[name="item_names"]');
     const price = row.querySelector('[name="item_prices"]');
     const cat   = row.querySelector('[name="item_categories"]');
 
     if (!name || !price || !cat) {
       alert("아이템 데이터가 손상되었습니다. 새로고침 후 다시 시도하세요.");
-      throw new Error("item row broken");
+      return false;
     }
 
     price.value = Number(price.value || 0);
-  });
+  }
 
   recalcTotalToHidden();
   return true;

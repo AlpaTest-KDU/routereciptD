@@ -148,6 +148,7 @@
   <script th:src="@{/js/receipt.js(v=${#dates.createNow().time})}"></script>
 
   <!-- 로딩 제어 -->
+  <!-- 
   <script>
     (function () {
       const form = document.getElementById("uploadForm");
@@ -164,7 +165,7 @@
         btn.textContent = "분석 중...";
       });
     })();
-
+ -->
     // ✅ 에러/리다이렉트 포함 모든 경우에서 로딩 해제
     window.addEventListener("pageshow", function () {
       const overlay = document.getElementById("loadingOverlay");
