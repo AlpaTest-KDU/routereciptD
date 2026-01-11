@@ -168,3 +168,49 @@ function beforeSubmitConfirm() {
   recalcTotalToHidden();
   return true;
 }
+
+/* =========================
+ * 파일 선택 시 파일명 표시
+ * ========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("receiptFile");
+  const fileBox   = document.getElementById("selectedFileNames");
+
+  if (!fileInput || !fileBox) return;
+
+  fileInput.addEventListener("change", () => {
+    const files = Array.from(fileInput.files || []);
+
+    // 파일 선택 안 한 경우
+    if (files.length === 0) {
+      fileBox.innerHTML =
+        `<span class="fileNamePlaceholder">선택된 파일 없음</span>`;
+      return;
+    }
+
+    // 파일 1~3개는 이름 전부 표시
+    if (files.length <= 3) {
+      fileBox.innerHTML = `
+        <div class="fileNameList">
+          ${files.map(f => `
+            <span class="fileChip" title="${f.name}">
+              ${f.name}
+            </span>
+          `).join("")}
+        </div>
+      `;
+      return;
+    }
+
+    // 파일 4개 이상이면 요약
+    const first = files[0].name;
+    fileBox.innerHTML = `
+      <div class="fileNameList">
+        <span class="fileChip" title="${first}">
+          ${first}
+        </span>
+        <span class="fileMore">외 ${files.length - 1}개</span>
+      </div>
+    `;
+  });
+});
