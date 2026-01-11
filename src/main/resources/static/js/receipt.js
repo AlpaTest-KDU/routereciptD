@@ -3,11 +3,12 @@ console.log("📦 receipt.js LOADED");
 /* =====================================================
  * ✅ 페이지 진입 시 초기화
  * ===================================================== */
-window.addEventListener("load", () => {
-  console.log("🟢 window load event fired");
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🟢 init page");
   hideLoadingOverlay();
   renderReceiptList();
 });
+
 
 /* =====================================================
  * 로딩 오버레이 제어
