@@ -3,6 +3,7 @@ package com.routerecipt.project.stream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -26,6 +27,9 @@ public class OcrStreamConsumer implements Runnable {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ReceiptOcrProcessService receiptOcrProcessService;
+    
+    private static final String CONSUMER_NAME =
+            "ocr-consumer-" + UUID.randomUUID();
 
     private volatile boolean running = true;
     private Thread worker;
@@ -64,20 +68,21 @@ public class OcrStreamConsumer implements Runnable {
 
     private void poll() {
 
-        List<MapRecord<String, String, String>> records =
-            streamOps().read(
-                Consumer.from(
-                    RedisStreamConfig.OCR_GROUP,
-                    RedisStreamConfig.OCR_CONSUMER
-                ),
-                StreamReadOptions.empty()
-                    .block(Duration.ofSeconds(5))
-                    .count(1),
-                StreamOffset.create(
-                    RedisStreamConfig.OCR_STREAM,
-                    ReadOffset.lastConsumed()
-                )
-            );
+    	List<MapRecord<String, String, String>> records =
+    		    streamOps().read(
+    		        Consumer.from(
+    		            RedisStreamConfig.OCR_GROUP,
+    		            CONSUMER_NAME
+    		        ),
+    		        StreamReadOptions.empty()
+    		            .block(Duration.ofSeconds(5))
+    		            .count(1),
+    		        StreamOffset.create(
+    		            RedisStreamConfig.OCR_STREAM,
+    		            ReadOffset.lastConsumed()
+    		        )
+    		    );
+
 
         if (records == null || records.isEmpty()) return;
 
