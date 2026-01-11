@@ -1,9 +1,10 @@
-console.log("receipt.js LOADED");
+console.log("📦 receipt.js LOADED");
 
 /* =====================================================
  * ✅ 페이지 진입 시 초기화
  * ===================================================== */
 window.addEventListener("load", () => {
+  console.log("🟢 window load event fired");
   hideLoadingOverlay();
   renderReceiptList();
 });
@@ -12,8 +13,13 @@ window.addEventListener("load", () => {
  * 로딩 오버레이 제어
  * ===================================================== */
 function hideLoadingOverlay() {
+  console.log("🔵 hideLoadingOverlay()");
+
   const overlay = document.getElementById("loadingOverlay");
   const btn = document.querySelector(".ocrBtn");
+
+  console.log("overlay:", overlay);
+  console.log("ocrBtn:", btn);
 
   if (overlay) {
     overlay.classList.remove("isOpen");
@@ -33,14 +39,25 @@ function hideLoadingOverlay() {
 var selectedIdx = -1;
 
 /* =====================================================
- * 영수증 목록 렌더링 (⭐ 핵심)
+ * 영수증 목록 렌더링
  * ===================================================== */
 function renderReceiptList() {
+  console.log("🟣 renderReceiptList() called");
+
   const list = document.getElementById("receiptList");
-  if (!list) return;
+  console.log("receiptList element:", list);
+
+  if (!list) {
+    console.warn("❗ receiptList element not found");
+    return;
+  }
+
+  console.log("📥 receipts:", typeof receipts, receipts);
 
   // receipts 없음 → 분석 중 상태
   if (!receipts || receipts.length === 0) {
+    console.log("⏳ receipts is empty → pending UI");
+
     list.innerHTML = `
       <p class="pendingTitle">영수증을 분석 중입니다.</p>
       <p class="pendingDesc">
@@ -51,13 +68,16 @@ function renderReceiptList() {
     return;
   }
 
-  // receipts 있음 → 목록 표시
+  console.log(`✅ receipts count = ${receipts.length}`);
+
   let html = `
     <p class="pendingTitle">분석된 영수증 목록</p>
     <h3>영수증 목록</h3>
   `;
 
   receipts.forEach((r, idx) => {
+    console.log(`- receipt[${idx}]`, r);
+
     html += `
       <button type="button"
               class="receiptListNo"
@@ -74,9 +94,17 @@ function renderReceiptList() {
  * 영수증 선택
  * ===================================================== */
 function showReceipt(idx) {
+  console.log("🟠 showReceipt()", idx);
+
   selectedIdx = idx;
   const receipt = receipts[idx];
-  if (!receipt) return;
+
+  if (!receipt) {
+    console.warn("❗ receipt not found for idx:", idx);
+    return;
+  }
+
+  console.log("📄 selected receipt:", receipt);
 
   const place = receipt.r_place || "";
   const date  = (receipt.r_date || "").toString().substring(0, 10);
@@ -91,6 +119,8 @@ function showReceipt(idx) {
   document.getElementById("rDateInput").value  = date;
   document.getElementById("rPriceInput").value = price;
 
+  console.log("📦 receipt.items:", receipt.items);
+
   renderItemsByCategory(receipt.items || []);
   document.getElementById("detailArea").style.display = "block";
   recalcTotalToHidden();
@@ -100,6 +130,8 @@ function showReceipt(idx) {
  * 아이템 렌더링
  * ===================================================== */
 function renderItemsByCategory(items) {
+  console.log("🟡 renderItemsByCategory()", items);
+
   const categoryMap = {
     FOOD: "음식",
     MEDICAL: "의료",
@@ -114,10 +146,14 @@ function renderItemsByCategory(items) {
   let html = "";
 
   if (!items.length) {
+    console.log("ℹ️ no items yet");
     html = "<p>아직 분석된 상품이 없습니다.</p>";
   } else {
     for (const [key, label] of Object.entries(categoryMap)) {
       const group = items.filter(it => it.item_category === key);
+
+      console.log(`category ${key} count =`, group.length);
+
       if (!group.length) continue;
 
       html += `<h4>${label}</h4><ul style="list-style:none;padding-left:0;">`;
@@ -147,31 +183,41 @@ function renderItemsByCategory(items) {
  * 가격 계산
  * ===================================================== */
 function removeItemRow(btn) {
+  console.log("❌ removeItemRow()");
   btn.closest("li")?.remove();
   recalcTotalToHidden();
 }
 
 function recalcTotalToHidden() {
   let total = 0;
+
   document
     .querySelectorAll('#confirmForm input[name="item_prices"]')
     .forEach(p => total += Number(p.value || 0));
+
+  console.log("💰 recalculated total =", total);
 
   document.getElementById("priceText").textContent = total.toLocaleString();
   document.getElementById("rPriceInput").value = total;
 }
 
 /* =====================================================
- * 파일 선택 시 파일명 표시
+ * 파일 선택
  * ===================================================== */
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("📁 DOMContentLoaded (file input)");
+
   const fileInput = document.getElementById("receiptFile");
   const fileBox   = document.getElementById("selectedFileNames");
 
-  if (!fileInput || !fileBox) return;
+  if (!fileInput || !fileBox) {
+    console.warn("❗ file input elements missing");
+    return;
+  }
 
   fileInput.addEventListener("change", () => {
     const files = Array.from(fileInput.files || []);
+    console.log("📎 selected files:", files);
 
     if (!files.length) {
       fileBox.innerHTML = `<span class="fileNamePlaceholder">선택된 파일 없음</span>`;
