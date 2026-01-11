@@ -24,7 +24,7 @@
 .noticeTitle {
   	margin: 0;
   	font-size: 22px;
-  	font-weight: 800;
+  	font-weight: 700;
   	letter-spacing: -0.3px;
   	color: #111827;
 }
@@ -82,7 +82,7 @@
 .noticeTable thead th:nth-child(1),
 .noticeTable tbody td:nth-child(1) {
   	text-align: center;
-  	width: 20%;
+  	width: 10%;
 }
 
 .noticeTable thead th:nth-child(2),
@@ -100,7 +100,7 @@
 .noticeTable thead th:nth-child(4),
 .noticeTable tbody td:nth-child(4) {
 	text-align: center;
-	width: 10%;
+	width: 20%;
 }
 
 .tdNo {
@@ -268,3 +268,63 @@
 .btnSubmit:hover {
 	opacity: 0.92;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 0 26px;
+}
+
+/* 공통 버튼 */
+.pageBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.pageBtn:hover {
+  color: #111827;
+}
+
+.pageNum.is-active {
+  color: #111827;
+  font-weight: 800;
+}
+
+.pageNum.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 14px;
+  height: 2px;
+  background: #111827;
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+/* 이전 / 다음 */
+.pageNav {
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.pageNav:hover {
+  color: #374151;
+}
+
+
+

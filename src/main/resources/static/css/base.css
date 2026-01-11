@@ -30,7 +30,7 @@ a {
 
 .pageContent {
 	flex: 1;
-  	background: #f8f8f8;
+  	background: white;
   	padding-top: var(--header-h);
 }
 

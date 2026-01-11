@@ -18,7 +18,7 @@
 .pageTitle {
   	margin: 0;
   	font-size: 26px;
-  	font-weight: 900;
+  	font-weight: 700;
 }
 
 .pageDesc {
@@ -44,7 +44,6 @@
 }
 
 .pageHeaderArea {
-  	display: flex;
   	align-items: flex-start;
   	justify-content: flex-end;
   	min-width: 160px;

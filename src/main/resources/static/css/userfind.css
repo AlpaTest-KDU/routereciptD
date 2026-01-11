@@ -155,15 +155,12 @@
 .findError {
   	margin-top: 12px;
   	padding: 12px 14px;
-  	border-radius: 12px;
-  	border: 1px solid rgba(239, 68, 68, 0.25);
-  	background: rgba(239, 68, 68, 0.06);
 }
 
 .findError p {
   	margin: 0;
   	font-size: 13px;
-  	font-weight: 700;
+  	font-weight: 600;
   	color: #b91c1c;
 }
 
