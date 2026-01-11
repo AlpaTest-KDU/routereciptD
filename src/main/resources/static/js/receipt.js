@@ -214,3 +214,14 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   });
 });
+
+function submitUpload() {
+  const form = document.getElementById("uploadForm");
+  if (!form) {
+    console.error("[UPLOAD] uploadForm not found");
+    return;
+  }
+
+  console.log("[UPLOAD] submitting uploadForm (POST)");
+  form.submit(); // 🔴 이게 핵심
+}
