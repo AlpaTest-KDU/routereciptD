@@ -1,6 +1,5 @@
 package com.routerecipt.project.service;
 
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReceiptServiceImp implements ReceiptService {
 
     private final ReceiptCommandService receiptCommandService;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${receipt.upload.temp-dir}")
     private String uploadDir;
@@ -57,20 +56,24 @@ public class ReceiptServiceImp implements ReceiptService {
             // 1️⃣ 파일 저장 (IO 전용)
             List<String> imagePaths = saveTempFiles(files);
 
-         // 2️⃣ PENDING receipt 생성 (DB 최소 작업)
+            // 2️⃣ PENDING receipt 생성 (DB 최소 작업)
             List<Long> receiptNos = new ArrayList<>();
 
-            // 3️⃣ Redis Stream 발행 (비동기 OCR 트리거)
+            // 3️⃣ Redis Stream 발행
             for (int i = 0; i < receiptNos.size(); i++) {
 
-                Map<String, Object> payload = new HashMap<>();
+                Map<String, String> payload = new HashMap<>();
                 payload.put("userId", userId);
-                payload.put("receiptNo", receiptNos.get(i));
+                payload.put("receiptNo", receiptNos.get(i).toString());
                 payload.put("imagePath", imagePaths.get(i));
 
                 redisTemplate.opsForStream()
                         .add("receipt-ocr-stream", payload);
+
+                successReceiptNos.add(receiptNos.get(i));
+                success++;
             }
+
         } catch (Exception e) {
             log.error("[UPLOAD] FAIL userId={}", userId, e);
             fail = (files == null ? 0 : files.size());
@@ -110,4 +113,3 @@ public class ReceiptServiceImp implements ReceiptService {
         return paths;
     }
 }
-
