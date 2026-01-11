@@ -62,15 +62,18 @@ public class ReceiptController {
 
         String userId = principal.getName();
 
-        // ✅ 단일 진입점
         List<Long> receiptIds =
                 receiptService.uploadReceipts(files, userId)
                               .getSuccessReceiptNos();
 
-        // ✅ 세션에 receiptId 저장
+        // ✅ 추가 로그 (중요)
+        log.info("[UPLOAD] 생성된 receiptIds = {}", receiptIds);
+
         session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
 
-        ra.addFlashAttribute("saveMsg", "영수증 분석을 시작했습니다.");
+        // ✅ 추가 로그
+        log.info("[UPLOAD] 세션에 저장됨 CURRENT_RECEIPT_IDS");
+
         return "redirect:/receipt/receiptRegisterPage";
     }
     // =========================
@@ -89,11 +92,18 @@ public class ReceiptController {
         List<Long> receiptIds =
             (List<Long>) session.getAttribute("CURRENT_RECEIPT_IDS");
 
+        // ✅ 추가 로그 (핵심)
+        log.info("[PAGE] 세션 CURRENT_RECEIPT_IDS = {}", receiptIds);
+
         List<ReceiptDTO> receipts = Collections.emptyList();
 
         if (receiptIds != null && !receiptIds.isEmpty()) {
-            // ✅ 방금 업로드한 receipt만 조회
             receipts = receiptQueryService.getRecentReceipts(receiptIds);
+
+            // ✅ 추가 로그
+            log.info("[PAGE] 조회된 receipts size = {}", receipts.size());
+        } else {
+            log.warn("[PAGE] receiptIds 없음 → 조회 안함");
         }
 
         model.addAttribute("receipts", receipts);
@@ -104,4 +114,6 @@ public class ReceiptController {
 
         return "receipt/receiptRegisterPage";
     }
+
+
 }
