@@ -144,8 +144,8 @@
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(15,23,42,.06);
   overflow: hidden;
-  position: sticky;
   top: calc(var(--header-h) + 18px);
+  padding: 14px;
 }
 
 .categoryMiniTitle{
@@ -164,6 +164,7 @@
   padding: 0 12px;
   font-weight: 700;
   outline: none;
+  margin-top: 2px;
 }
 
 .categoryMiniSelect:focus{
@@ -177,6 +178,7 @@
   height: fit-content;
   background: #fff;
   border: none;
+  gap: 14px;		/* 카드 사이 간격 */
 }
 
 .mypageCard {
