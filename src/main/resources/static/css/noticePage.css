@@ -150,8 +150,11 @@
 .noticeDetailTitle {
   	margin: 0;
   	font-size: 22px;
-  	font-weight: 800;
+  	font-weight: 700;
   	color: #111827;
+  	white-space: normal;     /* 줄바꿈 허용 */
+    word-break: break-word;  /* 긴 단어 강제 줄바꿈 */
+    line-height: 1.4;
 }
 
 .noticeDetailInfo {
