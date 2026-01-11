@@ -86,6 +86,11 @@ public class OcrStreamConsumer implements Runnable {
                     )
                 );
         } catch (org.springframework.data.redis.RedisSystemException e) {
+        	
+        	if (!running) {
+                log.info("[OCR-STREAM] shutdown in progress");
+                return;
+            }
 
             Throwable cause = e.getCause();
 
