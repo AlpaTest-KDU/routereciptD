@@ -35,12 +35,14 @@ public class RedisStreamConfig {
     public void initStreamAndGroup() {
         try {
             redisTemplate.opsForStream()
-                .createGroup(OCR_STREAM, ReadOffset.latest(), OCR_GROUP);
-
-            log.info("[REDIS-STREAM] Consumer group created: {}", OCR_GROUP);
-
+                .createGroup(
+                    OCR_STREAM,
+                    ReadOffset.latest(),
+                    OCR_GROUP
+                );
+            log.info("[REDIS-STREAM] Group created: {}", OCR_GROUP);
         } catch (Exception e) {
-            log.warn("[REDIS-STREAM] createGroup failed (may already exist)", e);
+            log.info("[REDIS-STREAM] Group already exists");
         }
     }
 

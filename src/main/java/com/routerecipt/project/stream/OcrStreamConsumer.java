@@ -68,21 +68,37 @@ public class OcrStreamConsumer implements Runnable {
 
     private void poll() {
 
-    	List<MapRecord<String, String, String>> records =
-    		    streamOps().read(
-    		        Consumer.from(
-    		            RedisStreamConfig.OCR_GROUP,
-    		            CONSUMER_NAME
-    		        ),
-    		        StreamReadOptions.empty()
-    		            .block(Duration.ofSeconds(5))
-    		            .count(1),
-    		        StreamOffset.create(
-    		            RedisStreamConfig.OCR_STREAM,
-    		            ReadOffset.lastConsumed()
-    		        )
-    		    );
+        List<MapRecord<String, String, String>> records;
 
+        try {
+            records =
+                streamOps().read(
+                    Consumer.from(
+                        RedisStreamConfig.OCR_GROUP,
+                        CONSUMER_NAME
+                    ),
+                    StreamReadOptions.empty()
+                        .block(Duration.ofSeconds(5))
+                        .count(1),
+                    StreamOffset.create(
+                        RedisStreamConfig.OCR_STREAM,
+                        ReadOffset.lastConsumed()
+                    )
+                );
+        } catch (org.springframework.data.redis.RedisSystemException e) {
+
+            Throwable cause = e.getCause();
+
+            if (cause instanceof io.lettuce.core.RedisCommandExecutionException &&
+                cause.getMessage().contains("NOGROUP")) {
+
+                log.warn("[OCR-STREAM] Consumer group not ready yet. retry later");
+                sleep(3000);
+                return;
+            }
+
+            throw e; // 진짜 장애만 위로 던짐
+        }
 
         if (records == null || records.isEmpty()) return;
 
@@ -99,7 +115,6 @@ public class OcrStreamConsumer implements Runnable {
             }
         }
     }
-
     private void handle(MapRecord<String, String, String> record) {
 
         Map<String, String> value = record.getValue();
