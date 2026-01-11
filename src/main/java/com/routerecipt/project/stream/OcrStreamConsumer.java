@@ -109,18 +109,26 @@ public class OcrStreamConsumer implements Runnable {
 
         for (MapRecord<String, String, String> record : records) {
             try {
-                handle(record);
+                boolean handled = handle(record);
+
+                // ✅ 처리 여부와 상관없이 ACK
                 streamOps().acknowledge(
                     RedisStreamConfig.OCR_STREAM,
                     RedisStreamConfig.OCR_GROUP,
                     record.getId()
                 );
+
+                if (!handled) {
+                    log.warn("[OCR-STREAM] ACK invalid payload id={}", record.getId());
+                }
+
             } catch (Exception e) {
                 log.error("[OCR-STREAM] HANDLE FAIL id={}", record.getId(), e);
             }
         }
-    }
-    private void handle(MapRecord<String, String, String> record) {
+        }
+
+    private boolean handle(MapRecord<String, String, String> record) {
 
         Map<String, String> value = record.getValue();
 
@@ -128,24 +136,22 @@ public class OcrStreamConsumer implements Runnable {
         String imagePath = value.get("imagePath");
 
         if (receiptNoStr == null || imagePath == null) {
-            log.error("[OCR-STREAM] INVALID PAYLOAD {}", value);
-            return;
+            log.warn("[OCR-STREAM] INVALID PAYLOAD {}", value);
+            return false; // ❗ invalid지만 ACK 대상
         }
 
         Long receiptNo;
         try {
             receiptNo = Long.valueOf(receiptNoStr);
         } catch (NumberFormatException e) {
-            log.error("[OCR-STREAM] INVALID receiptNo {}", receiptNoStr);
-            return;
+            log.warn("[OCR-STREAM] INVALID receiptNo {}", receiptNoStr);
+            return false;
         }
 
         log.info("[OCR-STREAM] PROCESS r_no={}, imagePath={}", receiptNo, imagePath);
-
-        // ✅ 단일 OCR 진입점
         receiptOcrProcessService.processOcr(receiptNo, imagePath);
+        return true;
     }
-
     private void createGroupIfNotExists() {
         try {
             redisTemplate.opsForStream().createGroup(
