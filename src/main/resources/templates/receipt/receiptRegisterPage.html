@@ -5,9 +5,9 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<title>영수증 등록</title>
-<link rel="stylesheet" th:href="@{/css/receipt.css}">
+  <meta charset="UTF-8">
+  <title>영수증 등록</title>
+  <link rel="stylesheet" th:href="@{/css/receipt.css}">
 </head>
 <body>
 
@@ -37,10 +37,10 @@
           action="/receipt/uploadReceipt"
           method="post"
           enctype="multipart/form-data">
-          
-          <input type="hidden"
-         th:name="${_csrf.parameterName}"
-         th:value="${_csrf.token}"/>
+
+      <input type="hidden"
+             th:name="${_csrf.parameterName}"
+             th:value="${_csrf.token}"/>
 
       <div class="uploadLeft">
         <input type="file"
@@ -56,7 +56,9 @@
           <span class="fileNamePlaceholder">선택된 파일 없음</span>
         </div>
 
-        <button type="button" id="manualBtn" onclick="openManualModal()">직접 입력하기</button>
+        <button type="button"
+                id="manualBtn"
+                onclick="openManualModal()">직접 입력하기</button>
       </div>
 
       <button type="submit" class="ocrBtn">영수증 분석</button>
@@ -68,12 +70,12 @@
     <div id="receiptList"
          class="receiptList"
          th:if="${receipts != null and !receipts.isEmpty()}">
-         
-         <p class="pendingTitle">영수증을 분석 중입니다.</p>
-  <p class="pendingDesc">
-    업로드는 정상적으로 완료되었습니다.<br>
-    분석에는 약간의 시간이 소요될 수 있습니다.
-  </p>
+
+      <p class="pendingTitle">영수증을 분석 중입니다.</p>
+      <p class="pendingDesc">
+        업로드는 정상적으로 완료되었습니다.<br>
+        분석에는 약간의 시간이 소요될 수 있습니다.
+      </p>
 
       <h3>영수증 목록</h3>
 
@@ -101,11 +103,13 @@
             method="post"
             onsubmit="return beforeSubmitConfirm();">
 
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
 
-        <input type="hidden" name="r_no" id="rNoInput">
+        <input type="hidden" name="r_no"    id="rNoInput">
         <input type="hidden" name="r_place" id="rPlaceInput">
-        <input type="hidden" name="r_date" id="rDateInput">
+        <input type="hidden" name="r_date"  id="rDateInput">
         <input type="hidden" name="r_price" id="rPriceInput">
 
         <h3>카테고리별 항목</h3>
@@ -120,7 +124,7 @@
   </div>
 
   <!-- ===============================
-       로딩 오버레이
+       로딩 오버레이 (표시 전용)
   =============================== -->
   <div id="loadingOverlay" class="loadingOverlay" aria-hidden="true">
     <div class="loadingBox">
@@ -130,8 +134,11 @@
     </div>
   </div>
 
-  <!-- receipts JSON -->
-  <div id="receiptData" th:data-receipts="${receiptsJson}"></div>
+  <!-- ===============================
+       receipts JSON
+  =============================== -->
+  <div id="receiptData"
+       th:data-receipts="${receiptsJson}"></div>
 
   <script>
     var receipts = [];
@@ -140,49 +147,18 @@
       if (!el) return;
       const raw = el.getAttribute("data-receipts");
       if (!raw) return;
-      try { receipts = JSON.parse(raw); }
-      catch (e) { receipts = []; }
+      try {
+        receipts = JSON.parse(raw);
+      } catch (e) {
+        receipts = [];
+      }
     })();
   </script>
 
+  <!-- receipt.js (캐시 무력화) -->
   <script th:src="@{/js/receipt.js(v=${#dates.createNow().time})}"></script>
 
-  <!-- 로딩 제어 -->
-  <!-- 
-  <script>
-    (function () {
-      const form = document.getElementById("uploadForm");
-      const overlay = document.getElementById("loadingOverlay");
-      const btn = document.querySelector(".ocrBtn");
-
-      if (!form || !overlay || !btn) return;
-
-      form.addEventListener("submit", () => {
-        overlay.classList.add("isOpen");
-        overlay.setAttribute("aria-hidden", "false");
-        document.body.classList.add("isLoading");
-        btn.disabled = true;
-        btn.textContent = "분석 중...";
-      });
-    })();
- -->
-    // ✅ 에러/리다이렉트 포함 모든 경우에서 로딩 해제
-    window.addEventListener("pageshow", function () {
-      const overlay = document.getElementById("loadingOverlay");
-      const btn = document.querySelector(".ocrBtn");
-
-      if (overlay) {
-        overlay.classList.remove("isOpen");
-        overlay.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("isLoading");
-      }
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = "영수증 분석";
-      }
-    });
-  </script>
-
 </div>
+
 </body>
 </html>

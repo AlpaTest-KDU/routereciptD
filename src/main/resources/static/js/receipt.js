@@ -1,9 +1,9 @@
 console.log("receipt.js LOADED");
 
 /* =====================================================
- * 🔴 페이지 진입 시 로딩 오버레이 강제 해제
+ * ✅ 페이지 진입 시 로딩 오버레이 강제 해제 (최종)
  * ===================================================== */
-(function () {
+window.addEventListener("load", () => {
   const overlay = document.getElementById("loadingOverlay");
   const btn = document.querySelector(".ocrBtn");
 
@@ -17,7 +17,7 @@ console.log("receipt.js LOADED");
     btn.disabled = false;
     btn.textContent = "영수증 분석";
   }
-})();
+});
 
 /* =========================
  * 공통 유틸
@@ -122,20 +122,20 @@ function renderItemsByCategory(items) {
  * 가격 계산
  * ========================= */
 function removeItemRow(btn) {
-  var li = btn.closest("li");
+  const li = btn.closest("li");
   if (li) li.remove();
   recalcTotalToHidden();
 }
 
 function recalcTotalToHidden() {
-  var total = 0;
-  var prices = document.querySelectorAll(
+  let total = 0;
+  const prices = document.querySelectorAll(
     '#confirmForm input[name="item_prices"]'
   );
 
-  for (var i = 0; i < prices.length; i++) {
-    total += Number(prices[i].value || 0);
-  }
+  prices.forEach(p => {
+    total += Number(p.value || 0);
+  });
 
   document.getElementById("priceText").textContent = total.toLocaleString();
   document.getElementById("rPriceInput").value = total;
