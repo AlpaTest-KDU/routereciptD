@@ -47,7 +47,7 @@ public class OcrStreamConsumer implements Runnable {
     @PostConstruct
     public void start() {
         worker = new Thread(this, "ocr-stream-consumer");
-        worker.setDaemon(true); // 🔥 JVM 종료 방해 방지
+        worker.setDaemon(true);
         worker.start();
 
         log.info(
@@ -62,25 +62,27 @@ public class OcrStreamConsumer implements Runnable {
      * =============================== */
     @Override
     public void run() {
-        while (running) {
-            try {
+        try {
+            while (running && !Thread.currentThread().isInterrupted()) {
                 pollOnce();
-            } catch (Exception e) {
-                if (!running) {
-                    break;
-                }
-                log.error("[OCR-STREAM] unexpected error", e);
-                sleep(3000);
             }
+        } catch (Exception e) {
+            if (running) {
+                log.error("[OCR-STREAM] unexpected fatal error", e);
+            }
+        } finally {
+            log.info("[OCR-STREAM] Consumer loop exited");
         }
-
-        log.info("[OCR-STREAM] Consumer loop exited");
     }
 
     /* ===============================
      * 단일 Poll
      * =============================== */
     private void pollOnce() {
+
+        if (!running || Thread.currentThread().isInterrupted()) {
+            return;
+        }
 
         List<MapRecord<String, Object, Object>> records;
 
@@ -102,7 +104,7 @@ public class OcrStreamConsumer implements Runnable {
         } catch (org.springframework.data.redis.RedisSystemException e) {
 
             if (!running) {
-                return;
+                return; // 🔥 shutdown 중이면 조용히 종료
             }
 
             Throwable cause = e.getCause();
@@ -111,13 +113,12 @@ public class OcrStreamConsumer implements Runnable {
                 cause.getMessage().contains("NOGROUP")) {
 
                 log.warn("[OCR-STREAM] Consumer group not ready yet. retry...");
-                sleep(3000);
+                sleepInterruptible(3000);
                 return;
             }
 
-            // 🔥 Redis 종료 / 네트워크 단절 등
-            log.warn("[OCR-STREAM] Redis polling failed (ignored)");
-            sleep(3000);
+            log.warn("[OCR-STREAM] Redis polling failed (ignored)", e);
+            sleepInterruptible(3000);
             return;
         }
 
@@ -126,6 +127,7 @@ public class OcrStreamConsumer implements Runnable {
         }
 
         for (MapRecord<String, Object, Object> record : records) {
+            if (!running) break;
             handleRecordSafely(record);
         }
     }
@@ -152,6 +154,9 @@ public class OcrStreamConsumer implements Runnable {
                 );
             }
 
+        } catch (IllegalStateException e) {
+            if (!running) return; // 🔥 shutdown 중이면 무시
+            throw e;
         } catch (Exception e) {
             log.error(
                 "[OCR-STREAM] HANDLE FAIL id={} value={}",
@@ -169,7 +174,7 @@ public class OcrStreamConsumer implements Runnable {
 
         Map<Object, Object> value = record.getValue();
 
-        // 🔥 init 더미 메시지 차단
+        // init 더미 메시지 차단 (이미 제거했지만 안전망)
         if (value.containsKey("init")) {
             log.info("[OCR-STREAM] skip init record {}", record.getId());
             return false;
@@ -206,16 +211,20 @@ public class OcrStreamConsumer implements Runnable {
      * =============================== */
     @PreDestroy
     public void shutdown() {
+        log.info("[OCR-STREAM] Consumer shutting down...");
         running = false;
+
         if (worker != null) {
             worker.interrupt();
         }
-        log.info("[OCR-STREAM] Consumer stopped");
     }
 
-    private void sleep(long ms) {
+    private void sleepInterruptible(long ms) {
         try {
             Thread.sleep(ms);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // 🔥 interrupt 복구
+        }
     }
 }
+
