@@ -36,6 +36,7 @@ public class SecurityConfig {
 					.requestMatchers("/chatbot/ask","/api/chat").permitAll()
 					.requestMatchers("/user/userFindIdPage","/user/userResetPwPage","/user/userUpdatePw","/user/userCheckId","/user/userFindId").permitAll()
 					.requestMatchers("/notice/noticePage","/notice/noticeDetailPage").permitAll()
+					.requestMatchers("/receipt/uploadReceipt").permitAll()
 					.requestMatchers("/error/**").permitAll()
 					.requestMatchers("/ai/**").permitAll()
 					
@@ -43,7 +44,7 @@ public class SecurityConfig {
 					.requestMatchers("/admin/**","/notice/noticeRegisterPage","/noticePage/noticeRegister").hasRole("ADMIN")
 					
 					// 일반 사용자 권한
-					.requestMatchers("/user/userInfoShowPage", "/recepit/receiptRegisterPage").hasRole("USER")
+					.requestMatchers("/user/userInfoShowPage", "/receipt/receiptRegisterPage").hasRole("USER")
 					
 					// 나머지는 로그인 필수
 					.anyRequest().authenticated()
@@ -55,7 +56,7 @@ public class SecurityConfig {
 					.loginProcessingUrl("/login")
 					.usernameParameter("u_id")
 					.passwordParameter("u_pw")
-					.defaultSuccessUrl("/")
+					.defaultSuccessUrl("/", true)
 					.permitAll()
 				)
 			
