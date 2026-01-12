@@ -311,11 +311,14 @@
 
 .btnRow button {
   	height: 44px;
-  	padding: 0 14px;
+  	padding: 0 20px;
   	border-radius: 14px;
+	border: 1px solid #cccccc;
   	background: #fff;
   	font-weight: 900;
   	cursor: pointer;
+	min-width: 120px;
+	transition: all 0.2s;
 }
 
 .btnRow button:hover {
@@ -324,8 +327,14 @@
 
 /* 확정 버튼 */
 .uploadBtn {
-  	background: #1f1c6f;
-  	color: #fff;
+  	background: #1f1c6f !important;
+  	color: #fff !important;
+	border: 1px solid #1f1c6f !important;
+}
+
+.uploadBtn:hover {
+	background: #2e2a77 !important;
+	filter: brightness(1.1);
 }
 
 .uploadBtn:active {
