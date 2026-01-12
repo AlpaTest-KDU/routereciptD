@@ -86,8 +86,8 @@ public class OcrStreamConsumer implements Runnable {
                     )
                 );
         } catch (org.springframework.data.redis.RedisSystemException e) {
-        	
-        	if (!running) {
+
+            if (!running) {
                 log.info("[OCR-STREAM] shutdown in progress");
                 return;
             }
@@ -95,6 +95,7 @@ public class OcrStreamConsumer implements Runnable {
             Throwable cause = e.getCause();
 
             if (cause instanceof io.lettuce.core.RedisCommandExecutionException &&
+                cause.getMessage() != null &&
                 cause.getMessage().contains("NOGROUP")) {
 
                 log.warn("[OCR-STREAM] Consumer group not ready yet. retry later");
@@ -102,7 +103,10 @@ public class OcrStreamConsumer implements Runnable {
                 return;
             }
 
-            throw e; // 진짜 장애만 위로 던짐
+            // ✅ 여기서 반드시 흐름 종료
+            log.error("[OCR-STREAM] redis polling error (ignored)", e);
+            sleep(3000);
+            return;
         }
 
         if (records == null || records.isEmpty()) return;
