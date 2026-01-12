@@ -1,5 +1,7 @@
 package com.routerecipt.project.config;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -41,11 +43,30 @@ public class RedisStreamConfig {
                     OCR_GROUP
                 );
             log.info("[REDIS-STREAM] Group created: {}", OCR_GROUP);
+
         } catch (Exception e) {
-            log.info("[REDIS-STREAM] Group already exists");
+
+            // 🔥 Stream이 없어서 실패한 경우 → 더미 레코드로 Stream 생성
+            try {
+                redisTemplate.opsForStream().add(
+                    OCR_STREAM,
+                    Map.of("init", "init")
+                );
+
+                redisTemplate.opsForStream()
+                    .createGroup(
+                        OCR_STREAM,
+                        ReadOffset.latest(),
+                        OCR_GROUP
+                    );
+
+                log.info("[REDIS-STREAM] Stream + Group initialized");
+
+            } catch (Exception ex) {
+                log.error("[REDIS-STREAM] Failed to init stream/group", ex);
+            }
         }
     }
-
 
 }
 
