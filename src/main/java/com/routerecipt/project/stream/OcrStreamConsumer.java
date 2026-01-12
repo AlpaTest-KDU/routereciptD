@@ -82,7 +82,7 @@ public class OcrStreamConsumer implements Runnable {
      * =============================== */
     private void pollOnce() {
 
-        List<MapRecord<String, String, String>> records;
+        List<MapRecord<String, Object, Object>> records;
 
         try {
             records = redisTemplate.opsForStream().read(
