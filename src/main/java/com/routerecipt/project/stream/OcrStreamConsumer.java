@@ -11,7 +11,6 @@ import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.config.RedisStreamConfig;
@@ -27,8 +26,8 @@ public class OcrStreamConsumer implements Runnable {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ReceiptOcrProcessService receiptOcrProcessService;
-    
-    private static final String CONSUMER_NAME =
+
+    private final String consumerName =
             "ocr-consumer-" + UUID.randomUUID();
 
     private volatile boolean running = true;
@@ -42,106 +41,146 @@ public class OcrStreamConsumer implements Runnable {
         this.receiptOcrProcessService = receiptOcrProcessService;
     }
 
+    /* ===============================
+     * Consumer 시작
+     * =============================== */
     @PostConstruct
     public void start() {
-        createGroupIfNotExists();
         worker = new Thread(this, "ocr-stream-consumer");
+        worker.setDaemon(true); // 🔥 JVM 종료 방해 방지
         worker.start();
-        log.info("[OCR-STREAM] Consumer started");
+
+        log.info(
+            "[OCR-STREAM] Consumer started. group={}, consumer={}",
+            RedisStreamConfig.OCR_GROUP,
+            consumerName
+        );
     }
 
+    /* ===============================
+     * Poll Loop
+     * =============================== */
     @Override
     public void run() {
         while (running) {
             try {
-                poll();
+                pollOnce();
             } catch (Exception e) {
-                log.error("[OCR-STREAM] error", e);
-                sleep(2000);
+                if (!running) {
+                    break;
+                }
+                log.error("[OCR-STREAM] unexpected error", e);
+                sleep(3000);
             }
         }
+
+        log.info("[OCR-STREAM] Consumer loop exited");
     }
 
-    private StreamOperations<String, String, String> streamOps() {
-        return redisTemplate.opsForStream();
-    }
-
-    private void poll() {
+    /* ===============================
+     * 단일 Poll
+     * =============================== */
+    private void pollOnce() {
 
         List<MapRecord<String, String, String>> records;
 
         try {
-            records =
-                streamOps().read(
-                    Consumer.from(
-                        RedisStreamConfig.OCR_GROUP,
-                        CONSUMER_NAME
-                    ),
-                    StreamReadOptions.empty()
-                        .block(Duration.ofSeconds(5))
-                        .count(1),
-                    StreamOffset.create(
-                        RedisStreamConfig.OCR_STREAM,
-                        ReadOffset.lastConsumed()
-                    )
-                );
+            records = redisTemplate.opsForStream().read(
+                Consumer.from(
+                    RedisStreamConfig.OCR_GROUP,
+                    consumerName
+                ),
+                StreamReadOptions.empty()
+                    .block(Duration.ofSeconds(5))
+                    .count(1),
+                StreamOffset.create(
+                    RedisStreamConfig.OCR_STREAM,
+                    ReadOffset.lastConsumed()
+                )
+            );
+
         } catch (org.springframework.data.redis.RedisSystemException e) {
 
             if (!running) {
-                log.info("[OCR-STREAM] shutdown in progress");
                 return;
             }
 
             Throwable cause = e.getCause();
-
-            if (cause instanceof io.lettuce.core.RedisCommandExecutionException &&
+            if (cause != null &&
                 cause.getMessage() != null &&
                 cause.getMessage().contains("NOGROUP")) {
 
-                log.warn("[OCR-STREAM] Consumer group not ready yet. retry later");
+                log.warn("[OCR-STREAM] Consumer group not ready yet. retry...");
                 sleep(3000);
                 return;
             }
 
-            // ✅ 여기서 반드시 흐름 종료
-            log.error("[OCR-STREAM] redis polling error (ignored)", e);
+            // 🔥 Redis 종료 / 네트워크 단절 등
+            log.warn("[OCR-STREAM] Redis polling failed (ignored)");
             sleep(3000);
             return;
         }
 
-        if (records == null || records.isEmpty()) return;
+        if (records == null || records.isEmpty()) {
+            return;
+        }
 
         for (MapRecord<String, String, String> record : records) {
-            try {
-                boolean handled = handle(record);
+            handleRecordSafely(record);
+        }
+    }
 
-                // ✅ 처리 여부와 상관없이 ACK
-                streamOps().acknowledge(
-                    RedisStreamConfig.OCR_STREAM,
-                    RedisStreamConfig.OCR_GROUP,
-                    record.getId()
+    /* ===============================
+     * Record 처리 + ACK
+     * =============================== */
+    private void handleRecordSafely(MapRecord<String, String, String> record) {
+
+        try {
+            boolean handled = handle(record);
+
+            redisTemplate.opsForStream().acknowledge(
+                RedisStreamConfig.OCR_STREAM,
+                RedisStreamConfig.OCR_GROUP,
+                record.getId()
+            );
+
+            if (!handled) {
+                log.warn(
+                    "[OCR-STREAM] ACK invalid payload id={} value={}",
+                    record.getId(),
+                    record.getValue()
                 );
-
-                if (!handled) {
-                    log.warn("[OCR-STREAM] ACK invalid payload id={}", record.getId());
-                }
-
-            } catch (Exception e) {
-                log.error("[OCR-STREAM] HANDLE FAIL id={}", record.getId(), e);
             }
-        }
-        }
 
+        } catch (Exception e) {
+            log.error(
+                "[OCR-STREAM] HANDLE FAIL id={} value={}",
+                record.getId(),
+                record.getValue(),
+                e
+            );
+        }
+    }
+
+    /* ===============================
+     * 실제 OCR 처리
+     * =============================== */
     private boolean handle(MapRecord<String, String, String> record) {
 
         Map<String, String> value = record.getValue();
+
+        // 🔥 init 더미 메시지 차단
+        if (value.containsKey("init")) {
+            log.info("[OCR-STREAM] skip init record {}", record.getId());
+            return false;
+        }
 
         String receiptNoStr = value.get("receiptNo");
         String imagePath = value.get("imagePath");
 
         if (receiptNoStr == null || imagePath == null) {
             log.warn("[OCR-STREAM] INVALID PAYLOAD {}", value);
-            return false; // ❗ invalid지만 ACK 대상
+            return false;
         }
 
         Long receiptNo;
@@ -152,24 +191,26 @@ public class OcrStreamConsumer implements Runnable {
             return false;
         }
 
-        log.info("[OCR-STREAM] PROCESS r_no={}, imagePath={}", receiptNo, imagePath);
+        log.info(
+            "[OCR-STREAM] PROCESS r_no={}, imagePath={}",
+            receiptNo,
+            imagePath
+        );
+
         receiptOcrProcessService.processOcr(receiptNo, imagePath);
         return true;
     }
-    private void createGroupIfNotExists() {
-        try {
-            redisTemplate.opsForStream().createGroup(
-                RedisStreamConfig.OCR_STREAM,
-                ReadOffset.latest(),
-                RedisStreamConfig.OCR_GROUP
-            );
-        } catch (Exception ignored) {}
-    }
 
+    /* ===============================
+     * Shutdown
+     * =============================== */
     @PreDestroy
     public void shutdown() {
         running = false;
-        if (worker != null) worker.interrupt();
+        if (worker != null) {
+            worker.interrupt();
+        }
+        log.info("[OCR-STREAM] Consumer stopped");
     }
 
     private void sleep(long ms) {
