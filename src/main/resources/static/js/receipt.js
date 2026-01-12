@@ -255,3 +255,22 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+/* =====================================================
+ * 폼 제출 전 검증 (beforeSubmitConfirm)
+ * ===================================================== */
+function beforeSubmitConfirm() {
+  console.log("📝 beforeSubmitConfirm() called");
+
+  // 1. 제출 전 총액 다시 계산 (hidden input 동기화)
+  recalcTotalToHidden();
+
+  // 2. 필수 값 체크 (예: 영수증 번호가 없는 경우)
+  const rNo = document.getElementById("rNoInput").value;
+  if (!rNo) {
+    alert("확정할 영수증이 선택되지 않았습니다.");
+    return false; // 제출 중단
+  }
+
+  return true; // 제출 진행
+}
