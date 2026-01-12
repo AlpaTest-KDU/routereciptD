@@ -89,7 +89,7 @@ public class ReceiptServiceImp implements ReceiptService {
                 payload.put("imagePath", imagePaths.get(i));
 
                 redisTemplate.opsForStream()
-                        .add("receipt-ocr-stream", payload);
+                        .add("ocr-stream", payload);
 
                 successReceiptNos.add(receiptNos.get(i));
                 success++;
