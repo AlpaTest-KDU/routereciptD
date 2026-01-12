@@ -40,11 +40,12 @@ public class OcrController {
 	@PostMapping("/ocr/request")
 	public String requestOcr(
 			@RequestParam("receiptId") String receiptId,
-			@RequestParam("imagePath") String imagePath
+			@RequestParam("imagePath") String imagePath,
+			@RequestParam("receiptNo") Long receiptNo
 			) {
 		
 		// 🔹 OCR 요청 이벤트를 Redis Stream으로 전달
-		ocrStreamProducer.publishOcrEvent(receiptId, imagePath);
+		ocrStreamProducer.publishOcrEvent(receiptId, imagePath, receiptNo);
 		
 		// 🔹 OCR 처리는 비동기로 진행되므로 즉시 응답
 		return "OCR 요청이 정상적으로 접수되었습니다.";
