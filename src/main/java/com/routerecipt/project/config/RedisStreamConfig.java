@@ -42,29 +42,18 @@ public class RedisStreamConfig {
                     ReadOffset.latest(),
                     OCR_GROUP
                 );
-            log.info("[REDIS-STREAM] Group created: {}", OCR_GROUP);
+
+            log.info(
+                "[REDIS-STREAM] Group created stream={}, group={}",
+                OCR_STREAM,
+                OCR_GROUP
+            );
 
         } catch (Exception e) {
-
-            // 🔥 Stream이 없어서 실패한 경우 → 더미 레코드로 Stream 생성
-            try {
-                redisTemplate.opsForStream().add(
-                    OCR_STREAM,
-                    Map.of("init", "init")
-                );
-
-                redisTemplate.opsForStream()
-                    .createGroup(
-                        OCR_STREAM,
-                        ReadOffset.latest(),
-                        OCR_GROUP
-                    );
-
-                log.info("[REDIS-STREAM] Stream + Group initialized");
-
-            } catch (Exception ex) {
-                log.error("[REDIS-STREAM] Failed to init stream/group", ex);
-            }
+            log.warn(
+                "[REDIS-STREAM] Group already exists or stream missing",
+                e.getMessage()
+            );
         }
     }
 
