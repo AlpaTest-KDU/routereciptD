@@ -125,7 +125,7 @@ public class OcrStreamConsumer implements Runnable {
             return;
         }
 
-        for (MapRecord<String, String, String> record : records) {
+        for (MapRecord<String, Object, Object> record : records) {
             handleRecordSafely(record);
         }
     }
@@ -133,7 +133,7 @@ public class OcrStreamConsumer implements Runnable {
     /* ===============================
      * Record 처리 + ACK
      * =============================== */
-    private void handleRecordSafely(MapRecord<String, String, String> record) {
+    private void handleRecordSafely(MapRecord<String, Object, Object> record) {
 
         try {
             boolean handled = handle(record);
@@ -165,9 +165,9 @@ public class OcrStreamConsumer implements Runnable {
     /* ===============================
      * 실제 OCR 처리
      * =============================== */
-    private boolean handle(MapRecord<String, String, String> record) {
+    private boolean handle(MapRecord<String, Object, Object> record) {
 
-        Map<String, String> value = record.getValue();
+        Map<Object, Object> value = record.getValue();
 
         // 🔥 init 더미 메시지 차단
         if (value.containsKey("init")) {
@@ -175,8 +175,8 @@ public class OcrStreamConsumer implements Runnable {
             return false;
         }
 
-        String receiptNoStr = value.get("receiptNo");
-        String imagePath = value.get("imagePath");
+        String receiptNoStr = (String) value.get("receiptNo");
+        String imagePath   = (String) value.get("imagePath");
 
         if (receiptNoStr == null || imagePath == null) {
             log.warn("[OCR-STREAM] INVALID PAYLOAD {}", value);
