@@ -3,9 +3,10 @@
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/adminPage.css}">
-<title>관리자 페이지</title>
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/adminPage.css}">
+</th:block>
+<title layout:fragment="pageTitle">관리자 페이지</title>
 </head>
 <body>
 	
@@ -55,6 +56,5 @@
 		</section>
 	
 	</div>
-	
 </body>
 </html>

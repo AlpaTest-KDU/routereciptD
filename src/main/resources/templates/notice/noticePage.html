@@ -4,9 +4,10 @@
 	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	  layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/noticePage.css}">
-<title>공지사항</title>
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/noticePage.css}">
+</th:block>
+<title layout:fragment="pageTitle">공지사항</title>
 </head>
 <body>
 	<div layout:fragment="content">

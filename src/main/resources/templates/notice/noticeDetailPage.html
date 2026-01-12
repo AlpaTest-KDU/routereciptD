@@ -3,9 +3,10 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<title>공지사항</title>
-<link rel="stylesheet" th:href="@{/css/noticePage.css}">
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/noticePage.css}">
+</th:block>
+<title layout:fragment="pageTitle">공지사항</title>
 </head>
 <body>
 
