@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.UploadResult;
+import com.routerecipt.project.stream.OcrStreamProducer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class ReceiptServiceImp implements ReceiptService {
 
     private final ReceiptCommandService receiptCommandService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final OcrStreamProducer ocrStreamProducer;
 
     @Value("${receipt.upload.temp-dir}")
     private String uploadDir;
@@ -87,10 +89,9 @@ public class ReceiptServiceImp implements ReceiptService {
                 payload.put("userId", userId);
                 payload.put("receiptNo", receiptNos.get(i).toString());
                 payload.put("imagePath", imagePaths.get(i));
-
-                redisTemplate.opsForStream()
-                        .add("ocr-stream", payload);
-
+                
+                ocrStreamProducer.publishOcrEvent(userId, imagePaths.get(i), receiptNos.get(i));
+                
                 successReceiptNos.add(receiptNos.get(i));
                 success++;
             }

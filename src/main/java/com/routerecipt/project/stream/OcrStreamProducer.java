@@ -36,12 +36,13 @@ public class OcrStreamProducer {
      * @param userId    요청 사용자 ID
      * @param imagePath OCR 대상 이미지 경로
      */
-    public void publishOcrEvent(String userId, String imagePath) {
+    public void publishOcrEvent(String userId, String imagePath, Long receiptNo) {
 
         Map<String, String> message = new HashMap<>();
         message.put("userId", userId);
         message.put("imagePath", imagePath);
-
+        message.put("receiptNo", receiptNo.toString());
+        
         redisTemplate.opsForStream()
             .add(RedisStreamConfig.OCR_STREAM, message);
     }
