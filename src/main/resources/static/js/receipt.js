@@ -274,3 +274,71 @@ function beforeSubmitConfirm() {
 
   return true; // 제출 진행
 }
+
+/* =====================================================
+ * 파일 업로드 제출 (submitUpload)
+ * ===================================================== */
+function submitUpload() {
+  console.log("📤 submitUpload() called");
+
+  const fileInput = document.getElementById("receiptFile");
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+    alert("영수증 이미지를 선택해주세요.");
+    return;
+  }
+
+  // 로딩 UI 활성화
+  const overlay = document.getElementById("loadingOverlay");
+  if (overlay) {
+    overlay.classList.add("isOpen");
+    overlay.setAttribute("aria-hidden", "false");
+  }
+  document.body.classList.add("isLoading");
+
+  // 버튼 비활성화 (중복 제출 방지)
+  const btn = document.querySelector(".ocrBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "분석 중...";
+  }
+
+  // 폼 제출
+  document.getElementById("uploadForm").submit();
+}
+
+/* =====================================================
+ * 직접 입력 모달 (openManualModal)
+ * ===================================================== */
+function openManualModal() {
+  console.log("👐 openManualModal() called");
+
+  // 1. 선택 초기화
+  selectedIdx = -1;
+
+  // 2. 상호명 입력 (HTML 구조상 prompt로 대체)
+  const placeName = prompt("상호명을 입력해주세요.", "직접 입력");
+  if (placeName === null) return; // 취소 시 중단
+
+  const today = new Date().toISOString().substring(0, 10);
+
+  // 3. 화면 텍스트 초기화
+  document.getElementById("placeText").textContent = placeName;
+  document.getElementById("dateText").textContent  = today;
+  document.getElementById("priceText").textContent = "0";
+
+  // 4. Hidden Input 초기화 (r_no="0" -> 신규 등록 처리용)
+  document.getElementById("rNoInput").value    = "0";
+  document.getElementById("rPlaceInput").value = placeName;
+  document.getElementById("rDateInput").value  = today;
+  document.getElementById("rPriceInput").value = "0";
+
+  // 5. 아이템 리스트 초기화
+  renderItemsByCategory([]);
+
+  // 6. 상세 영역 표시 및 스크롤 이동
+  const detailArea = document.getElementById("detailArea");
+  detailArea.style.display = "block";
+  detailArea.scrollIntoView({ behavior: "smooth" });
+
+  recalcTotalToHidden();
+}
