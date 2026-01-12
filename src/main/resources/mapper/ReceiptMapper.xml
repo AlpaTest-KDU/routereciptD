@@ -237,13 +237,13 @@
 
 <update id="updateOcrStatus">
     UPDATE recipt
-    SET ocr_status = #{status}
+    SET status = #{status}
     WHERE r_no = #{r_no}
 </update>
 
 <update id="updateOcrStatusByImagePath">
     UPDATE recipt
-    SET ocr_status = #{status}
+    SET status = #{status}
     WHERE image_path = #{imagePath}
 </update>
 
@@ -257,7 +257,7 @@
     (
         r_u,
         image_path,
-        ocr_status
+        status
     )
     VALUES
     (
