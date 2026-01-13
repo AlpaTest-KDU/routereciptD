@@ -278,9 +278,10 @@ function beforeSubmitConfirm() {
 /* =====================================================
  * 파일 업로드 제출 (submitUpload)
  * ===================================================== */
-function submitUpload() {
+async function submitUpload() {
   console.log("📤 submitUpload() called");
 
+  const form = document.getElementById("uploadForm");
   const fileInput = document.getElementById("receiptFile");
   if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
     alert("영수증 이미지를 선택해주세요.");
@@ -302,8 +303,42 @@ function submitUpload() {
     btn.textContent = "분석 중...";
   }
 
-  // 폼 제출
-  document.getElementById("uploadForm").submit();
+  try {
+    const formData = new FormData(form);
+
+    // 비동기 요청 (AJAX)
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("✅ Analysis success:", data);
+
+      // 1. 전역 데이터 갱신
+      receipts = data;
+
+      // 2. 목록 UI 갱신
+      renderReceiptList();
+
+      // 3. 결과가 있다면 첫 번째 항목 상세 표시
+      if (receipts && receipts.length > 0) {
+        showReceipt(0);
+      } else {
+        alert("분석된 내용이 없습니다.");
+      }
+    } else {
+      console.error("Upload failed status:", response.status);
+      alert("분석에 실패했습니다. (서버 오류)");
+    }
+  } catch (error) {
+    console.error("Upload error:", error);
+    alert("오류가 발생했습니다.");
+  } finally {
+    // 로딩 해제
+    hideLoadingOverlay();
+  }
 }
 
 /* =====================================================
