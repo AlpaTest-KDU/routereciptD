@@ -20,53 +20,43 @@ import jakarta.servlet.http.HttpServletResponse;
  * - 특정 경로는 인증 여부와 상관없이 통과
  */
 @Component
-@Order(1)	// 필터 실행 우선순위 (숫자가 작을수록 먼저 실행)
+@Order(1)
 public class RedirectLoggonFilter extends OncePerRequestFilter {
-	
-	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-	                                HttpServletResponse response,
-	                                FilterChain filterChain)
-	        throws ServletException, IOException {
 
-		// 현재 요청 URI
-	    String uri = request.getRequestURI();
-	    
-	    // ✅ AI / API 요청은 무조건 통과
-	    if (uri.startsWith("/ai/")) {
-	        filterChain.doFilter(request, response);
-	        return;
-	    }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
 
-	    // 🔒 비로그인 접근 허용 페이지
-	    if (
-	        uri.equals("/") ||
-	        uri.startsWith("/css") ||
-	        uri.startsWith("/js") ||
-	        uri.equals("/user/userLoginPage") ||
-	        uri.equals("/user/userSignUpPage") ||
-	        uri.equals("/user/userFindIdPage") ||
-	        uri.equals("/user/userResetPwPage") ||
-	        uri.equals("/user/analysisPage")
-	    ) {
-	        filterChain.doFilter(request, response);
-	        return;
-	    }
-	    
-	    
-	    // 현재 인증(로그인) 정보 조회
-	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // ⭐ 무중단 배포 / 인프라 경로는 아예 필터 적용 안 함
+        return uri.startsWith("/health")
+            || uri.startsWith("/ai/")
+            || uri.startsWith("/css/")
+            || uri.startsWith("/js/")
+            || uri.startsWith("/img/")
+            || uri.equals("/favicon.ico");
+    }
 
-	    // 로그인 상태인데 로그인 페이지 접근하면 메인으로
-	    if (auth != null && auth.isAuthenticated()
-	        && auth.getPrincipal() instanceof LoginDetails
-	        && uri.equals("/user/userLoginPage")) {
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
 
-	        response.sendRedirect("/");
-	        return;
-	    }
-	    
-	    
-	    filterChain.doFilter(request, response);
-	}
+        String uri = request.getRequestURI();
+
+        // 여기부터는 "필터 적용 대상 요청만" 들어옴
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated()
+            && auth.getPrincipal() instanceof LoginDetails
+            && uri.equals("/user/userLoginPage")) {
+
+            response.sendRedirect("/");
+            return;
+        }
+
+        filterChain.doFilter(request, response);
+    }
 }

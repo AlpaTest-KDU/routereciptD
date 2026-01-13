@@ -170,6 +170,19 @@ public interface ReceiptMapper {
             @Param("item_categories") List<String> item_categories
     );
     
+    List<ReceiptDTO> selectRecentReceiptsByUser(
+            @Param("userId") String userId,
+            @Param("limit") int limit
+    );
     
+    void updateOcrStatus(@Param("r_no") Long r_no,
+            @Param("status") String status);
+    
+    void updateOcrStatusByImagePath(@Param("imagePath") String imagePath,
+            @Param("status") String status);
+    
+    void insertPendingReceipt(ReceiptDTO receipt);
+    
+    String selectImagePathByReceiptNo(@Param("receiptNo") Long receiptNo);
     
 }

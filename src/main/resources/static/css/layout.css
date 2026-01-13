@@ -39,9 +39,9 @@
 }
 
 .logoText {
-  	color: #111827;
-  	font-size: 22px;
-  	font-weight: 700;
+  	color: #1f1c6f;
+  	font-size: 24px;
+  	font-weight: 800;
 }
 
 .navbarMenu {
@@ -62,10 +62,95 @@
 	color: #111827;
 }
 
+/* 로그인한 유저 */
+.account {
+  	position: relative;
+  	margin-left: 6px;
+}
+
+.accountBtn {
+  	display: inline-flex;
+  	align-items: center;
+  	gap: 8px;
+  	padding: 8px 12px;
+  	border-radius: 999px;
+  	background: rgba(17, 24, 39, 0.06);
+  	border: 1px solid rgba(17, 24, 39, 0.06);
+  	outline: none;
+  	cursor: pointer;
+  	font-weight: 600;
+  	color: #111827;
+}
+
+/* 상위 버튼과 섞이지 않게 */
+.accountBtn:focus-visible {
+  	outline: 2px solid rgba(80, 84, 239, 0.35);
+  	outline-offset: 2px;
+}
+
+.accountBtn:hover {
+  	background: rgba(17, 24, 39, 0.10);
+}
+
+/* 드롭다운 열리게 */
+.account:hover .accountMenu { 
+	display: block; 
+}
+
+/* 드롭다운 메뉴 */
+.accountMenu {
+	display: none;
+  	position: absolute;
+  	right: 0;
+  	top: calc(100% + 6px);
+  	min-width: 160px;
+  	padding: 8px;
+  	border-radius: 12px;
+  	background: #fff;
+  	border: 1px solid rgba(17, 24, 39, 0.08);
+  	box-shadow: 0 10px 30px rgba(17, 24, 39, 0.12);
+  	z-index: 20000;			/* 드롭다운 메뉴 가려지지 않게 */
+}
+
+/* hover 풀리지 않게 */
+.accountMenu::before {
+  	content:"";
+  	position:absolute;
+  	left:0;
+  	right:0;
+  	top:-10px;
+  	height:10px;
+}
+
+.accountItem {
+  	display: block;
+  	width: 100%;
+  	text-align: left;
+  	padding: 10px 10px;
+  	border-radius: 10px;
+  	color: #111827;
+  	font-weight: 500;
+  	background: transparent;
+  	border: none;
+  	cursor: pointer;
+}
+
+.accountItem:hover {
+  	background: rgba(2,32,71,0.05);
+}
+
+.accountItem.danger {
+  	color: #b91c1c;
+}
+
+.accountItem.danger:hover {
+  	background: rgba(185, 28, 28, 0.08);
+}
+
 .footer {
 	background: linear-gradient(to bottom, #0f172a, #1e1b4b);
 	color: white;
-	padding: 28px 40px;
+	padding: 44px 40px;
 }
 
 .footerInner {
@@ -78,8 +163,8 @@
   	display: flex;
   	align-items: flex-start;
   	justify-content: space-between;
-  	gap: 24px;
-  	padding-bottom: 18px;
+  	gap: 32px;
+  	padding-bottom: 26px;
   	border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
@@ -89,7 +174,7 @@
 }
 
 .footerName {
-  	margin: 0 0 6px;
+  	margin: 0 0 10px;
   	font-size: 16px;
   	font-weight: 800;
 }
@@ -97,10 +182,9 @@
 .footerDesc {
   	margin: 0;
   	opacity: 0.85;
-  	line-height: 1.6;
+  	line-height: 1.7;
 }
 
-.footerLinks,
 .footerSns {
   	margin: 0;
   	padding: 0;
@@ -110,7 +194,6 @@
   	justify-content: flex-end;
 }
 
-.footerLinks a,
 .footerSns a {
   	color: rgba(255,255,255,0.85);
   	padding: 6px 10px;
@@ -118,14 +201,14 @@
   	font-weight: 500;
 }
 
-.footerLinks a:hover,
 .footerSns a:hover {
   	background: rgba(255,255,255,0.10);
   	color: #fff;
 }
 
 .footerBottom {
-  	padding-top: 14px;
+  	padding-top: 22px;
+  	padding-bottom: 6px;
   	text-align: center;
   	opacity: 0.75;
   	font-size: 13px;

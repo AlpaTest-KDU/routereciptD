@@ -3,50 +3,53 @@
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	  layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/userfind.css}">
-<title>Insert title here</title>
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/userfind.css(v=1.0.0)}">
+</th:block>
+<title layout:fragment="pageTitle">아이디 찾기</title>
 </head>
 <body>
 	<div layout:fragment="content">
 	
-		<div class="userFindArea">
-			<div>
-				<a th:href="@{/}" class="routeceipt">Routeceipt</a>
-			</div>
-			<form th:action="@{/user/userFindId}" method="post">
-				<div class="userFindId">
-					<div>
-						<h3>아이디 찾기</h3>
-						<p>이메일을 입력해주세요.</p>
-					</div>
-					<div th:unless="${foundId}">
-						<div class="findRow">
-							<div class="field">
-								<input id="findId_email" type="text" name="u_email" placeholder=" " required>
-								<label for="findId_email">이메일</label>
-							</div>
-							<button type="submit" class="findBtn">찾기</button>
-						</div>
-						<div class="findError" th:if="${idError}">
-		        			<p th:text="${idError}"></p>
-		    			</div>
-					</div>
-	
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				          찾은 아이디 보여주는 화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->			
-					<div class="findResult" th:if="${foundId}">
-	        			<p>회원님의 아이디는 <span th:text="${foundId}"></span> 입니다.</p>
-						<div>
-							<a th:href="@{/user/userLoginPage}">로그인 하러가기</a>
-						</div>
-	    			</div>
-<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
-<!--│				          찾은 아이디 보여주는 화면							      │ -->
-<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+		<div class="userFindPage">
+			<div class="userFindArea">
+				<div>
+					<a th:href="@{/}" class="routeceipt">Routereceipt</a>
 				</div>
-			</form>
+				<form th:action="@{/user/userFindId}" method="post">
+					<div class="userFindId">
+						<div>
+							<h3>아이디 찾기</h3>
+							<p>이메일을 입력해주세요.</p>
+						</div>
+						<div th:unless="${foundId}">
+							<div class="findRow">
+								<div class="field">
+									<input id="findId_email" type="text" name="u_email" placeholder=" " required>
+									<label for="findId_email">이메일</label>
+								</div>
+								<button type="submit" class="findBtn">찾기</button>
+							</div>
+							<div class="findError" th:if="${idError}">
+			        			<p th:text="${idError}"></p>
+			    			</div>
+						</div>
+		
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				          찾은 아이디 보여주는 화면							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->			
+						<div class="findResult" th:if="${foundId}">
+		        			<p>회원님의 아이디는 <span th:text="${foundId}"></span> 입니다.</p>
+							<div>
+								<a th:href="@{/user/userLoginPage}">로그인 하러가기</a>
+							</div>
+		    			</div>
+	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
+	<!--│				          찾은 아이디 보여주는 화면							      │ -->
+	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 </body>

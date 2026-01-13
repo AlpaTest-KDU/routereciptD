@@ -4,9 +4,10 @@
 	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	  layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/noticePage.css}">
-<title>Insert title here</title>
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/noticePage.css(v=1.0.0)}">
+</th:block>
+<title layout:fragment="pageTitle">공지사항</title>
 </head>
 <body>
 	<div layout:fragment="content">
@@ -61,19 +62,20 @@
 				<!-- 이전 버튼 -->
 				<a th:if="${page.prev}" 
 				   th:href="@{/notice/noticePage(pageNum=${page.startPage - 1}, amount=${page.criteria.amount})}" 
-				   class="btnPrev">&lt; 이전</a>
+				   class="pageBtn pageNav">&lt; 이전</a>
 
 				<!-- 페이지 번호 -->
 				<th:block th:each="num : ${#numbers.sequence(page.startPage, page.endPage)}">
 					<a th:href="@{/notice/noticePage(pageNum=${num}, amount=${page.criteria.amount})}" 
 					   th:text="${num}"
+					   class="pageBtn pageNum"
 					   th:style="${page.criteria.pageNum == num ? 'font-weight: bold; text-decoration: underline;' : ''}"></a>
 				</th:block>
 
 				<!-- 다음 버튼 -->
 				<a th:if="${page.next}" 
 				   th:href="@{/notice/noticePage(pageNum=${page.endPage + 1}, amount=${page.criteria.amount})}" 
-				   class="btnNext">다음 &gt;</a>
+				   class="pageBtn pagenNav">다음 &gt;</a>
 			</div>
 			
 		</section>

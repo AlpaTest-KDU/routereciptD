@@ -1,17 +1,29 @@
 @charset "UTF-8";
 
-.userInfoUpdateArea {
-	max-width: 1180px;
+/* userInfoUpdate.css 상단 or 레이아웃 섹션 */
+.mypage2colWrapper {
+  	display: grid;
+  	grid-template-columns: 260px minmax(760px, 1fr);
+  	gap: 26px;
+  	align-items: start;
+  	max-width: var(--wrap-max);
   	margin: 0 auto;
-  	padding: 36px 24px 80px;
+  	padding: 22px 18px 60px;
+}
+
+.userInfoUpdateArea {
+	max-width: none;
+  	margin: 0;
+  	padding: 0;
 }
 
 .userInfoUpdateArea > h2 {
-  	margin: 0 0 18px;
-  	padding: 10px 0 18px;
+  	margin: 0 0 14px;
+  	padding: 14px 16px;
   	font-size: 22px;
   	font-weight: 700;
   	letter-spacing: -0.2px;
+  	color: var(--text);
   	border-bottom: 1px solid var(--line);
 }
 
@@ -21,6 +33,7 @@
   	background: #fff;
   	margin: 16px 0;
   	padding: 6px 0;
+  	overflow: hidden;
 }
 
 .infoRow {
@@ -29,6 +42,10 @@
   	align-items: center;
   	min-height: 54px;
   	border-bottom: 1px solid var(--line);
+}
+
+.infoRow:last-child{
+  border-bottom: 0;
 }
 
 .infoRow > label {
@@ -49,14 +66,38 @@
   	color: var(--text);
 }
 
+.infoRow input[type="text"],
+.infoRow input[type="email"],
+.infoRow input[type="password"] {
+  	width: calc(100% - 32px);
+  	margin: 10px 16px;
+  	height: 34px;
+  	padding: 0 12px;
+  	border: 1px solid var(--line);
+  	border-radius: 10px;
+  	background: #fff;
+  	color: var(--text);
+  	font-size: 13px;
+  	outline: none;
+  	transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.infoRow input::placeholder {
+  	color: rgba(17,24,39,.35);
+}
+
+.infoRow input:focus {
+  	border-color: rgba(17,24,39,.35);
+  	box-shadow: 0 0 0 4px var(--primary-weak);
+}
+
 /* hidden: 레이아웃 영향 방지 */
 input[type="hidden"]{ display:none; }
 
 .saveBtn {
   	height: 38px;
   	padding: 0 16px;
-  	border: 1px solid #111;
-  	background: #111;
+  	background: #5054ef;
   	color: #fff;
   	font-size: 13px;
   	font-weight: 700;
@@ -79,11 +120,14 @@ input[type="hidden"]{ display:none; }
 .deleteBtn {
   	height: 38px;
   	padding: 0 16px;
-  	border: 1px solid var(--danger);
   	color: black;
   	font-size: 13px;
   	font-weight: 700;
   	cursor: pointer;
+  	background: #fff;
+  	border: 1px solid #111;
+  	display: inline-flex;
+  	align-items: center;
 }
 
 

@@ -3,9 +3,11 @@
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
-<link rel="stylesheet" th:href="@{/css/base.css}">
-<link rel="stylesheet" th:href="@{/css/layout.css}">
+<title layout:fragment="pageTitle">Routereceipt</title>
+<link rel="stylesheet" th:href="@{/css/base.css(v=1.0.0)}">
+<link rel="stylesheet" th:href="@{/css/layout.css(v=1.0.0)}">
+<!-- 페이지별 css 주입 -->
+<th:block layout:fragment="pageCss"></th:block>
 </head>
 <body class="pageWrapper">
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->

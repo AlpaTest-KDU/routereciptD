@@ -6,21 +6,16 @@ import java.util.Map;
 
 import com.routerecipt.project.dto.ReceiptDTO;
 
-
-/**
- * 영수증(Receipt) 도메인의 애플리케이션 서비스 인터페이스
- *
- * - 컨트롤러(화면/요청) 기준의 유즈케이스 단위를 정의한다.
- * - 저장/확정(Write) + 조회/화면구성(Read) 기능을 포함한다.
- * - 구현체에서는 Mapper/Redis/AI/OCR 등의 하위 컴포넌트를 조합해 처리하는 위치가 된다.
- */
 public interface ReceiptApplicationService {
 
-    // Write(저장/확정)
-	// 영수증(헤더) + 영수증 아이템 목록을 함께 저장한다.
+    // =========================
+    // Write (저장/확정)
+    // =========================
+
+    // 영수증 + 아이템 저장
     void saveReceiptWithItems(ReceiptDTO receipt);
 
-    // 임시(TEMP) 상태의 영수증을 사용자가 수정/확정할 때 호출되는 메서드
+    // 영수증 확정(수정 반영)
     void confirmReceipt(
             Long r_no,
             String r_place,
@@ -30,4 +25,26 @@ public interface ReceiptApplicationService {
             List<Integer> item_prices,
             List<String> item_categories
     );
+
+    // =========================
+    // Read (조회/화면 구성)
+    // =========================
+
+    List<ReceiptDTO> getSavedReceiptsDate(String userId, String yearMonth);
+
+    Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts);
+
+    List<Integer> buildCalendar(String yearMonth);
+
+    List<ReceiptDTO> getRecentReceipts(List<Long> r_no);
+
+    // =========================
+    // OCR 상태 관리 (비동기 전용)
+    // =========================
+
+    // OCR 성공/실패 시 상태 업데이트
+    void updateOcrStatus(Long r_no, String status);
+
+    // imagePath 기준 OCR 실패 처리용
+    void updateOcrStatusByImagePath(String imagePath, String status);
 }

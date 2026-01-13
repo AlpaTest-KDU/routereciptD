@@ -3,68 +3,111 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" th:href="@{/css/userInfoUpdate.css}">
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/mypageSidebar.css(v=1.0.0)}">
+	<link rel="stylesheet" th:href="@{/css/userInfoUpdate.css(v=1.0.0)}">
+</th:block>
 <script th:src="@{/js/userInfoDelete.js}" defer></script>
-<title>Insert title here</title>
+<title layout:fragment="pageTitle">회원정보 수정</title>
 </head>
 <body>
 
 	<div layout:fragment="content">
-	
-		<div class="userInfoUpdateArea">
-	    	<h2>회원정보 수정</h2>
-	    	<form th:action="@{/user/userInfoUpdate}" method="post">
-	    		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-				<div class="infoRow">
-	        		<label>아이디</label>
-					<span th:text="${u_id}"></span>
-	      		</div>
-	      		<div class="infoRow">
-	        		<label for="u_name">이름</label>
-	        		<input id="u_name" type="text" name="u_name" th:value="${u_name}">
-	      		</div>
-	      		<div class="infoRow">
-	        		<label>생년월일</label>
-	        		<span th:text="${u_birthday}"></span>
-	      		</div>
-	      		<div class="infoRow">
-	        		<label for="u_email">이메일</label>
-	        		<input id="u_email" type="email" name="u_email" th:value="${u_email}">
-	      		</div>
-	      		<div class="infoRow">
-	        		<label>성별</label>
-	        		<span th:text="${gender}"></span>
-	      		</div>
-	      		<!-- 취소버튼 -->
-	      		<button type="button" class="cancelBtn"
-	      			th:onclick="|location.href='@{/user/userInfoShowPage}'|">취소</button>
-	      		<button type="submit" class="saveBtn">회원정보수정</button>
-			</form>
+		<div class="contents">
+			<div class="mypage2colWrapper">
+			    <aside class="mypageSidebar">
+			        <div class="mypageSidebarSection">
+			            <h3 class="mypageSidebarTitle">나의 정보</h3>
+			            <ul class="mypageMenuList">
+			                <li>
+			                    <a th:href="@{/user/userInfoUpdatePage}" class="mypageMenuLink">
+			                        회원 정보 수정
+			                    </a>
+			                </li>
+			                <li>
+								<form id="mypageLogoutForm" th:action="@{/logout}" method="post">
+									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								</form>
+								<a href="javascript:void(0);" onclick="confirmLogout('mypageLogoutForm');" class="mypageMenuLink">
+			   						로그아웃
+								</a>
+			                </li>
+			                <!-- <li>
+								<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
+									<input type="hidden" id="currentUserId" th:value="${u_id}">
+									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+								</form>
 			
-			<form th:action="@{/user/userResetPwPage}" method="GET">
-	      		<div class="infoRow">
-	    			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-					<button type="submit" class="saveBtn">비밀번호 재설정</button>
-	      		</div>
-			</form>
-
-	    	<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
-				<input type="hidden" id="currentUserId" th:value="${u_id}">
-				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-	      		<button type="button" class="deleteBtn" onclick="confirmDelete()">회원 탈퇴</button>
-	    	</form>
-	    	
-	    	<div style="border:2px solid red; padding:10px; margin-bottom:20px;">
-    			<h3>DEBUG - USER MODEL CHECK</h3>
-    			<p>u_id: <span th:text="${u_id}">없음</span></p>
-    			<p>u_name: <span th:text="${u_name}">없음</span></p>
-    			<p>u_email: <span th:text="${u_email}">없음</span></p>
-    			<p>u_birthday: <span th:text="${u_birthday}">없음</span></p>
-    			<p>gender: <span th:text="${gender}">없음</span></p>
+			                    <a href="javascript:void(0);" onclick="confirmDelete()" class="mypageMenuLink">
+			                        회원 탈퇴
+			                    </a>
+			                </li> -->
+			            </ul>
+			        </div>
+			
+			        <div class="mypageSidebarSection">
+			            <h3 class="mypageSidebarTitle">활동 정보</h3>
+			            <ul class="mypageMenuList">
+			                <!-- <li>
+			                    <a th:href="@{/user/receiptInfoShow}" class="mypageMenuLink">
+			                        업로드 내역 조회
+			                    </a>
+			                </li> -->
+			                <li>
+			                    <a th:href="@{/user/monthlyAnalysisPage}" class="mypageMenuLink">
+			                        월별 소비 패턴
+			                    </a>
+			                </li>	                
+			            </ul>
+			        </div>
+			    </aside>
+			
+				<div class="userInfoUpdateArea">
+			    	<h2>회원정보 수정</h2>
+			    	<form th:action="@{/user/userInfoUpdate}" method="post">
+			    		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+						<div class="infoRow">
+			        		<label>아이디</label>
+							<span th:text="${u_id}"></span>
+			      		</div>
+			      		<div class="infoRow">
+			        		<label for="u_name">이름</label>
+			        		<input id="u_name" type="text" name="u_name" th:value="${u_name}">
+			      		</div>
+			      		<div class="infoRow">
+			        		<label>생년월일</label>
+			        		<span th:text="${u_birthday}"></span>
+			      		</div>
+			      		<div class="infoRow">
+			        		<label for="u_email">이메일</label>
+			        		<input id="u_email" type="email" name="u_email" th:value="${u_email}">
+			      		</div>
+			      		<div class="infoRow">
+			        		<label>성별</label>
+			        		<span th:text="${gender}"></span>
+			      		</div>
+			      		<!-- 취소버튼 -->
+			      		<button type="button" class="cancelBtn"
+			      			th:onclick="|location.href='@{/user/userInfoShowPage}'|">취소</button>
+			      		<button type="submit" class="saveBtn">회원정보수정</button>
+					</form>
+					
+					<form th:action="@{/user/userResetPwPage}" method="GET">
+			      		<div class="infoRow">
+			    			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+							<button type="submit" class="saveBtn">비밀번호 재설정</button>
+			      		</div>
+					</form>
+			
+			    	<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
+						<input type="hidden" id="currentUserId" th:value="${u_id}">
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			      		<button type="button" class="deleteBtn" onclick="confirmDelete()">회원 탈퇴</button>
+			    	</form>
+			    	
+				</div>
 			</div>
-		</div>
-		
+		</div>	
 	</div>
 </body>
 </html>

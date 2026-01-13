@@ -3,55 +3,88 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="/css/myreceiptresult.css">
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/myreceiptresult.css(v=1.0.0)}">
+</th:block>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- chart.js 데이터 라벨 표시 플러그인 (현재 코드에서는 사용 안 하면 제거 가능) -->
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-<title>나의 영수증 분석</title>
+<title layout:fragment="pageTitle">소비 분석</title>
 </head>
 <body>
 
 	<div layout:fragment="content">
 
-	    <h2>소비 통계 한눈에 보기</h2>
-	    <p class="page-desc">
-	        전체 사용자 성별 소비와 평균 지출을 비교한 통계 분석 페이지입니다.
-	    </p>
-	
-	    <div class="chart-grid">
-	
-	        <div class="card">
-	            <h3>성별 지출 <span class="badge">Gender</span></h3>
-	            <div class="chart-wrapper gender-wrapper">
-	                <canvas id="genderChart"></canvas>
-	            </div>
-	            <div id="genderSummary" class="gender-summary"></div>
-	        </div>
-	
-	        <div class="card">
-	            <h3>나의 평균 소비 vs 전체 평균</h3>
-	            <div class="avg-box">
-	                <div class="avg-text">
-	                    <div th:if="${myAvg > 0}">
-	                        나의 1회 결제 평균 금액:
-	                        <b th:text="${#numbers.formatInteger(myAvg, 0, 'COMMA')} + ' 원'">0 원</b>
-	                    </div>
-	                    <div>
-	                        전체 사용자 1회 결제 평균 금액:
-	                        <b th:text="${#numbers.formatInteger(allAvg, 0, 'COMMA')} + ' 원'">0 원</b>
-	                    </div>
-	                </div>
-	                <div class="avg-chart-box">
-	                    <canvas id="avgChart"></canvas>
-	                </div>
-	            </div>
-	        </div>
-	
-	    </div>
+		<div class="chartPage">
+		    <h2>소비 통계 한눈에 보기</h2>
+		    <p class="page-desc">
+		        전체 사용자 성별 소비와 평균 지출을 비교한 통계 분석 페이지입니다.
+		    </p>
 
-	    <a href="/" class="btn-back">← 메인으로 돌아가기</a>
+		    <div class="chart-grid">
+
+		        <div class="card">
+		            <h3>성별 지출 <span class="badge">Gender</span></h3>
+		            <div class="chart-wrapper gender-wrapper">
+		                <canvas id="genderChart"></canvas>
+		            </div>
+		            <div id="genderSummary" class="gender-summary"></div>
+
+		        	<div id="avgSummaryUnderGender" class="avg-summary-under-gender"></div>
+		        </div>
+		    </div>
+
+			<div  class="chart-grid">
+		        <div class="card">
+					<h3>나의 평균 소비 vs 전체 평균</h3>
+
+					<div class="avg-layout">
+    				<!-- 그래프(가운데/메인) -->
+    					<div class="avg-chart-area">
+      						<canvas id="avgChart"></canvas>
+    					</div>
+
+    					<!-- 오른쪽 인사이트 패널 -->
+    					<div class="avg-insights">
+      						<div class="insight-row">
+        						<span class="label">나의 1회 결제 평균</span>
+        						<b class="value" th:text="${#numbers.formatInteger(myAvg, 0, 'COMMA')} + ' 원'">0 원</b>
+      						</div>
+
+      						<div class="insight-row">
+        						<span class="label">전체 1회 결제 평균</span>
+        						<b class="value" th:text="${#numbers.formatInteger(allAvg, 0, 'COMMA')} + ' 원'">0 원</b>
+      						</div>
+
+      						<hr class="insight-divider"/>
+
+      						<!-- 차이/차이율: 서버에서 내려주면 가장 깔끔(아래는 JS로도 가능) -->
+      						<div class="insight-row">
+        						<span class="label">차이(나 - 전체)</span>
+        						<b class="value" id="avgDeltaText">0 원</b>
+      						</div>
+
+      						<div class="insight-badge" id="avgBadge">-</div>
+
+      						<div class="insight-tip" id="avgTip">
+        						전체 평균과 비교한 결과를 기반으로 소비 성향을 요약해드려요.
+      						</div>
+
+      						<ul class="insight-list">
+        						<li>결제 상한선을 정해 과소비를 예방해보세요.</li>
+        						<li>자주 결제하는 가맹점을 고정비로 분류해보세요.</li>
+        						<li>월별 추이를 함께 보면 개선 포인트가 더 명확해집니다.</li>
+      						</ul>
+    					</div>
+  					</div>
+				</div>
+
+		    </div>
+
+		    <a href="/" class="btn-back">← 메인으로 돌아가기</a>
+
+	    </div>
 	
 	    <!-- 1) 서버 데이터를 JS 전역 변수로 주입 (4,5,6만) -->
 	    <script th:inline="javascript">
@@ -66,7 +99,35 @@
 	
 	    <!-- 2) 차트 렌더링 JS (4,5,6 전용 파일 권장) -->
 	    <script src="/js/myreceiptresultCharts.js"></script>
-    
+
+	    <script>
+	    (() => {
+	    	  const myAvg = Number(window.receiptData?.myAvg ?? 0);
+	    	  const allAvg = Number(window.receiptData?.allAvg ?? 0);
+	    	  if (!myAvg && !allAvg) return;
+
+	    	  const delta = myAvg - allAvg;
+	    	  const rate = allAvg ? (delta / allAvg) * 100 : 0;
+
+	    	  const deltaEl = document.getElementById("avgDeltaText");
+	    	  const badgeEl = document.getElementById("avgBadge");
+	    	  const tipEl = document.getElementById("avgTip");
+
+	    	  if (deltaEl) deltaEl.textContent = `${delta.toLocaleString("ko-KR")} 원 (${rate.toFixed(1)}%)`;
+
+	    	  const isHigher = delta > 0;
+	    	  const absRate = Math.abs(rate).toFixed(1);
+
+	    	  if (badgeEl) badgeEl.textContent = isHigher ? `전체 평균보다 높음 (+${absRate}%)` : `전체 평균보다 낮음 (-${absRate}%)`;
+
+	    	  if (tipEl) {
+	    	    tipEl.textContent = isHigher
+	    	      ? `전체 평균보다 ${Math.abs(delta).toLocaleString("ko-KR")}원 높아요. 고액 결제가 평균을 끌어올릴 수 있어 상한선/예산 설정을 추천합니다.`
+	    	      : `전체 평균보다 ${Math.abs(delta).toLocaleString("ko-KR")}원 낮아요. 소액 다건 결제라면 월 합계 관리로 체감 지출을 줄일 수 있습니다.`;
+	    	  }
+	    	})();
+	    </script>
+
     </div>
 
 </body>

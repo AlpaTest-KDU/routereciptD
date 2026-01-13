@@ -3,17 +3,19 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<title>마이페이지</title>
-<link rel="stylesheet" th:href="@{/css/mypage.css}">
+<th:block layout:fragment="pageCss">
+	<link rel="stylesheet" th:href="@{/css/mypageSidebar.css(v=1.0.0)}">
+	<link rel="stylesheet" th:href="@{/css/mypage.css(v=1.0.0)}">
+</th:block>
 <script th:src="@{/js/userInfoDelete.js}" defer></script>
-<script th:src="@{/js/mypageCalendar.js}" defer></script>
+	<script th:src="@{/js/mypageCalendar.js}" defer></script>
+<title layout:fragment="pageTitle">마이페이지</title>
 </head>
 <body>
 
 	<div layout:fragment="content">
 		
-		<div class="contents">
+		<div class="mypageContents">
 			<div class="mypageWrapper">
 	
 	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
@@ -36,7 +38,7 @@
 		    						로그아웃
 								</a>
 			                </li>
-			                <li>
+			                <!-- <li>
 								<form id="deleteForm" th:action="@{/user/userInfoDelete}" method="post">
 									<input type="hidden" id="currentUserId" th:value="${u_id}">
 									<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -45,20 +47,20 @@
 			                    <a href="javascript:void(0);" onclick="confirmDelete()" class="mypageMenuLink">
 			                        회원 탈퇴
 			                    </a>
-			                </li>
+			                </li> -->
 			            </ul>
 			        </div>
 			
 			        <div class="mypageSidebarSection">
 			            <h3 class="mypageSidebarTitle">활동 정보</h3>
 			            <ul class="mypageMenuList">
-			                <li>
+			                <!-- <li>
 			                    <a th:href="@{/user/receiptInfoShow}" class="mypageMenuLink">
 			                        업로드 내역 조회
 			                    </a>
-			                </li>
+			                </li> -->
 			                <li>
-			                    <a th:href="@{/user/analysisMonthlyPage}" class="mypageMenuLink">
+			                    <a th:href="@{/user/monthlyAnalysisPage}" class="mypageMenuLink">
 			                        월별 소비 패턴
 			                    </a>
 			                </li>
@@ -84,7 +86,7 @@
 			                <h2>
 			                    <span th:text="${u_name}">사용자</span> 님의 마이페이지
 			                </h2>
-			                <p>Routeceipt에서 영수증 업로드 내역과 소비 패턴을 한 눈에 확인해보세요.</p>
+			                <p>Routereceipt에서 영수증 업로드 내역과 소비 패턴을 한 눈에 확인해보세요.</p>
 			            </div>
 			        </header>
 			        
@@ -127,6 +129,7 @@
 	<!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 	<!--│				            마이페이지 - 오른쪽 패널							      │ -->
 	<!--└─────────────────────────────────────────────────────────────────────────────┘ -->	
+
 			        <aside class="mypageSummary">
 			            <div class="mypageCard">
 			                <h3>이번 달 업로드한 영수증</h3>

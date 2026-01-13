@@ -4,9 +4,10 @@
 	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	  layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
-<link th:rel="stylesheet" th:href="@{/css/index.css}">
-<title th:text="'Routereceipt'"></title>
+<th:block layout:fragment="pageCss">
+	<link th:rel="stylesheet" th:href="@{/css/index.css(v=1.0.0)}">
+</th:block>
+<title th:text="'TEMPLATE WORKING'"></title>
 
 </head>
 <body>
@@ -19,7 +20,7 @@
 		<section class="hero">
 				<div class="hero-text">
 					<h1>영수증 관리의 새로운 길</h1>
-					<h1 id="routeceipt">Routereceipt</h1>
+					<h1 id="routereceipt">Routereceipt</h1>
 					<p>영수증을 업로드하면 AI가 자동으로 인식하고 정리해요</p>
 					<p>영수증 관리부터 소비 분석까지</p>
 					<p>Routereceipt 하나로 끝내세요</p>
@@ -29,13 +30,13 @@
 				</div>
 				<div id="imgSlider">
 					<div class="slideContent active" id="slideContent1">
-						<img th:src="@{/img/testImg1.jpg}" alt="Slide 1">
+						<img th:src="@{/img/Img1.png}" alt="Slide 1">
 					</div>
 					<div class="slideContent" id="slideContent2">
-						<img th:src="@{/img/testImg2.jpg}" alt="Slide 2">
+						<img th:src="@{/img/Img2.png}" alt="Slide 2">
 					</div>
 					<div class="slideContent" id="slideContent3">
-						<img th:src="@{/img/testImg3.jpg}" alt="Slide 3">
+						<img th:src="@{/img/Img3.png}" alt="Slide 3">
 					</div>
 				</div>
 		</section>
@@ -177,7 +178,7 @@
 					slides[currentSlide].classList.remove('active');
 					currentSlide = (currentSlide + 1) % slides.length;
 					slides[currentSlide].classList.add('active');
-				}, 3000); // 3000ms = 3초 간격
+				}, 5000); // 5000ms = 5초 간격
 			});
 		</script>
 		

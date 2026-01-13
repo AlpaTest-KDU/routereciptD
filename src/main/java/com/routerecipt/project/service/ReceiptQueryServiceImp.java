@@ -17,7 +17,9 @@ import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.mapper.ReceiptMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,46 +42,73 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
     @Override
     public List<ReceiptDTO> getRecentReceipts(List<Long> r_no) {
 
+        // 🔍 0. 진입 로그
+        log.info("[QUERY] getRecentReceipts() called, r_no = {}", r_no);
+
         if (r_no == null || r_no.isEmpty()) {
+            log.warn("[QUERY] r_no is null or empty → return empty list");
             return Collections.emptyList();
         }
 
-        // 1) receipt 조회
+        // 1️⃣ receipt 조회
         List<ReceiptDTO> receipts = receiptMapper.selectTempReceiptsByNos(r_no);
 
+        log.info("[QUERY] receipt 조회 결과 size = {}",
+                receipts == null ? "null" : receipts.size());
+
         if (receipts == null || receipts.isEmpty()) {
+            log.warn("[QUERY] receipt 조회 결과 없음 → return empty list");
             return Collections.emptyList();
         }
 
-        // 2) items 일괄 조회
-        List<ReceiptItemDTO> items = receiptMapper.selectItemsByReceiptNos(r_no);
+        // 2️⃣ items 일괄 조회
+        List<ReceiptItemDTO> items =
+                receiptMapper.selectItemsByReceiptNos(r_no);
 
-        // 3) r_no 기준 grouping (null key 방지)
+        log.info("[QUERY] item 조회 결과 size = {}",
+                items == null ? "null" : items.size());
+
+        // 3️⃣ r_no 기준 grouping
         Map<Long, List<ReceiptItemDTO>> itemMap;
         if (items == null || items.isEmpty()) {
+            log.warn("[QUERY] items 비어 있음 → itemMap empty");
             itemMap = Collections.emptyMap();
         } else {
             itemMap = items.stream()
                     .filter(Objects::nonNull)
                     .filter(it -> it.getR_no() != null)
                     .collect(Collectors.groupingBy(ReceiptItemDTO::getR_no));
+
+            log.info("[QUERY] itemMap grouping keys = {}", itemMap.keySet());
         }
 
+        // 4️⃣ receipt에 item 세팅
         for (ReceiptDTO r : receipts) {
-            r.setItems(itemMap.getOrDefault(r.getR_no(), Collections.emptyList()));
+            List<ReceiptItemDTO> attached =
+                    itemMap.getOrDefault(r.getR_no(), Collections.emptyList());
+
+            r.setItems(attached);
+
+            log.info(
+                "[QUERY] receipt r_no={} → items attached size={}",
+                r.getR_no(),
+                attached.size()
+            );
         }
 
-        // 4) 업로드 순서 유지 정렬
+        // 5️⃣ 업로드 순서 유지 정렬
         Map<Long, Integer> order = new HashMap<>();
         for (int i = 0; i < r_no.size(); i++) {
             order.put(r_no.get(i), i);
         }
 
         receipts.sort(
-                Comparator.comparingInt(
-                        r -> order.getOrDefault(r.getR_no(), Integer.MAX_VALUE)
-                )
+            Comparator.comparingInt(
+                r -> order.getOrDefault(r.getR_no(), Integer.MAX_VALUE)
+            )
         );
+
+        log.info("[QUERY] 최종 반환 receipts size = {}", receipts.size());
 
         return receipts;
     }
@@ -155,4 +184,53 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
             return "기타";
         }
     }
+    
+    @Override
+    public List<ReceiptDTO> getRecentReceiptsByUser(String userId, int limit) {
+
+        if (userId == null || limit <= 0) {
+            return Collections.emptyList();
+        }
+
+        // 1️⃣ 사용자 기준 최근 영수증 조회
+        List<ReceiptDTO> receipts =
+                receiptMapper.selectRecentReceiptsByUser(userId, limit);
+
+        if (receipts == null || receipts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 2️⃣ r_no 목록 추출
+        List<Long> receiptNos = receipts.stream()
+                .map(ReceiptDTO::getR_no)
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (receiptNos.isEmpty()) {
+            return receipts;
+        }
+
+        // 3️⃣ 아이템 일괄 조회
+        List<ReceiptItemDTO> items =
+                receiptMapper.selectItemsByReceiptNos(receiptNos);
+
+        Map<Long, List<ReceiptItemDTO>> itemMap =
+                (items == null || items.isEmpty())
+                        ? Collections.emptyMap()
+                        : items.stream()
+                               .filter(Objects::nonNull)
+                               .filter(i -> i.getR_no() != null)
+                               .collect(Collectors.groupingBy(ReceiptItemDTO::getR_no));
+
+        // 4️⃣ receipt ↔ items 매핑
+        for (ReceiptDTO r : receipts) {
+            r.setItems(itemMap.getOrDefault(
+                    r.getR_no(),
+                    Collections.emptyList()
+            ));
+        }
+
+        return receipts;
+    }
+
 }

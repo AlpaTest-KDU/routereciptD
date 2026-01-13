@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -31,9 +34,11 @@ import com.routerecipt.project.OpenAI.OpenAiReceiptResult;
 import com.routerecipt.project.dto.ByteArrayMultiPartFile;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
+import com.routerecipt.project.service.ReceiptApplicationService;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -48,6 +53,7 @@ import lombok.RequiredArgsConstructor;
  * 주로 사용되는 흐름:
  *  - callClovaOCR(file) -> parseReceiptWithAssist(json, file) -> ReceiptDTO 반환
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OcrService {
@@ -61,10 +67,11 @@ public class OcrService {
     private String clovaSecret;
 
     // CLOVA OCR 호출용 RestTemplate (현재는 new로 생성)
-    private final RestTemplate restTemplate = new RestTemplate();
-
+    private final RestTemplate clovaRestTemplate;
     // OCR 누락 보강용 OpenAI Assist 서비스
     private final OpenAiOcrAssisService openAiOcrAssistService;
+    
+    private final ReceiptApplicationService receiptApplicationService;
 
 
     /**
@@ -73,51 +80,108 @@ public class OcrService {
      * - 운영에서 WEBP 변환이 계속 실패하면 여기 로그로 확인 가능
      */
     public ReceiptDTO parseReceiptWithAssist(JSONObject json, MultipartFile file) {
-    	
-    	// 1) CLOVA 결과를 ReceiptDTO로 1차 파싱
+
+        String fname = (file == null ? "null" : file.getOriginalFilename());
+        long totalStart = System.currentTimeMillis();
+
+        log.info("[OCR] PARSE START name={}", fname);
+
+        // =========================
+        // 1️⃣ CLOVA → ReceiptDTO 파싱
+        // =========================
+        long tParse = System.currentTimeMillis();
         ReceiptDTO parsed = parseReceipt(json);
-        
-        // 2) 핵심 값이 부족하면 OpenAI로 보강 시도
-        if (needOpenAiFix(parsed)) {
-        	
-        	// CLOVA JSON에서 "필드 텍스트" 및 "receipt.result"를 기반으로 rawText 구성
+
+        log.info("[OCR] PARSE BASE END name={}, elapsed={}ms",
+                fname, System.currentTimeMillis() - tParse);
+
+        // =========================
+        // 2️⃣ OpenAI 보강 필요 여부 판단
+        // =========================
+        boolean needFix = needOpenAiFix(parsed);
+        log.info("[OCR] NEED OPENAI FIX name={}, need={}", fname, needFix);
+
+        if (needFix) {
+
+            // CLOVA JSON → rawText 추출
+            long tRaw = System.currentTimeMillis();
             String rawText = extractRawText(json);
-            System.out.println("[RAW_TEXT]\n" + rawText);
+
+            log.info("[OCR] RAW TEXT EXTRACT END name={}, length={}, elapsed={}ms",
+                    fname,
+                    (rawText == null ? 0 : rawText.length()),
+                    System.currentTimeMillis() - tRaw);
 
             if (!isBlank(rawText)) {
 
-                // 현재 네 서비스가 text 기반 보강을 하도록 되어있다면 그대로 사용
-                // (Vision까지 하려면 fixMissingFieldsWithVision(file, rawText)로 변경)
-                OpenAiReceiptResult fixed = openAiOcrAssistService.fixMissingFieldsWithVision(file, rawText);
+                // =========================
+                // 3️⃣ OpenAI Vision/Text 보강
+                // =========================
+                log.info("[OPENAI] FIX START name={}", fname);
+                long tAi = System.currentTimeMillis();
 
-                if (fixed != null) {
-                    // (1) 상호 보강
-                    if (isBlank(parsed.getR_place()) && !isBlank(fixed.getPlace())) {
-                        parsed.setR_place(fixed.getPlace().trim());
-                    }
+                try {
+                    OpenAiReceiptResult fixed =
+                            openAiOcrAssistService.fixMissingFieldsWithVision(file, rawText);
 
-                    // (2) 날짜 보강 (문자열 -> LocalDate 파싱)
-                    if (parsed.getR_date() == null && !isBlank(fixed.getDate())) {
-                        try {
-                            parsed.setR_date(LocalDate.parse(fixed.getDate().trim()));
-                        } catch (Exception ignore) {}
-                    }
+                    log.info("[OPENAI] FIX END name={}, elapsed={}ms",
+                            fname, System.currentTimeMillis() - tAi);
 
-                    // (3) 총액 보강
-                    if (parsed.getR_price() <= 0 && fixed.getTotal() != null && fixed.getTotal() > 0) {
-                        parsed.setR_price(fixed.getTotal());
-                    }
+                    if (fixed != null) {
 
-                    // (4) 아이템 보강: CLOVA 아이템이 비었을 때만 AI 아이템을 채움
-                    if (parsed.getItems() == null || parsed.getItems().isEmpty()) {
-                        List<ReceiptItemDTO> fromAi = convertOpenAiItemsToReceiptItems(fixed);
-                        if (!fromAi.isEmpty()) {
-                            parsed.setItems(fromAi);
+                        // (1) 상호
+                        if (isBlank(parsed.getR_place()) && !isBlank(fixed.getPlace())) {
+                            parsed.setR_place(fixed.getPlace().trim());
+                            log.info("[OPENAI] PLACE FIXED name={}, value={}",
+                                    fname, parsed.getR_place());
                         }
+
+                        // (2) 날짜
+                        if (parsed.getR_date() == null && !isBlank(fixed.getDate())) {
+                            try {
+                                parsed.setR_date(LocalDate.parse(fixed.getDate().trim()));
+                                log.info("[OPENAI] DATE FIXED name={}, value={}",
+                                        fname, parsed.getR_date());
+                            } catch (Exception e) {
+                                log.warn("[OPENAI] DATE PARSE FAIL name={}, raw={}",
+                                        fname, fixed.getDate());
+                            }
+                        }
+
+                        // (3) 총액
+                        if (parsed.getR_price() <= 0 && fixed.getTotal() != null && fixed.getTotal() > 0) {
+                            parsed.setR_price(fixed.getTotal());
+                            log.info("[OPENAI] TOTAL FIXED name={}, value={}",
+                                    fname, parsed.getR_price());
+                        }
+
+                        // (4) 아이템
+                        if (parsed.getItems() == null || parsed.getItems().isEmpty()) {
+                            List<ReceiptItemDTO> fromAi =
+                                    convertOpenAiItemsToReceiptItems(fixed);
+
+                            if (!fromAi.isEmpty()) {
+                                parsed.setItems(fromAi);
+                                log.info("[OPENAI] ITEMS FIXED name={}, count={}",
+                                        fname, fromAi.size());
+                            }
+                        }
+
+                    } else {
+                        log.warn("[OPENAI] FIX RESULT NULL name={}", fname);
                     }
+
+                } catch (Exception e) {
+                    // ⭐ 여기 중요: OpenAI 실패로 전체 OCR 실패하면 안 됨
+                    log.warn("[OPENAI] FIX FAIL name={}, fallback to CLOVA result", fname, e);
                 }
+            } else {
+                log.warn("[OCR] RAW TEXT EMPTY name={}", fname);
             }
         }
+
+        log.info("[OCR] PARSE END name={}, totalElapsed={}ms",
+                fname, System.currentTimeMillis() - totalStart);
 
         return parsed;
     }
@@ -362,47 +426,77 @@ public class OcrService {
    
     // 4) CLOVA OCR 호출부(JSON + Base64 방식)
     public JSONObject callClovaOCR(MultipartFile file) {
+
+        String fname = (file == null ? "null" : file.getOriginalFilename());
+        long totalStart = System.currentTimeMillis();
+
+        log.info("[CLOVA] START name={}", fname);
+
         try {
             if (file == null || file.isEmpty()) {
+                log.warn("[CLOVA] FILE EMPTY name={}", fname);
                 throw new IllegalArgumentException("업로드된 파일이 비어있습니다.");
             }
 
             String url = (clovaUrl == null) ? "" : clovaUrl.trim();
             String secret = (clovaSecret == null) ? "" : clovaSecret.trim();
+
             if (url.isEmpty()) throw new IllegalStateException("clova.url 설정이 비어있습니다.");
             if (secret.isEmpty()) throw new IllegalStateException("clova.secret 설정이 비어있습니다.");
 
             URI uri = URI.create(url);
-            
-            // 업로드 파일 -> 바이트
+
+            // =========================
+            // 1️⃣ 파일 바이트 읽기
+            // =========================
+            long t1 = System.currentTimeMillis();
             byte[] bytes = file.getBytes();
-            
-            // 매직바이트로 실제 포맷 판별(확장자/Content-Type 신뢰 X)
+
+            log.info("[CLOVA] READ BYTES name={}, size={}, elapsed={}ms",
+                    fname, bytes.length, System.currentTimeMillis() - t1);
+
+            // =========================
+            // 2️⃣ 포맷 판별
+            // =========================
             String actual = detectFormatByMagic(bytes);
 
-            System.out.println("[UPLOAD] name=" + file.getOriginalFilename()
-                    + ", contentType=" + file.getContentType()
-                    + ", actual=" + actual
-                    + ", size=" + bytes.length
-                    + ", head=" + toHex(bytes, 16));
-            
-            // CLOVA에 넘길 포맷
+            log.info("[CLOVA] DETECT FORMAT name={}, actual={}, contentType={}",
+                    fname, actual, file.getContentType());
+
             String formatForClova = actual;
-            
-            // WEBP는 CLOVA가 직접 지원하지 않는 경우가 있어 JPG 변환
+
+            // =========================
+            // 3️⃣ WEBP → JPG 변환
+            // =========================
             if ("webp".equals(actual)) {
-                System.out.println("[CONVERT] WEBP detected. Converting to JPG... name=" + file.getOriginalFilename());
+                log.info("[CLOVA] WEBP CONVERT START name={}", fname);
+                long tConvert = System.currentTimeMillis();
+
                 bytes = convertWebpToJpg(bytes);
                 formatForClova = "jpg";
+
+                log.info("[CLOVA] WEBP CONVERT END name={}, elapsed={}ms",
+                        fname, System.currentTimeMillis() - tConvert);
             }
-            
-            // 최종 전송 포맷이 진짜 jpg/png인지 검증
+
+            // =========================
+            // 4️⃣ 이미지 검증
+            // =========================
             validateImage(bytes, formatForClova);
-            
-            // CLOVA는 base64만 받도록 구성 (data:image/... prefix 없이)
+            log.info("[CLOVA] IMAGE VALIDATED name={}, format={}", fname, formatForClova);
+
+            // =========================
+            // 5️⃣ Base64 인코딩
+            // =========================
+            long tEncode = System.currentTimeMillis();
             String base64 = Base64.getEncoder().encodeToString(bytes);
 
-            // 요청 바디 구성
+            log.info("[CLOVA] BASE64 ENCODE END name={}, elapsed={}ms",
+                    fname, System.currentTimeMillis() - tEncode);
+
+            // =========================
+            // 6️⃣ 요청 바디 구성
+            // =========================
             JSONObject body = new JSONObject();
             body.put("version", "V2");
             body.put("requestId", UUID.randomUUID().toString());
@@ -416,33 +510,53 @@ public class OcrService {
             JSONArray images = new JSONArray();
             images.put(image);
             body.put("images", images);
-            
-            // 요청 헤더 구성
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-OCR-SECRET", secret);
 
             HttpEntity<String> request = new HttpEntity<>(body.toString(), headers);
-            
-            // POST 호출
-            ResponseEntity<String> response = restTemplate.postForEntity(uri, request, String.class);
+
+            // =========================
+            // 7️⃣ CLOVA API 호출 (핵심)
+            // =========================
+            long tCall = System.currentTimeMillis();
+            log.info("[CLOVA] HTTP CALL START name={}", fname);
+
+            ResponseEntity<String> response =
+                    clovaRestTemplate.postForEntity(uri, request, String.class);
+
+            log.info("[CLOVA] HTTP CALL END name={}, status={}, elapsed={}ms",
+                    fname,
+                    response.getStatusCode(),
+                    System.currentTimeMillis() - tCall);
 
             String respBody = response.getBody();
-            System.out.println("[CLOVA JSON] status=" + response.getStatusCode());
 
-            return (respBody == null || respBody.isBlank()) ? null : new JSONObject(respBody);
+            log.info("[CLOVA] END name={}, totalElapsed={}ms",
+                    fname, System.currentTimeMillis() - totalStart);
+
+            return (respBody == null || respBody.isBlank())
+                    ? null
+                    : new JSONObject(respBody);
 
         } catch (HttpClientErrorException e) {
-            System.out.println("[CLOVA JSON] HTTP ERROR status=" + e.getStatusCode());
-            System.out.println("[CLOVA JSON] HTTP ERROR body=" + e.getResponseBodyAsString());
-            e.printStackTrace();
+
+            log.error("[CLOVA] HTTP ERROR name={}, status={}, body={}",
+                    fname,
+                    e.getStatusCode(),
+                    e.getResponseBodyAsString(),
+                    e);
+
             return null;
 
         } catch (Exception e) {
-            e.printStackTrace();
+
+            log.error("[CLOVA] FAIL name={}", fname, e);
             return null;
         }
     }
+
 
     // 5) OpenAI 결과 -> ReceiptItemDTO 변환
     private List<ReceiptItemDTO> convertOpenAiItemsToReceiptItems(OpenAiReceiptResult fixed) {
@@ -547,27 +661,37 @@ public class OcrService {
     
     // 7) byte[] 로부터 OCR 처리하기(내부 재사용용)
     // byte[]를 MultipartFile로 감싸서 CLOVA OCR -> 파싱/보강까지 수행
-    public ReceiptDTO parseReceiptFromBytes(byte[] bytes, String filename) {
 
+    public ReceiptDTO processReceiptFromImagePath(String imagePath, String userId) {
         try {
-        	// byte[] -> MultipartFile 어댑터로 래핑
-            MultipartFile multipartFile =
-                    new ByteArrayMultiPartFile(
-                            bytes,          // ✅ byte[] 반드시 필요
-                            filename,       // name
-                            "image/jpeg"    // contentType
-                    );
-            
-            // CLOVA OCR 호출
-            JSONObject json = callClovaOCR(multipartFile);
+            Path path = Paths.get(imagePath);
+
+            if (!Files.exists(path)) {
+                log.error("[OCR] IMAGE FILE NOT FOUND path={}", imagePath);
+                return null;
+            }
+
+            byte[] bytes = Files.readAllBytes(path);
+            String filename = path.getFileName().toString();
+
+            MultipartFile file =
+                new ByteArrayMultiPartFile(bytes, filename, "image/jpeg");
+
+            JSONObject json = callClovaOCR(file);
             if (json == null) return null;
-            
-            // 파싱 + 누락 보강
-            return parseReceiptWithAssist(json, multipartFile);
+
+            ReceiptDTO receipt = parseReceiptWithAssist(json, file);
+            if (receipt == null) return null;
+
+            receipt.setR_u(userId); // ✅ 여기서 확정
+
+            return receipt;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[OCR] FAILED TO PROCESS IMAGE path={}", imagePath, e);
             return null;
         }
     }
+
+
 }

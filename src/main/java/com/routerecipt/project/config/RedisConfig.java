@@ -48,19 +48,22 @@ public class RedisConfig {
      * Value : Object (JSON 직렬화)
      */
 	@Bean
-	public RedisTemplate<String, Object> redisTemplate(){
-		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-		
-		// Redis 연결 설정
-		redisTemplate.setConnectionFactory(redisConnectionFactory());
-		
-		// Key는 문자열로 직렬화	
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		
-		// Value는 JSON 직렬화 (객체 저장 가능)
-		redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-		return redisTemplate;
+	public RedisTemplate<String, String> redisTemplate(
+	        RedisConnectionFactory connectionFactory) {
+
+	    RedisTemplate<String, String> template = new RedisTemplate<>();
+	    template.setConnectionFactory(connectionFactory);
+
+	    StringRedisSerializer stringSerializer = new StringRedisSerializer();
+
+	    template.setKeySerializer(stringSerializer);
+	    template.setValueSerializer(stringSerializer);
+	    template.setHashKeySerializer(stringSerializer);
+	    template.setHashValueSerializer(stringSerializer);
+
+	    return template;
 	}
+
 
 	
 	

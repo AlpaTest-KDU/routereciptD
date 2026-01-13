@@ -89,4 +89,37 @@ public class ReceiptCommandServiceImp implements ReceiptCommandService {
         // 3) 새 items insert
         receiptMapper.insertItemsBatch(r_no, item_names, item_prices, item_categories);
     }
+    
+    @Override
+    public void updateOcrStatus(Long r_no, String status) {
+        receiptMapper.updateOcrStatus(r_no, status);
+    }
+
+    @Override
+    public void updateOcrStatusByImagePath(String imagePath, String status) {
+        receiptMapper.updateOcrStatusByImagePath(imagePath, status);
+    }
+    
+    @Override
+    @Transactional
+    public void insertPendingReceipt(ReceiptDTO receipt) {
+
+        if (receipt == null) return;
+
+        if (receipt.getR_u() == null || receipt.getImagePath() == null) {
+            log.warn("[PENDING] invalid receipt data r_u={}, imagePath={}",
+                     receipt.getR_u(), receipt.getImagePath());
+            return;
+        }
+
+        if (receipt.getOcr_status() == null) {
+            receipt.setOcr_status("PENDING");
+        }
+
+        receiptMapper.insertPendingReceipt(receipt);
+
+        log.info("[PENDING] receipt inserted r_no={}, imagePath={}",
+                 receipt.getR_no(), receipt.getImagePath());
+    }
+
 }

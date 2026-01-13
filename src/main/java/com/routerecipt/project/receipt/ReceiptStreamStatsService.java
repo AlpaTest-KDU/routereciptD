@@ -24,12 +24,12 @@ import com.routerecipt.project.util.StreamTimeUtil;
 public class ReceiptStreamStatsService {
 	
 	// RedisTemplate (Stream 조회용)
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
 	
 	// OCR 이벤트가 저장되는 Redis Stream 키 
 	private static final String STREAM_KEY = "ocr:receipt";
 	
-	public ReceiptStreamStatsService(RedisTemplate<String, Object> redisTemplate) {
+	public ReceiptStreamStatsService(RedisTemplate<String, String> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
 	

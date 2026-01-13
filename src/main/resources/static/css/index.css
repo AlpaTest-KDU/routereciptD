@@ -43,6 +43,10 @@
     padding-right: 60px;
 }
 
+#routereceipt {
+	color: white;
+}
+
 /* 이미지 슬라이더 스타일 */
 #imgSlider {
     flex: 1;
