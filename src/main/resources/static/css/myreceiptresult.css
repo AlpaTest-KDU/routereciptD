@@ -26,6 +26,11 @@ h2 {
     margin: 18px 0 24px;
 }
 
+.chart-grid-2 { 
+  	grid-template-columns: 1fr 1fr; 
+  	align-items: stretch;           
+}
+
 /* 각 카드 */
 .card {
     background: #ffffff;
@@ -128,85 +133,96 @@ h2 {
     font-weight: 500;
 }
 
-/* 평균 카드: 그래프 + 인사이트 2열 레이아웃 */
-.avg-layout {
-  display: grid;
-  grid-template-columns: minmax(360px, 1fr) 320px;
-  gap: 18px;
-  align-items: center;
-  margin-top: 6px;
+.avg-summary-under-gender { 
+  	margin-top: 10px;
+  	font-size: 12px;
+  	color: #6b7280;
+  	text-align: center;
 }
 
-/* 그래프 영역을 카드 중앙에 안정적으로 배치 */
-.avg-chart-area {
-  height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.avg-chart-area { 
+  	height: 220px; 
+  	display: flex;
+  	align-items: center;
+  	justify-content: center;
+  	margin-top: 6px;     
+  	margin-bottom: 12px; 
 }
 
 .avg-chart-area canvas {
-  width: 100% !important;
-  height: 100% !important;
+  	width: 100% !important;
+  	height: 100% !important;
 }
 
 /* 오른쪽 인사이트 패널 */
 .avg-insights {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 14px 14px;
+  	background: #f8fafc;
+  	border: 1px solid #e5e7eb;
+  	border-radius: 16px;
+  	padding: 14px 14px;
 }
 
 .insight-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 6px 0;
+  	display: flex;
+  	align-items: baseline;
+  	justify-content: space-between;
+  	gap: 12px;
+  	margin: 6px 0;
 }
 
 .insight-row .label {
-  font-size: 12px;
-  color: #6b7280;
+  	font-size: 12px;
+  	color: #6b7280;
 }
 
 .insight-row .value {
-  font-size: 14px;
-  color: #111827;
-  font-weight: 700;
+  	font-size: 14px;
+  	color: #111827;
+  	font-weight: 700;
 }
 
 .insight-divider {
-  border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 10px 0;
+  	border: none;
+  	border-top: 1px solid #e5e7eb;
+  	margin: 10px 0;
 }
 
 .insight-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  background: #eef2ff;
-  color: #4338ca;
+  	display: inline-flex;
+  	align-items: center;
+  	justify-content: center;
+  	margin-top: 8px;
+  	padding: 6px 10px;
+  	border-radius: 999px;
+  	font-size: 12px;
+  	font-weight: 700;
+  	background: #eef2ff;
+  	color: #4338ca;
 }
 
 .insight-tip {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #374151;
-  line-height: 1.5;
+  	margin-top: 10px;
+  	font-size: 12px;
+  	color: #374151;
+  	line-height: 1.5;
 }
 
 .insight-list {
-  margin: 10px 0 0;
-  padding-left: 18px;
-  color: #4b5563;
-  font-size: 12px;
-  line-height: 1.6;
+  	margin: 10px 0 0;
+  	padding-left: 18px;
+  	color: #4b5563;
+  	font-size: 12px;
+  	line-height: 1.6;
+}
+
+.btn-back {
+  	display: inline-block;
+  	margin-top: 24px;
+  	text-decoration: none;
+  	font-size: 14px;
+  	color: #4f46e5;
+}
+
+.btn-back:hover {
+  	text-decoration: underline;
 }
