@@ -62,22 +62,31 @@
         ORDER BY ym
     </select>
 
-    <!--
-      4) 성별별 지출
-      - recipt_tb.r_u(= user_tb.u_id)로 사용자 테이블(user_tb)과 JOIN
-      - user_tb.gender(MALE/FEMALE) 기준으로 그룹핑하여 성별 총 지출(SUM) 반환
-      - 결과(Map): { gender: 'MALE'/'FEMALE', total: 77777 }
-    -->
-    <select id="selectTotalByGender"
-            resultType="map">
-        SELECT
-            u.gender       AS gender,
-            SUM(r.r_price) AS total
-        FROM recipt r
-        JOIN user u ON r.r_u = u.u_id
-        GROUP BY u.gender
-        ORDER BY u.gender
-    </select>
+<!--
+  4) 성별별 지출(최근 1년) - 전체 유저 기준 "1인당 평균"
+
+  - user_tb를 기준으로 LEFT JOIN (영수증이 없는 유저도 포함)
+  - user_tb.gender(MALE/FEMALE/...)로 그룹핑
+  - 최근 1년간 성별 지출 합계(SUM) / 성별 유저 수(COUNT DISTINCT u_id)
+    => 성별 1인당 평균 지출 반환
+
+  - 결과(Map): { gender: 'MALE'/'FEMALE', total: 113000 }
+    ※ total 값은 '총합'이 아니라 '평균(1인당)' 의미
+-->
+<select id="selectTotalByGender" resultType="map">
+  SELECT
+      u.gender AS gender,
+      ROUND(
+        IFNULL(SUM(r.r_price), 0) / NULLIF(COUNT(DISTINCT u.u_id), 0)
+      , 0) AS total
+  FROM user u
+  LEFT JOIN recipt r
+    ON r.r_u = u.u_id
+   AND r.r_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+   AND r.r_date &lt;  DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+  GROUP BY u.gender
+  ORDER BY u.gender
+</select>
 
     <!--
       5) 나의 평균 일별 지출
