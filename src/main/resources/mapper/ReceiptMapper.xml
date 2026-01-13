@@ -237,7 +237,7 @@
 
 <update id="updateOcrStatus">
     UPDATE recipt
-    SET status = #{status}
+    SET ocr_status = #{ocr_status}
     WHERE r_no = #{r_no}
 </update>
 
@@ -257,7 +257,7 @@
     (
         r_u,
         image_path,
-        status
+        ocr_status
     )
     VALUES
     (
