@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.service.ReceiptQueryService;
 import com.routerecipt.project.service.ReceiptService;
 import com.routerecipt.project.stream.OcrStreamProducer;
+
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +86,8 @@ public class ReceiptController {
         	        receiptNo
         	    );
         	}
+        	return "redirect:/receipt/receiptRegisterPage";
+    }
     // =========================
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
     // =========================
