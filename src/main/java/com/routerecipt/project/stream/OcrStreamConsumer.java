@@ -95,10 +95,10 @@ public class OcrStreamConsumer implements Runnable {
                 StreamReadOptions.empty()
                     .block(Duration.ofSeconds(5))
                     .count(1),
-                StreamOffset.create(
-                    RedisStreamConfig.OCR_STREAM,
-                    ReadOffset.lastConsumed()
-                )
+                    StreamOffset.create(
+                    	    RedisStreamConfig.OCR_STREAM,
+                    	    ReadOffset.from("0")
+                    	)
             );
 
         } catch (org.springframework.data.redis.RedisSystemException e) {
