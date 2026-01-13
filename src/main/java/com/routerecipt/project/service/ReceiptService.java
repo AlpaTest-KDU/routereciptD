@@ -43,4 +43,7 @@ public interface ReceiptService {
     UploadResult uploadReceipts(List<MultipartFile> files, String userId);
     
     
+    String getImagePathByReceiptNo(Long receiptNo);
+
+    
 }

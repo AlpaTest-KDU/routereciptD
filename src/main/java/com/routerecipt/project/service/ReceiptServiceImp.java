@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.UploadResult;
+import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.stream.OcrStreamProducer;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class ReceiptServiceImp implements ReceiptService {
     private final ReceiptCommandService receiptCommandService;
     private final RedisTemplate<String, String> redisTemplate;
     private final OcrStreamProducer ocrStreamProducer;
+    private final ReceiptMapper receiptMapper;
 
     @Value("${receipt.upload.temp-dir}")
     private String uploadDir;
@@ -142,5 +144,10 @@ public class ReceiptServiceImp implements ReceiptService {
             }
         }
         return paths;
+    }
+    
+    @Override
+    public String getImagePathByReceiptNo(Long receiptNo) {
+    	return receiptMapper.selectImagePathByReceiptNo(receiptNo);
     }
 }

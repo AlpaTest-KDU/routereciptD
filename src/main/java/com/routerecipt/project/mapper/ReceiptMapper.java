@@ -183,4 +183,6 @@ public interface ReceiptMapper {
     
     void insertPendingReceipt(ReceiptDTO receipt);
     
+    String selectImagePathByReceiptNo(@Param("receiptNo") Long receiptNo);
+    
 }

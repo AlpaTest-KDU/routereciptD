@@ -22,6 +22,67 @@ public class ReceiptOcrProcessService {
     private final OcrService ocrService;
     private final ReceiptApplicationService receiptApplicationService;
     private final ReceiptCommandService receiptCommandService;
+    private final ReceiptService receiptService; // 🔥 추가 (imagePath 조회)
+    
+    @Transactional
+    public void processOcr(Long receiptNo) {
+
+        // 🔥 1️⃣ imagePath는 반드시 DB 기준으로 조회
+        String imagePath = receiptService.getImagePathByReceiptNo(receiptNo);
+
+        if (imagePath == null || imagePath.isBlank()) {
+            log.error("[OCR] imagePath NOT FOUND r_no={}", receiptNo);
+            receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
+            return;
+        }
+
+        try {
+            log.info("[OCR] START r_no={}, imagePath={}", receiptNo, imagePath);
+
+            ReceiptDTO receipt =
+                    ocrService.processReceiptFromImagePath(imagePath, null);
+
+            if (receipt == null) {
+                log.warn("[OCR] RESULT NULL r_no={}", receiptNo);
+                receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
+                return;
+            }
+
+            // 기존 receipt 연결
+            receipt.setR_no(receiptNo);
+
+            // RULE
+            applyForcedItemsIfNeeded(receipt);
+
+            // FALLBACK
+            applyCategoryFallback(receipt);
+
+            // 저장
+            receiptApplicationService.saveReceiptWithItems(receipt);
+
+            // 상태 DONE
+            receiptCommandService.updateOcrStatus(receiptNo, "DONE");
+
+            log.info("[OCR] DONE r_no={}", receiptNo);
+
+        } catch (Exception e) {
+
+            receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
+            log.error("[OCR] FAIL r_no={}", receiptNo, e);
+
+        } finally {
+
+            // 🔥 temp 파일 정리는 "마지막 한 번만"
+            try {
+                java.nio.file.Files.deleteIfExists(
+                    java.nio.file.Paths.get(imagePath)
+                );
+            } catch (Exception e) {
+                log.warn("[OCR] TEMP FILE DELETE FAIL path={}", imagePath, e);
+            }
+        }
+    }
+    
 
     /* =====================================================
      * item_category NOT NULL 보장 (최종 방어)

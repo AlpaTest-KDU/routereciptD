@@ -61,21 +61,29 @@ public class ReceiptController {
         if (principal == null) return "redirect:/login";
 
         String userId = principal.getName();
-
         List<Long> receiptIds =
-                receiptService.uploadReceipts(files, userId)
-                              .getSuccessReceiptNos();
+        	    receiptService.uploadReceipts(files, userId)
+        	                  .getSuccessReceiptNos();
 
-        // ✅ 추가 로그 (중요)
-        log.info("[UPLOAD] 생성된 receiptIds = {}", receiptIds);
+        	log.info("[UPLOAD] 생성된 receiptIds = {}", receiptIds);
 
-        session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
+        	// 🔥 핵심: receipt별 OCR 이벤트 발행
+        	for (Long receiptNo : receiptIds) {
+        	    String imagePath =
+        	        receiptService.getImagePathByReceiptNo(receiptNo);
 
-        // ✅ 추가 로그
-        log.info("[UPLOAD] 세션에 저장됨 CURRENT_RECEIPT_IDS");
+        	    log.info(
+        	        "[UPLOAD] publish OCR event r_no={}, imagePath={}",
+        	        receiptNo,
+        	        imagePath
+        	    );
 
-        return "redirect:/receipt/receiptRegisterPage";
-    }
+        	    ocrStreamProducer.publishOcrEvent(
+        	        userId,
+        	        imagePath,
+        	        receiptNo
+        	    );
+        	}
     // =========================
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
     // =========================

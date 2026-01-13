@@ -23,10 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OcrStreamConsumer implements Runnable {
 
-    private static final String CONSUMER_NAME = "ocr-consumer-1";
-
     private final RedisTemplate<String, String> redisTemplate;
     private final ReceiptOcrProcessService receiptOcrProcessService;
+
+    private final String consumerName =
+            "ocr-consumer-" + java.util.UUID.randomUUID();
 
     private volatile boolean running = true;
     private Thread worker;
@@ -40,7 +41,7 @@ public class OcrStreamConsumer implements Runnable {
     }
 
     /* ===============================
-     * Consumer 시작 (단일 인스턴스)
+     * Consumer 시작
      * =============================== */
     @PostConstruct
     public void start() {
@@ -51,7 +52,7 @@ public class OcrStreamConsumer implements Runnable {
         log.info(
             "[OCR-STREAM] Consumer started. group={}, consumer={}",
             RedisStreamConfig.OCR_GROUP,
-            CONSUMER_NAME
+            consumerName
         );
     }
 
@@ -77,7 +78,7 @@ public class OcrStreamConsumer implements Runnable {
             records = redisTemplate.opsForStream().read(
                 Consumer.from(
                     RedisStreamConfig.OCR_GROUP,
-                    CONSUMER_NAME
+                    consumerName
                 ),
                 StreamReadOptions.empty()
                     .block(Duration.ofSeconds(5))
@@ -135,16 +136,15 @@ public class OcrStreamConsumer implements Runnable {
     }
 
     /* ===============================
-     * 실제 OCR 처리
+     * 실제 OCR 처리 (🔥 핵심)
      * =============================== */
     private boolean handle(MapRecord<String, Object, Object> record) {
 
         Map<Object, Object> value = record.getValue();
 
         String receiptNoStr = (String) value.get("receiptNo");
-        String imagePath    = (String) value.get("imagePath");
 
-        if (receiptNoStr == null || imagePath == null) {
+        if (receiptNoStr == null) {
             log.warn("[OCR-STREAM] INVALID PAYLOAD {}", value);
             return false;
         }
@@ -158,12 +158,12 @@ public class OcrStreamConsumer implements Runnable {
         }
 
         log.info(
-            "[OCR-STREAM] PROCESS r_no={}, imagePath={}",
-            receiptNo,
-            imagePath
+            "[OCR-STREAM] PROCESS r_no={}",
+            receiptNo
         );
 
-        receiptOcrProcessService.processOcr(receiptNo, imagePath);
+        // 🔥 imagePath 전달 금지
+        receiptOcrProcessService.processOcr(receiptNo);
         return true;
     }
 

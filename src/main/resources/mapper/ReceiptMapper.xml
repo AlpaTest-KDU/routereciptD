@@ -275,5 +275,13 @@
     WHERE image_path = #{imagePath}
 </select>
 
+<!-- receiptNo → image_path 조회 (비동기 OCR 핵심) -->
+<select id="selectImagePathByReceiptNo"
+        parameterType="long"
+        resultType="string">
+    SELECT image_path
+    FROM recipt
+    WHERE r_no = #{receiptNo}
+</select>
 
 </mapper>
