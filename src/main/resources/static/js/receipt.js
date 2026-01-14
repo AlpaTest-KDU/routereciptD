@@ -275,6 +275,11 @@ function beforeSubmitConfirm() {
   return true; // 제출 진행
 }
 
+// 마이페이지 이동
+function myPageBtn() {
+  location.href = '/user/userInfoShowPage';
+}
+
 /* =====================================================
  * 파일 업로드 제출 (submitUpload)
  * ===================================================== */
