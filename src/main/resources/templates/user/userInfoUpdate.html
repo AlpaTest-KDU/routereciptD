@@ -64,6 +64,9 @@
 			
 				<div class="userInfoUpdateArea">
 			    	<h2>회원정보 수정</h2>
+			    	<p class="requiredNotice">
+          				<span class="required">*</span> 표시된 항목은 수정 가능한 필수 정보입니다.
+        			</p>
 			    	<form th:action="@{/user/userInfoUpdate}" method="post">
 			    		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 						<div class="infoRow">
@@ -71,7 +74,9 @@
 							<span th:text="${u_id}"></span>
 			      		</div>
 			      		<div class="infoRow">
-			        		<label for="u_name">이름</label>
+			        		<label for="u_name">
+			        			이름 <span class="required">*</span>
+			        		</label>
 			        		<input id="u_name" type="text" name="u_name" th:value="${u_name}">
 			      		</div>
 			      		<div class="infoRow">
@@ -79,7 +84,9 @@
 			        		<span th:text="${u_birthday}"></span>
 			      		</div>
 			      		<div class="infoRow">
-			        		<label for="u_email">이메일</label>
+			        		<label for="u_email">
+			        			이메일 <span class="required">*</span>
+			        		</label>
 			        		<input id="u_email" type="email" name="u_email" th:value="${u_email}">
 			      		</div>
 			      		<div class="infoRow">
