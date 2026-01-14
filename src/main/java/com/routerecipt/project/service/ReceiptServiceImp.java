@@ -44,7 +44,6 @@ public class ReceiptServiceImp implements ReceiptService {
      * - Redis Stream 발행 (비동기 OCR 트리거)
      */
     @Override
-    @Transactional
     public UploadResult uploadReceipts(List<MultipartFile> files, String userId) {
 
         UploadResult result = new UploadResult();
@@ -149,5 +148,10 @@ public class ReceiptServiceImp implements ReceiptService {
     @Override
     public String getImagePathByReceiptNo(Long receiptNo) {
     	return receiptMapper.selectImagePathByReceiptNo(receiptNo);
+    }
+    
+    @Override
+    public ReceiptDTO getReceiptByNo(Long receiptNo) {
+    	return receiptMapper.selectReceiptByNo(receiptNo);
     }
 }

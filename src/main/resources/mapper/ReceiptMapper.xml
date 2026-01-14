@@ -237,13 +237,13 @@
 
 <update id="updateOcrStatus">
     UPDATE recipt
-    SET ocr_status = #{ocr_status}
+    SET ocr_status = #{status}
     WHERE r_no = #{r_no}
 </update>
 
 <update id="updateOcrStatusByImagePath">
     UPDATE recipt
-    SET ocr_status = #{ocr_status}
+    SET ocr_status = #{status}
     WHERE image_path = #{imagePath}
 </update>
 
@@ -282,6 +282,21 @@
     SELECT image_path
     FROM recipt
     WHERE r_no = #{receiptNo}
+</select>
+
+<select id="selectReceiptByNo"
+        parameterType="long"
+        resultMap="ReceiptMap">
+    SELECT
+        r_no,
+        r_u,
+        r_place,
+        r_price,
+        r_date,
+        image_path,
+        ocr_status
+    FROM recipt
+    WHERE r_no = #{r_no}
 </select>
 
 </mapper>

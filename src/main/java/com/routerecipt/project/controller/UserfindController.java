@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 import com.routerecipt.project.service.UserServiceImp;
 
 @Controller
@@ -23,7 +23,7 @@ public class UserfindController {
 	// 파라미터 = email
 	@PostMapping("/userFindId")
 	public String userFindId(Model model, @RequestParam(value="u_email") String u_email) {
-		Userdto user = userServiceImp.UserFindID(u_email);
+		UserDTO user = userServiceImp.UserFindID(u_email);
 		if (user != null) {
 			model.addAttribute("foundId", user.getU_id());
 		} else {
@@ -39,7 +39,7 @@ public class UserfindController {
 		int result = userServiceImp.UserCheckID(u_id, u_email);
 
 		if (result == 1) {
-			Userdto user = userServiceImp.UserFindID(u_email);
+			UserDTO user = userServiceImp.UserFindID(u_email);
 			model.addAttribute("verifiedId", user.getU_id());
 		} else {
 			model.addAttribute("idError", "존재하지 않는 회원입니다.");
@@ -51,7 +51,7 @@ public class UserfindController {
 	// 비밀번호 찾기 기능
 	// 파라미터 = Userdto
 	@PostMapping("/userUpdatePw")
-	public String userUpdatePw(@ModelAttribute Userdto user) {
+	public String userUpdatePw(@ModelAttribute UserDTO user) {
 		userServiceImp.UserUpdatePW(user);
 		return "redirect:/user/userLoginPage";
 	}

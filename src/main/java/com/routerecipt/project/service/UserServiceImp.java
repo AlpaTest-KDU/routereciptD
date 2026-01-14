@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 import com.routerecipt.project.mapper.UserMapper;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
 
@@ -40,12 +40,12 @@ public class UserServiceImp implements UserService {
 	    // 1단계: Bloom Filter 판단
 	    if (bloomService.isDuplicate(userId)) {
 	        // Bloom Filter는 false positive 가능 → DB로 확정 검사
-	        Userdto user = userMapper.UserFindID(userId);
+	        UserDTO user = userMapper.UserFindID(userId);
 	        return user != null; // true면 중복
 	    }
 
 	    // 2단계: Bloom Filter에 없음 → DB 확인
-	    Userdto user = userMapper.UserFindID(userId);
+	    UserDTO user = userMapper.UserFindID(userId);
 
 	    if (user == null) {
 	        // DB에도 없으면 Bloom Filter에 등록
@@ -59,20 +59,20 @@ public class UserServiceImp implements UserService {
 	
 	// Spring Security 로그인 전용 사용자 조회
 	@Override
-	public Userdto loadUserByUsername(String u_id) {
+	public UserDTO loadUserByUsername(String u_id) {
 		return userMapper.loadUserByUsername(u_id);
 	}
 	
 	// 회원가입 
 	@Override
 	@Transactional
-	public void UserSignUp(Userdto u) {
+	public void UserSignUp(UserDTO u) {
 		userMapper.UserSignUp(u);
 	}
 	
 	// 이메일로 계정 찾기
 	@Override
-	public Userdto UserFindID(String u_email) {
+	public UserDTO UserFindID(String u_email) {
 		return userMapper.UserFindID(u_email);
 	}
 
@@ -84,7 +84,7 @@ public class UserServiceImp implements UserService {
 	
 	// 비밀번호 변경
 	@Override
-	public void UserUpdatePW(Userdto u) {
+	public void UserUpdatePW(UserDTO u) {
 		String encodedPw = passwordEncoder.encode(u.getU_pw());
 		u.setU_pw(encodedPw);
 		userMapper.UserUpdatePW(u);		// DB 반영
@@ -96,21 +96,16 @@ public class UserServiceImp implements UserService {
 		userMapper.UserInfoDelete(u_id);
 	}
 	
-	// 회원 정보 보기
-	@Override
-	public List<Userdto> UserInfoShow() {
-		return userMapper.UserInfoShow();
-	}
 	
 	// 회원 정보 id로 찾기
 	@Override
-	public Userdto UserSelectById(String u_id) {
+	public UserDTO UserSelectById(String u_id) {
 		return userMapper.UserSelectById(u_id);
 	}
 	
 	// 회원 정보 수정
 	@Override
-	public void UserInfoUpdate(Userdto u) {
+	public void UserInfoUpdate(UserDTO u) {
 		userMapper.UserInfoUpdate(u);
 	}
 }

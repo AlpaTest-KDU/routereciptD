@@ -12,7 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.security.LoginDetails;
 
@@ -46,24 +46,24 @@ public class MainController {
         return "user/userFindIdPage";
     }
 
-    // 비밀번호 재설정 화면
-    @GetMapping("/user/userResetPwPage")
-    public String userResetPwPage() {
-        return "user/userResetPwPage";
-    }
+	// 비밀번호 재설정 화면
+	@GetMapping("/user/userResetPwPage")
+	public String userResetPwPage() {
+		return "user/userResetPwPage";
+	}
+	
+	// 회원가입 화면
+	@GetMapping("/user/userSignUpPage")
+	public String userSignUpPage(Model model) {
+		model.addAttribute("userDto", new UserDTO());
+		return "user/userSignUpPage";
+	}
 
-    // 회원가입 화면
-    @GetMapping("/user/userSignUpPage")
-    public String userSignUpPage(Model model) {
-        model.addAttribute("userDto", new Userdto());
-        return "user/userSignUpPage";
-    }
-
-    // 마이페이지 화면
-    @GetMapping("/user/userInfoShowPage")
-    public String userInfoShowPage(Authentication authentication, Model model) {
-        LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
-        Userdto user = loginDetails.getUser();
+	// 마이페이지 화면
+	@GetMapping("/user/userInfoShowPage")
+	public String userInfoShowPage(Authentication authentication, Model model) {
+		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
+		UserDTO user = loginDetails.getUser();
 
         model.addAttribute("u_id", user.getU_id());
         model.addAttribute("u_name", user.getU_name());

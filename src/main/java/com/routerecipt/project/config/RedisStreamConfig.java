@@ -39,7 +39,7 @@ public class RedisStreamConfig {
             redisTemplate.opsForStream()
                 .createGroup(
                     OCR_STREAM,
-                    ReadOffset.latest(),
+                    ReadOffset.from("0-0"),
                     OCR_GROUP
                 );
 

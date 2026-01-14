@@ -6,7 +6,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 
 
 /**
@@ -19,20 +19,20 @@ public class LoginDetails implements UserDetails{
 	private static final long serialVersionUID = 1L;
 	
 	// 실제 사용자 정보 (DB에서 조회한 DTO)
-	private Userdto userdto;
+	private UserDTO userdto;
 	
 	// 생성자 - 로그인 성공 시 UserDetailsService에서 주입
-	public LoginDetails(Userdto userdto) {
+	public LoginDetails(UserDTO userdto) {
 		this.userdto = userdto;
 	}
 	
 	// 로그인한 사용자 정보 반환 (컨트롤러/서비스에서 사용)
-	public Userdto getUser() {
+	public UserDTO getUser() {
 		return userdto;
 	}
 	
 	
-	public void setUser(Userdto userdto) {
+	public void setUser(UserDTO userdto) {
 		this.userdto = userdto;
 	}
 	

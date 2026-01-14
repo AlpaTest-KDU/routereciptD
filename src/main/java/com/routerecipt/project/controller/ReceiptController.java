@@ -2,26 +2,28 @@ package com.routerecipt.project.controller;
 
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.routerecipt.project.dto.ReceiptDTO;
+import com.routerecipt.project.service.ReceiptCommandService;
 import com.routerecipt.project.service.ReceiptQueryService;
 import com.routerecipt.project.service.ReceiptService;
 import com.routerecipt.project.stream.OcrStreamProducer;
-
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -49,45 +51,40 @@ public class ReceiptController {
     private final ReceiptQueryService receiptQueryService;
     private final OcrStreamProducer ocrStreamProducer;
     private final ObjectMapper objectMapper;
+    private final ReceiptCommandService receiptCommandService;
 
     // =========================
     // 1️⃣ 비동기 OCR 업로드
     // =========================
     @PostMapping("/uploadReceipt")
-    public String uploadReceipt(
+    @ResponseBody
+    public ResponseEntity<Void> uploadReceipt(
             @RequestParam("receipt") List<MultipartFile> files,
             Principal principal,
-            HttpSession session,
-            RedirectAttributes ra
+            HttpSession session
     ) {
-        if (principal == null) return "redirect:/login";
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
 
         String userId = principal.getName();
+
         List<Long> receiptIds =
-        	    receiptService.uploadReceipts(files, userId)
-        	                  .getSuccessReceiptNos();
+            receiptService.uploadReceipts(files, userId)
+                          .getSuccessReceiptNos();
 
-        	log.info("[UPLOAD] 생성된 receiptIds = {}", receiptIds);
+        log.info("[UPLOAD] 생성된 receiptIds = {}", receiptIds);
 
-        	// 🔥 핵심: receipt별 OCR 이벤트 발행
-        	for (Long receiptNo : receiptIds) {
-        	    String imagePath =
-        	        receiptService.getImagePathByReceiptNo(receiptNo);
+        for (Long receiptNo : receiptIds) {
+            String imagePath =
+                receiptService.getImagePathByReceiptNo(receiptNo);
 
-        	    log.info(
-        	        "[UPLOAD] publish OCR event r_no={}, imagePath={}",
-        	        receiptNo,
-        	        imagePath
-        	    );
+        }
 
-        	    ocrStreamProducer.publishOcrEvent(
-        	        userId,
-        	        imagePath,
-        	        receiptNo
-        	    );
-        	}
-        	session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
-        	return "redirect:/receipt/receiptRegisterPage";
+        session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
+
+        // 🔥 핵심: redirect ❌, JSON ❌
+        return ResponseEntity.noContent().build(); // 204
     }
     // =========================
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
@@ -126,6 +123,51 @@ public class ReceiptController {
         );
 
         return "receipt/receiptRegisterPage";
+    }
+    
+    @GetMapping("/polling")
+    @ResponseBody
+    public List<ReceiptDTO> pollReceipts(
+            HttpSession session,
+            Principal principal
+    ) {
+        if (principal == null) {
+            return Collections.emptyList();
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Long> receiptIds =
+            (List<Long>) session.getAttribute("CURRENT_RECEIPT_IDS");
+
+        if (receiptIds == null || receiptIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return receiptQueryService.getRecentReceipts(receiptIds);
+    }
+
+    @PostMapping("/confirm")
+    public String confirmReceipt(
+            @RequestParam Long r_no,
+            @RequestParam String r_place,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate r_date,
+            @RequestParam Integer r_price,
+            @RequestParam List<String> item_names,
+            @RequestParam List<Integer> item_prices,
+            @RequestParam List<String> item_categories
+    ) {
+        receiptCommandService.confirmReceipt(
+            r_no,
+            r_place,
+            r_date,
+            r_price,
+            item_names,
+            item_prices,
+            item_categories
+        );
+
+        return "redirect:/receipt/receiptRegisterPage";
     }
 
 

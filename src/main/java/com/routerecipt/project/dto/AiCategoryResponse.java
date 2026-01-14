@@ -1,5 +1,7 @@
 package com.routerecipt.project.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +30,7 @@ public class AiCategoryResponse {
      * 분류된 카테고리 값
      * - 보통 Enum 이름 또는 표준 카테고리 코드
      */
+	@JsonProperty("category")
 	private String category;
 	
 	/**
@@ -35,6 +38,7 @@ public class AiCategoryResponse {
      * - 0.0 ~ 1.0 범위
      * - UI에서는 %로 변환 가능
      */
+	@JsonProperty("confidence")
 	private double confidence;
 	
 	/**
@@ -43,5 +47,6 @@ public class AiCategoryResponse {
      * - AI       : OpenAI 모델 분류
      * - FALLBACK : 기본값/예외 처리 결과
      */
+	@JsonProperty("source")
 	private String source; 	// RULE / AI / FALLBACK
 }
