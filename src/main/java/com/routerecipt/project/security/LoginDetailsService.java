@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 import com.routerecipt.project.mapper.UserMapper;
 
 
@@ -29,7 +29,7 @@ public class LoginDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
 		// 아이디(username)로 사용자 조회
-		Userdto user = userMapper.loadUserByUsername(username);
+		UserDTO user = userMapper.loadUserByUsername(username);
 		
 		 // 사용자가 존재하지 않으면 인증 실패 처리
 		if (user == null) {

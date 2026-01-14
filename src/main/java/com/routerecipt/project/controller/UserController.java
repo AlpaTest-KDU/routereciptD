@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.Role;
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
@@ -53,7 +53,7 @@ public class UserController {
 	
 	// 회원가입 기능
 	@PostMapping("/userSignUp")
-	public String userSignUp(@Valid @ModelAttribute("userDto") Userdto u, BindingResult bindingResult, Model model,
+	public String userSignUp(@Valid @ModelAttribute("userDto") UserDTO u, BindingResult bindingResult, Model model,
 							 @RequestParam(name = "emailDomain") String emailDomain,
 							 @RequestParam(name = "emailDomainCustom", required = false) String emailDomainCustom) {
 		if (bindingResult.hasErrors()) {
@@ -172,11 +172,10 @@ public class UserController {
 	// 회원정보수정 화면
 	@GetMapping("/userInfoUpdatePage")
 	public String userInfoUpdatePage(Authentication authentication, Model model) {
-		userServiceImp.UserInfoShow();
 		LoginDetails principal = (LoginDetails) authentication.getPrincipal();
 		String loginUserId = principal.getUser().getU_id();
 		
-		Userdto user = userServiceImp.loadUserByUsername(loginUserId);
+		UserDTO user = userServiceImp.loadUserByUsername(loginUserId);
 
     	model.addAttribute("u_id", user.getU_id());
     	model.addAttribute("u_name", user.getU_name());
@@ -189,7 +188,7 @@ public class UserController {
 	
 	// 정보 수정 기능
 	@PostMapping("/userInfoUpdate")
-	public String userInfoUpdate(Userdto u, Authentication authentication) {
+	public String userInfoUpdate(UserDTO u, Authentication authentication) {
 		LoginDetails principal = (LoginDetails) authentication.getPrincipal();
 	    String loginUserId = principal.getUser().getU_id();
 	    

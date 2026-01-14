@@ -3,13 +3,16 @@ package com.routerecipt.project.stream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.config.RedisStreamConfig;
@@ -25,30 +28,26 @@ public class OcrStreamConsumer implements Runnable {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ReceiptOcrProcessService receiptOcrProcessService;
+    private final TaskExecutor taskExecutor;
 
     private final String consumerName =
-            "ocr-consumer-" + java.util.UUID.randomUUID();
+            "ocr-consumer-" + UUID.randomUUID();
 
     private volatile boolean running = true;
-    private Thread worker;
 
     public OcrStreamConsumer(
             RedisTemplate<String, String> redisTemplate,
-            ReceiptOcrProcessService receiptOcrProcessService
+            ReceiptOcrProcessService receiptOcrProcessService,
+            TaskExecutor taskExecutor
     ) {
         this.redisTemplate = redisTemplate;
         this.receiptOcrProcessService = receiptOcrProcessService;
+        this.taskExecutor = taskExecutor;
     }
 
-    /* ===============================
-     * Consumer 시작
-     * =============================== */
     @PostConstruct
     public void start() {
-        worker = new Thread(this, "ocr-stream-consumer");
-        worker.setDaemon(true);
-        worker.start();
-
+        taskExecutor.execute(this);
         log.info(
             "[OCR-STREAM] Consumer started. group={}, consumer={}",
             RedisStreamConfig.OCR_GROUP,
@@ -56,38 +55,35 @@ public class OcrStreamConsumer implements Runnable {
         );
     }
 
-    /* ===============================
-     * Poll Loop
-     * =============================== */
     @Override
     public void run() {
         while (running && !Thread.currentThread().isInterrupted()) {
             pollOnce();
         }
-        log.info("[OCR-STREAM] Consumer loop exited");
     }
 
-    /* ===============================
-     * 단일 Poll
-     * =============================== */
     private void pollOnce() {
 
-        List<MapRecord<String, Object, Object>> records;
+        List<MapRecord<String, String, String>> records;
 
         try {
-            records = redisTemplate.opsForStream().read(
-                Consumer.from(
-                    RedisStreamConfig.OCR_GROUP,
-                    consumerName
-                ),
-                StreamReadOptions.empty()
-                    .block(Duration.ofSeconds(5))
-                    .count(1),
-                StreamOffset.create(
-                    RedisStreamConfig.OCR_STREAM,
-                    ReadOffset.lastConsumed()
-                )
-            );
+            StreamOperations<String, String, String> streamOps =
+                    redisTemplate.opsForStream();
+
+            records = streamOps.read(
+            	    Consumer.from(
+            	        RedisStreamConfig.OCR_GROUP,
+            	        consumerName
+            	    ),
+            	    StreamReadOptions.empty()
+            	        .block(Duration.ofSeconds(5))
+            	        .count(1),
+            	    StreamOffset.create(
+            	        RedisStreamConfig.OCR_STREAM,
+            	        ReadOffset.lastConsumed()
+            	    )
+            	);
+
         } catch (Exception e) {
             log.warn("[OCR-STREAM] Redis polling failed", e);
             sleep(2000);
@@ -98,18 +94,18 @@ public class OcrStreamConsumer implements Runnable {
             return;
         }
 
-        for (MapRecord<String, Object, Object> record : records) {
+        for (MapRecord<String, String, String> record : records) {
             handleAndAck(record);
         }
     }
 
-    /* ===============================
-     * Record 처리 + ACK
-     * =============================== */
-    private void handleAndAck(MapRecord<String, Object, Object> record) {
+
+
+
+    private void handleAndAck(MapRecord<String, String, String> record) {
 
         try {
-            boolean handled = handle(record);
+            handle(record);
 
             redisTemplate.opsForStream().acknowledge(
                 RedisStreamConfig.OCR_STREAM,
@@ -117,13 +113,7 @@ public class OcrStreamConsumer implements Runnable {
                 record.getId()
             );
 
-            if (!handled) {
-                log.warn(
-                    "[OCR-STREAM] ACK invalid payload id={} value={}",
-                    record.getId(),
-                    record.getValue()
-                );
-            }
+            log.info("[OCR-STREAM] ACK SUCCESS id={}", record.getId());
 
         } catch (Exception e) {
             log.error(
@@ -135,48 +125,27 @@ public class OcrStreamConsumer implements Runnable {
         }
     }
 
-    /* ===============================
-     * 실제 OCR 처리 (🔥 핵심)
-     * =============================== */
-    private boolean handle(MapRecord<String, Object, Object> record) {
+    private void handle(MapRecord<String, String, String> record) {
 
-        Map<Object, Object> value = record.getValue();
+        Map<String, String> value = record.getValue();
+        log.info("[OCR-STREAM] HANDLE value={}", value);
 
-        String receiptNoStr = (String) value.get("receiptNo");
-
+        String receiptNoStr = value.get("receiptNo");
         if (receiptNoStr == null) {
-            log.warn("[OCR-STREAM] INVALID PAYLOAD {}", value);
-            return false;
+            log.warn("[OCR-STREAM] receiptNo missing value={}", value);
+            return;
         }
 
-        Long receiptNo;
-        try {
-            receiptNo = Long.valueOf(receiptNoStr);
-        } catch (NumberFormatException e) {
-            log.warn("[OCR-STREAM] INVALID receiptNo {}", receiptNoStr);
-            return false;
-        }
+        Long receiptNo = Long.valueOf(receiptNoStr);
 
-        log.info(
-            "[OCR-STREAM] PROCESS r_no={}",
-            receiptNo
-        );
+        log.info("[OCR-STREAM] PROCESS r_no={}", receiptNo);
 
-        // 🔥 imagePath 전달 금지
         receiptOcrProcessService.processOcr(receiptNo);
-        return true;
     }
 
-    /* ===============================
-     * Shutdown
-     * =============================== */
     @PreDestroy
     public void shutdown() {
-        log.info("[OCR-STREAM] Consumer shutting down...");
         running = false;
-        if (worker != null) {
-            worker.interrupt();
-        }
     }
 
     private void sleep(long ms) {

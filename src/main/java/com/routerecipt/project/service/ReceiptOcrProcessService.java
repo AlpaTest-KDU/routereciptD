@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.routerecipt.project.OpenAI.OpenAiCategoryService;
 import com.routerecipt.project.dto.ItemCategory;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
@@ -20,30 +21,38 @@ import lombok.extern.slf4j.Slf4j;
 public class ReceiptOcrProcessService {
 
     private final OcrService ocrService;
-    private final ReceiptApplicationService receiptApplicationService;
     private final ReceiptCommandService receiptCommandService;
-    private final ReceiptService receiptService; // imagePath 조회용
+    private final ReceiptService receiptService;
+    private final OpenAiCategoryService openAiCategoryService;
 
     /* =====================================================
-     * 🔥 OCR 비동기 처리 단일 진입점 (유일)
+     * 🔥 OCR 비동기 처리 단일 진입점 (최종본)
      * ===================================================== */
     @Transactional
     public void processOcr(Long receiptNo) {
 
-        // 1️⃣ DB 기준 imagePath 조회
-        String imagePath = receiptService.getImagePathByReceiptNo(receiptNo);
+        ReceiptDTO baseReceipt = receiptService.getReceiptByNo(receiptNo);
 
-        if (imagePath == null || imagePath.isBlank()) {
-            log.error("[OCR] imagePath NOT FOUND r_no={}", receiptNo);
+        if (baseReceipt == null || baseReceipt.getR_u() == null) {
+            log.error("[OCR] INVALID RECEIPT r_no={}", receiptNo);
+            receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
+            return;
+        }
+
+        if (isBlank(baseReceipt.getImagePath())) {
+            log.error("[OCR] IMAGE PATH NOT FOUND r_no={}", receiptNo);
             receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
             return;
         }
 
         try {
-            log.info("[OCR] START r_no={}, imagePath={}", receiptNo, imagePath);
+            log.info("[OCR] START r_no={}", receiptNo);
 
             ReceiptDTO receipt =
-                    ocrService.processReceiptFromImagePath(imagePath, null);
+                ocrService.processReceiptFromImagePath(
+                    baseReceipt.getImagePath(),
+                    baseReceipt.getR_u()
+                );
 
             if (receipt == null) {
                 log.warn("[OCR] RESULT NULL r_no={}", receiptNo);
@@ -51,50 +60,52 @@ public class ReceiptOcrProcessService {
                 return;
             }
 
-            // receipt 연결
             receipt.setR_no(receiptNo);
+            receipt.setR_u(baseReceipt.getR_u());
 
-            // RULE
+            /* 1️⃣ RULE 기반 강제 아이템 */
             applyForcedItemsIfNeeded(receipt);
 
-            // FALLBACK
+            /* 2️⃣ 아이템 없는 경우 가맹점 단일 아이템 생성 */
+            ensureDefaultItem(receipt);
+
+            /* 3️⃣ AI 분류 (RULE 미분류 항목만) */
+            applyAiCategory(receipt);
+
+            /* 4️⃣ FALLBACK (최종 안전망) */
             applyCategoryFallback(receipt);
 
-            // 저장
-            receiptApplicationService.saveReceiptWithItems(receipt);
+            /* 5️⃣ DB 반영 */
+            receiptCommandService.updateReceiptBasic(
+                receiptNo,
+                receipt.getR_place(),
+                receipt.getR_date(),
+                receipt.getR_price()
+            );
 
-            // 상태 DONE
+            receiptCommandService.deleteItemsByReceiptNo(receiptNo);
+            receiptCommandService.insertReceiptItems(receipt);
+
             receiptCommandService.updateOcrStatus(receiptNo, "DONE");
-
             log.info("[OCR] DONE r_no={}", receiptNo);
 
         } catch (Exception e) {
             receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
             log.error("[OCR] FAIL r_no={}", receiptNo, e);
-
-        } finally {
-            // temp 파일 정리
-            try {
-                java.nio.file.Files.deleteIfExists(
-                    java.nio.file.Paths.get(imagePath)
-                );
-            } catch (Exception e) {
-                log.warn("[OCR] TEMP FILE DELETE FAIL path={}", imagePath, e);
-            }
         }
     }
 
     /* =====================================================
-     * item_category NOT NULL 보장
+     * RULE → AI 이후에도 category 없는 경우만 ETC
      * ===================================================== */
     private void applyCategoryFallback(ReceiptDTO receipt) {
 
-        if (receipt.getItems() == null || receipt.getItems().isEmpty()) return;
+        if (receipt.getItems() == null) return;
 
         for (ReceiptItemDTO item : receipt.getItems()) {
             if (item == null) continue;
 
-            if (item.getItem_category() == null || item.getItem_category().isBlank()) {
+            if (isBlank(item.getItem_category())) {
                 item.setItem_category(ItemCategory.ETC.name());
                 item.setAi_source("FALLBACK");
                 item.setAi_confidence(0.0);
@@ -122,28 +133,16 @@ public class ReceiptOcrProcessService {
             List.of("외과", "내과", "의원", "병원", "의학과", "비뇨기과"),
             "진료비",
             ItemCategory.MEDICAL.name(),
-            List.of("진료", "진료비", "의료", "처방", "약")
+            List.of("진료", "처방", "의료")
         )
     );
 
-    private static class ForcedItemRule {
-        private final List<String> placeKeywords;
-        private final String itemName;
-        private final String category;
-        private final List<String> dedupKeywords;
-
-        private ForcedItemRule(
-                List<String> placeKeywords,
-                String itemName,
-                String category,
-                List<String> dedupKeywords) {
-
-            this.placeKeywords = placeKeywords;
-            this.itemName = itemName;
-            this.category = category;
-            this.dedupKeywords = dedupKeywords;
-        }
-    }
+    private record ForcedItemRule(
+        List<String> placeKeywords,
+        String itemName,
+        String category,
+        List<String> dedupKeywords
+    ) {}
 
     private void applyForcedItemsIfNeeded(ReceiptDTO receipt) {
 
@@ -158,23 +157,23 @@ public class ReceiptOcrProcessService {
 
         for (ForcedItemRule rule : FORCED_ITEM_RULES) {
 
-            boolean matched = rule.placeKeywords.stream()
+            boolean matched = rule.placeKeywords().stream()
                 .anyMatch(k -> upperPlace.contains(k.toUpperCase()));
 
             if (!matched) continue;
 
-            boolean alreadyExists = receipt.getItems().stream()
-                .filter(item -> item != null && item.getItem_name() != null)
-                .anyMatch(item ->
-                    rule.dedupKeywords.stream()
-                        .anyMatch(item.getItem_name()::contains)
+            boolean exists = receipt.getItems().stream()
+                .filter(i -> i != null && i.getItem_name() != null)
+                .anyMatch(i ->
+                    rule.dedupKeywords().stream()
+                        .anyMatch(i.getItem_name()::contains)
                 );
 
-            if (alreadyExists) continue;
+            if (exists) continue;
 
             ReceiptItemDTO item = new ReceiptItemDTO();
-            item.setItem_name(rule.itemName);
-            item.setItem_category(rule.category);
+            item.setItem_name(rule.itemName());
+            item.setItem_category(rule.category());
             item.setAi_source("RULE");
             item.setAi_confidence(1.0);
             item.setItem_price(receipt.getR_price());
@@ -183,7 +182,71 @@ public class ReceiptOcrProcessService {
         }
     }
 
+    /* =====================================================
+     * AI 분류 (RULE 미분류 대상만)
+     * ===================================================== */
+    private void applyAiCategory(ReceiptDTO receipt) {
+
+        if (receipt.getItems() == null) return;
+
+        for (ReceiptItemDTO item : receipt.getItems()) {
+
+            if (item == null) continue;
+
+            if (!isBlank(item.getItem_category())) {
+                continue; // RULE 이미 적용됨
+            }
+
+            String itemName = safe(item.getItem_name());
+            if (itemName.isEmpty()) continue;
+
+            try {
+                log.info("[AI] REQUEST item={}", itemName);
+
+                var ai = openAiCategoryService.classifyItem(itemName);
+
+                if (ai == null || isBlank(ai.getCategory())) {
+                    log.warn("[AI] NULL RESULT item={}", itemName);
+                    continue;
+                }
+
+                log.info("[AI] RESULT item={}, category={}, confidence={}",
+                    itemName, ai.getCategory(), ai.getConfidence());
+
+                item.setItem_category(ai.getCategory());
+                item.setAi_source(ai.getSource());
+                item.setAi_confidence(ai.getConfidence());
+
+            } catch (Exception e) {
+                log.error("[AI] FAIL item={}", itemName, e);
+            }
+        }
+    }
+
+    /* =====================================================
+     * 아이템 없는 경우 기본 아이템 보장
+     * ===================================================== */
+    private void ensureDefaultItem(ReceiptDTO receipt) {
+
+        if (receipt.getItems() != null && !receipt.getItems().isEmpty()) return;
+
+        ReceiptItemDTO item = new ReceiptItemDTO();
+        item.setItem_name(receipt.getR_place());
+        item.setItem_price(receipt.getR_price());
+
+        receipt.setItems(new ArrayList<>(List.of(item)));
+    }
+
+    /* =====================================================
+     * 유틸
+     * ===================================================== */
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
     private String safe(String s) {
-        return (s == null) ? "" : s.trim();
+        return s == null ? "" : s.trim();
     }
 }
+
+

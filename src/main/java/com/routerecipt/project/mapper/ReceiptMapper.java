@@ -185,4 +185,6 @@ public interface ReceiptMapper {
     
     String selectImagePathByReceiptNo(@Param("receiptNo") Long receiptNo);
     
+    ReceiptDTO selectReceiptByNo(Long r_no);
+    
 }

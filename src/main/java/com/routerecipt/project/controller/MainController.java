@@ -12,7 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.security.LoginDetails;
 
@@ -52,7 +52,7 @@ public class MainController {
 	// 회원가입 화면
 	@GetMapping("/user/userSignUpPage")
 	public String userSignUpPage(Model model) {
-		model.addAttribute("userDto", new Userdto());
+		model.addAttribute("userDto", new UserDTO());
 		return "user/userSignUpPage";
 	}
 	
@@ -60,7 +60,7 @@ public class MainController {
 	@GetMapping("/user/userInfoShowPage")
 	public String userInfoShowPage(Authentication authentication, Model model) {
 		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
-		Userdto user = loginDetails.getUser();
+		UserDTO user = loginDetails.getUser();
 
     	model.addAttribute("u_id", user.getU_id());
     	model.addAttribute("u_name", user.getU_name());

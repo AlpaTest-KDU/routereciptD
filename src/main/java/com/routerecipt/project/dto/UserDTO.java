@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Userdto {
+public class UserDTO {
 	@NotBlank(message = "아이디를 입력해주세요")
 	@Size(min=6, max=16, message = "아이디는 6~16자여야 합니다.")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$", message = "아이디는 영문/숫자 조합만 가능합니다.")

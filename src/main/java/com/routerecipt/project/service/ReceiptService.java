@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.UploadResult;
 
 
@@ -15,35 +16,36 @@ import com.routerecipt.project.dto.UploadResult;
  * - 컨트롤러는 이 인터페이스만 호출하면 된다.
  */
 public interface ReceiptService {
-	/**
-     * ✅ 업로드된 파일을 임시 경로에 저장
-     * - OCR 수행 ❌
-     * - DB 저장 ❌
-     * - Stream 발행 ❌
-     *
-     * @return 저장된 이미지 경로 목록
-     */
+
+    /* ===============================
+     * 업로드 / 생성 영역
+     * =============================== */
+
     List<String> saveTempFiles(List<MultipartFile> files);
-    
-    /**
-     * ✅ 임시 receipt(PENDING) 생성
-     * - OCR ❌
-     * - item 생성 ❌
-     * - 상태만 PENDING
-     *
-     * @return 생성된 receipt_id 목록
-     */
-    
 
     /**
      * ❌ (비동기 전환 후 사용 중단 예정)
      * @deprecated 동기 OCR 구조용 메서드
      */
-    
+    @Deprecated
     UploadResult uploadReceipts(List<MultipartFile> files, String userId);
-    
-    
+
+    /* ===============================
+     * 조회 영역 (🔥 비동기 OCR 핵심)
+     * =============================== */
+
+    /**
+     * receiptNo 기준 imagePath 조회
+     */
     String getImagePathByReceiptNo(Long receiptNo);
 
-    
+    /**
+     * 🔥 receipt 단건 조회 (OCR Consumer 전용)
+     * - r_no
+     * - r_u (userId)
+     * - r_place
+     * - r_price
+     * - imagePath
+     */
+    ReceiptDTO getReceiptByNo(Long receiptNo);
 }

@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.routerecipt.project.config.RedisStreamConfig;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.redis.connection.stream.StreamRecords;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.connection.stream.RecordId;
 
 /**
  * 📌 OcrStreamProducer
@@ -21,29 +26,31 @@ import com.routerecipt.project.config.RedisStreamConfig;
  * 👉 MVC 흐름과 OCR 처리 로직을 분리하기 위한 핵심 컴포넌트
  */
 
+@Slf4j
 @Service
 public class OcrStreamProducer {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisStreamTemplate;
 
-    public OcrStreamProducer(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public OcrStreamProducer(
+        @Qualifier("redisStreamTemplate")
+        RedisTemplate<String, Object> redisStreamTemplate
+    ) {
+        this.redisStreamTemplate = redisStreamTemplate;
     }
 
-    /**
-     * 📌 OCR 요청 이벤트 발행
-     *
-     * @param userId    요청 사용자 ID
-     * @param imagePath OCR 대상 이미지 경로
-     */
     public void publishOcrEvent(String userId, String imagePath, Long receiptNo) {
 
-        Map<String, String> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
         message.put("userId", userId);
         message.put("imagePath", imagePath);
-        message.put("receiptNo", receiptNo.toString());
-        
-        redisTemplate.opsForStream()
-            .add(RedisStreamConfig.OCR_STREAM, message);
+        message.put("receiptNo", receiptNo);
+
+        RecordId id = redisStreamTemplate.opsForStream().add(
+            StreamRecords.mapBacked(message)
+                .withStreamKey(RedisStreamConfig.OCR_STREAM)
+        );
+
+        log.info("🔥 [OCR-STREAM] XADD OK id={}, r_no={}", id, receiptNo);
     }
 }

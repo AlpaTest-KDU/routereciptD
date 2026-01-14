@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.routerecipt.project.dto.Userdto;
+import com.routerecipt.project.dto.UserDTO;
 
 
 /**
@@ -18,13 +18,12 @@ import com.routerecipt.project.dto.Userdto;
  */
 @Mapper
 public interface UserMapper {
-	void UserSignUp(Userdto u);					// 회원 가입
-	Userdto loadUserByUsername(String u_id);	// 로그인 및 인증을 위한 사용자 조회
-	Userdto UserSelectById(String u_id);		// 사용자 ID로 단건 조회
-	Userdto UserFindID (String u_email);		// 이메일로 사용자 ID 찾기
+	void UserSignUp(UserDTO u);					// 회원 가입
+	UserDTO loadUserByUsername(@Param("username") String username);	// 로그인 및 인증을 위한 사용자 조회
+	UserDTO UserSelectById(@Param("u_id") String u_id);		// 사용자 ID로 단건 조회
+	UserDTO UserFindID (String u_email);		// 이메일로 사용자 ID 찾기
 	int UserCheckID(@Param("u_id") String u_id, @Param("u_email") String email);	// 사용자 ID + 이메일 일치 여부 확인
-	void UserUpdatePW (Userdto u);				// 사용자 비밀번호 변경
-	List<Userdto> UserInfoShow();				// 전체 사용자 목록 조회 (관리자 전용)
-	void UserInfoUpdate(Userdto u);				// 사용자 정보 수정
+	void UserUpdatePW (UserDTO u);				// 사용자 비밀번호 변경
+	void UserInfoUpdate(UserDTO u);				// 사용자 정보 수정
 	void UserInfoDelete(String u_id);			// 사용자 계정 삭제
 }	
