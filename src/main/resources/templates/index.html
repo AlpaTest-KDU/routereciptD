@@ -28,17 +28,6 @@
 					<a sec:authorize="hasRole('USER')" th:href="@{/recepit/receiptRegisterPage}">영수증 등록하기</a>
 					<a sec:authorize="isAnonymous()" th:href="@{/user/userLoginPage}">지금 시작하기</a>
 				</div>
-				<div id="imgSlider">
-					<div class="slideContent active" id="slideContent1">
-						<img th:src="@{/img/Img1.png}" alt="Slide 1">
-					</div>
-					<div class="slideContent" id="slideContent2">
-						<img th:src="@{/img/Img2.png}" alt="Slide 2">
-					</div>
-					<div class="slideContent" id="slideContent3">
-						<img th:src="@{/img/Img3.png}" alt="Slide 3">
-					</div>
-				</div>
 		</section>
 <!--┌─────────────────────────────────────────────────────────────────────────────┐ -->
 <!--│				메인 화면 - Routeceipt 관련 간단한 소개							  │ -->
@@ -144,16 +133,16 @@
 			
 			        	<div class="graphMokupArea">
 			          		<div class="slidePane active">
-			            		<img th:src="@{/img/calendar_1.png}" alt="달력 보기">
+			            		<img th:src="@{/img/calendar1.png}" alt="달력 보기">
 			          		</div>
 			          		<div class="slidePane">
-			            		<img th:src="@{/img/calendar_2.png}" alt="그래프 보기 1">
+			            		<img th:src="@{/img/graph1.png}" alt="그래프 보기 1">
 			          		</div>
 			          		<div class="slidePane">
-			            		<img th:src="@{/img/calendar_2.png}" alt="그래프 보기 2">
+			            		<img th:src="@{/img/graph2.png}" alt="그래프 보기 2">
 			          		</div>
 			          		<div class="slidePane">
-			            		<img th:src="@{/img/calendar_2.png}" alt="그래프 보기 3">
+			            		<img th:src="@{/img/graph3.png}" alt="그래프 보기 3">
 			          		</div>
 			        	</div>
 			      	</div>
