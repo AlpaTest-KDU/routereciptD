@@ -86,6 +86,7 @@ public class ReceiptController {
         	        receiptNo
         	    );
         	}
+        	session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
         	return "redirect:/receipt/receiptRegisterPage";
     }
     // =========================

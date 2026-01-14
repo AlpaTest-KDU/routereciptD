@@ -22,12 +22,15 @@ public class ReceiptOcrProcessService {
     private final OcrService ocrService;
     private final ReceiptApplicationService receiptApplicationService;
     private final ReceiptCommandService receiptCommandService;
-    private final ReceiptService receiptService; // 🔥 추가 (imagePath 조회)
-    
+    private final ReceiptService receiptService; // imagePath 조회용
+
+    /* =====================================================
+     * 🔥 OCR 비동기 처리 단일 진입점 (유일)
+     * ===================================================== */
     @Transactional
     public void processOcr(Long receiptNo) {
 
-        // 🔥 1️⃣ imagePath는 반드시 DB 기준으로 조회
+        // 1️⃣ DB 기준 imagePath 조회
         String imagePath = receiptService.getImagePathByReceiptNo(receiptNo);
 
         if (imagePath == null || imagePath.isBlank()) {
@@ -48,7 +51,7 @@ public class ReceiptOcrProcessService {
                 return;
             }
 
-            // 기존 receipt 연결
+            // receipt 연결
             receipt.setR_no(receiptNo);
 
             // RULE
@@ -66,13 +69,11 @@ public class ReceiptOcrProcessService {
             log.info("[OCR] DONE r_no={}", receiptNo);
 
         } catch (Exception e) {
-
             receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
             log.error("[OCR] FAIL r_no={}", receiptNo, e);
 
         } finally {
-
-            // 🔥 temp 파일 정리는 "마지막 한 번만"
+            // temp 파일 정리
             try {
                 java.nio.file.Files.deleteIfExists(
                     java.nio.file.Paths.get(imagePath)
@@ -82,16 +83,13 @@ public class ReceiptOcrProcessService {
             }
         }
     }
-    
 
     /* =====================================================
-     * item_category NOT NULL 보장 (최종 방어)
+     * item_category NOT NULL 보장
      * ===================================================== */
     private void applyCategoryFallback(ReceiptDTO receipt) {
 
-        if (receipt.getItems() == null || receipt.getItems().isEmpty()) {
-            return;
-        }
+        if (receipt.getItems() == null || receipt.getItems().isEmpty()) return;
 
         for (ReceiptItemDTO item : receipt.getItems()) {
             if (item == null) continue;
@@ -105,7 +103,7 @@ public class ReceiptOcrProcessService {
     }
 
     /* =====================================================
-     * 자동 아이템 RULE 정의
+     * RULE 정의
      * ===================================================== */
     private static final List<ForcedItemRule> FORCED_ITEM_RULES = List.of(
         new ForcedItemRule(
@@ -147,9 +145,6 @@ public class ReceiptOcrProcessService {
         }
     }
 
-    /* =====================================================
-     * 장소명 기반 자동 아이템 적용
-     * ===================================================== */
     private void applyForcedItemsIfNeeded(ReceiptDTO receipt) {
 
         String place = safe(receipt.getR_place());
@@ -190,59 +185,5 @@ public class ReceiptOcrProcessService {
 
     private String safe(String s) {
         return (s == null) ? "" : s.trim();
-    }
-
-    /* =====================================================
-     * 🔥 OCR 비동기 처리 단일 진입점
-     * ===================================================== */
-    @Transactional
-    public void processOcr(Long receiptNo, String imagePath) {
-
-        try {
-            log.info("[OCR] START r_no={}, imagePath={}", receiptNo, imagePath);
-
-            // userId는 PENDING receipt 생성 시 이미 DB에 저장됨
-            ReceiptDTO receipt =
-                    ocrService.processReceiptFromImagePath(imagePath, null);
-
-            if (receipt == null) {
-                log.warn("[OCR] RESULT NULL r_no={}", receiptNo);
-                receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
-                return;
-            }
-
-            // 기존 PENDING receipt와 연결
-            receipt.setR_no(receiptNo);
-
-            // RULE
-            applyForcedItemsIfNeeded(receipt);
-
-            // FALLBACK
-            applyCategoryFallback(receipt);
-
-            // 저장
-            receiptApplicationService.saveReceiptWithItems(receipt);
-
-            // 상태 DONE
-            receiptCommandService.updateOcrStatus(receiptNo, "DONE");
-
-            log.info("[OCR] DONE r_no={}", receiptNo);
-
-        } catch (Exception e) {
-
-            receiptCommandService.updateOcrStatus(receiptNo, "FAIL");
-            log.error("[OCR] FAIL r_no={}", receiptNo, e);
-
-        } finally {
-
-            // temp 파일 정리 (성공/실패 무관)
-            try {
-                java.nio.file.Files.deleteIfExists(
-                    java.nio.file.Paths.get(imagePath)
-                );
-            } catch (Exception e) {
-                log.warn("[OCR] TEMP FILE DELETE FAIL path={}", imagePath, e);
-            }
-        }
     }
 }
