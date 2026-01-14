@@ -233,4 +233,44 @@ public class ReceiptQueryServiceImp implements ReceiptQueryService {
         return receipts;
     }
 
+    
+    /* =====================================================
+     * 카테고리별 메뉴 Map 생성
+     * ===================================================== */
+    @Override
+    public Map<String, List<String>> buildMenuMap(List<ReceiptDTO> receipts) {
+
+        if (receipts == null) {
+            return new HashMap<>();
+        }
+
+        return receipts.stream()
+                .filter(r -> r.getItems() != null)
+                .flatMap(r -> r.getItems().stream())
+                .filter(i -> i.getItem_category() != null)
+                .collect(Collectors.groupingBy(
+                        ReceiptItemDTO::getItem_category,
+                        Collectors.mapping(
+                                ReceiptItemDTO::getItem_name,
+                                Collectors.toList()
+                        )
+                ));
+    }
+
+    /* =====================================================
+     * 달력 데이터 생성
+     * ===================================================== */
+    @Override
+    public List<Integer> buildCalendar(String yearMonth) {
+
+        YearMonth ym = YearMonth.parse(yearMonth);
+        int lastDay = ym.lengthOfMonth();
+
+        List<Integer> calendar = new ArrayList<>();
+        for (int i = 1; i <= lastDay; i++) {
+            calendar.add(i);
+        }
+        return calendar;
+    }
+
 }
