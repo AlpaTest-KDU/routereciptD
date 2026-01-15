@@ -112,10 +112,13 @@ function beforeSubmitConfirm() {
 let manualItems = [];
 
 function openManualModal() {
-  document.getElementById("manualModal").style.display = "flex";
   manualItems = [];
-  renderManualItems();
-  updateManualTotal();
+  document.getElementById("manualItemTable").innerHTML = "";
+  document.getElementById("manualPlaceInput").value = "";
+  document.getElementById("manualDateInput").value =
+    new Date().toISOString().substring(0, 10);
+
+  document.getElementById("manualModal").style.display = "flex";
 }
 
 function closeManualModal() {
@@ -123,46 +126,65 @@ function closeManualModal() {
 }
 
 function addManualItem() {
-  const name = document.getElementById("m_itemName").value.trim();
-  const price = Number(document.getElementById("m_itemPrice").value);
-  const cat = document.getElementById("m_category").value;
+  const category = manualCategorySelect.value;
+  const name = manualItemName.value.trim();
+  const price = parseInt(manualItemPrice.value, 10);
 
-  if (!name || price < 0 || Number.isNaN(price)) {
-    alert("상품명/가격 확인");
+  if (!name || isNaN(price)) {
+    alert("상품명과 가격을 입력하세요.");
     return;
   }
 
-  manualItems.push({ item_name: name, item_price: price, item_category: cat });
-  renderManualItems();
-  updateManualTotal();
+  manualItems.push({ category, name, price });
+  manualItemName.value = "";
+  manualItemPrice.value = "";
+
+  renderManualTable();
 }
 
-function renderManualItems() {
-  const body = document.getElementById("manualItemsBody");
-  body.innerHTML = manualItems.map((it, i) => `
-    <tr>
-      <td>${escapeHtml(it.item_category)}</td>
-      <td>${escapeHtml(it.item_name)}</td>
-      <td>${Number(it.item_price).toLocaleString()}</td>
-      <td><button type="button" onclick="removeManualItem(${i})">삭제</button></td>
-    </tr>`).join("");
+function renderManualTable() {
+  const tbody = document.getElementById("manualItemTable");
+  tbody.innerHTML = "";
+
+  manualItems.forEach((item, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.category}</td>
+      <td>${item.name}</td>
+      <td>${item.price.toLocaleString()}원</td>
+      <td>
+        <button type="button" onclick="removeManualItem(${idx})">삭제</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-function removeManualItem(i) {
-  manualItems.splice(i, 1);
-  renderManualItems();
-  updateManualTotal();
+function removeManualItem(idx) {
+  manualItems.splice(idx, 1);
+  renderManualTable();
 }
 
-function updateManualTotal() {
-  const sum = manualItems.reduce((s, it) => s + Number(it.item_price), 0);
-  document.getElementById("m_price").value = sum;
-}
+function submitManualForm() {
+  const place = manualPlaceInput.value.trim();
+  const date  = manualDateInput.value;
 
-function beforeSubmitManualReceipt() {
-  if (!manualItems.length) {
-    alert("상품을 1개 이상 추가하세요.");
+  if (!place) {
+    alert("상호명을 입력하세요.");
     return false;
   }
-  return true;
+
+  document.getElementById("placeText").textContent = place;
+  document.getElementById("dateText").textContent = date;
+
+  document.getElementById("rNoInput").value = "0";
+  document.getElementById("rPlaceInput").value = place;
+  document.getElementById("rDateInput").value = date;
+
+  // 🔥 핵심: 수기 입력 항목 → 기존 categoryArea로 변환
+  renderItemsByCategory(manualItems);
+
+  closeManualModal();
+  document.getElementById("detailArea").style.display = "block";
+  return false;
 }
