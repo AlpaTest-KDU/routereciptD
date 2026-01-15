@@ -350,7 +350,7 @@ async function submitUpload() {
 /* =====================================================
  * 직접 입력 모달 (openManualModal)
  * ===================================================== */
-/*function openManualModal() {
+function openManualModal() {
   console.log("👐 openManualModal() called");
 
   // 1. 선택 초기화
@@ -382,4 +382,4 @@ async function submitUpload() {
   detailArea.scrollIntoView({ behavior: "smooth" });
 
   recalcTotalToHidden();
-}*/
+}
