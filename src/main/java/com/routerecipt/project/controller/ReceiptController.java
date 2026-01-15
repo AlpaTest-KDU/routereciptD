@@ -58,7 +58,7 @@ public class ReceiptController {
     // =========================
     @PostMapping("/uploadReceipt")
     @ResponseBody
-    public ResponseEntity<Void> uploadReceipt(
+    public ResponseEntity<List<ReceiptDTO>> uploadReceipt(
             @RequestParam("receipt") List<MultipartFile> files,
             Principal principal,
             HttpSession session
@@ -83,8 +83,11 @@ public class ReceiptController {
 
         session.setAttribute("CURRENT_RECEIPT_IDS", receiptIds);
 
-        // 🔥 핵심: redirect ❌, JSON ❌
-        return ResponseEntity.noContent().build(); // 204
+        // JS(receipt.js)에서 response.json()으로 데이터를 기다리므로,
+        // 저장된 영수증 목록을 조회하여 JSON으로 반환해야 합니다.
+        List<ReceiptDTO> receipts = receiptQueryService.getRecentReceipts(receiptIds);
+
+        return ResponseEntity.ok(receipts);
     }
     // =========================
     // 2️⃣ 영수증 등록 페이지 (조회 전용)
@@ -153,10 +156,15 @@ public class ReceiptController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate r_date,
             @RequestParam Integer r_price,
-            @RequestParam List<String> item_names,
-            @RequestParam List<Integer> item_prices,
-            @RequestParam List<String> item_categories
+            @RequestParam(required = false) List<String> item_names,
+            @RequestParam(required = false) List<Integer> item_prices,
+            @RequestParam(required = false) List<String> item_categories
     ) {
+        // 리스트가 없으면(null) 빈 리스트로 초기화하여 NullPointerException 방지
+        if (item_names == null) item_names = Collections.emptyList();
+        if (item_prices == null) item_prices = Collections.emptyList();
+        if (item_categories == null) item_categories = Collections.emptyList();
+
         receiptCommandService.confirmReceipt(
             r_no,
             r_place,

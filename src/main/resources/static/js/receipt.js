@@ -168,6 +168,7 @@ function renderItemsByCategory(items) {
       group.forEach(it => {
         html += `
           <li class="item-row" style="margin:8px 0; display:flex; gap:10px;">
+            <input type="hidden" name="item_categories" value="${key}">
             <input type="text" name="item_names"
                    value="${escapeHtml(it.item_name ?? "")}">
             <input type="number" name="item_prices"
