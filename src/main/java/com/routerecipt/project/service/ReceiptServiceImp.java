@@ -44,16 +44,11 @@ public class ReceiptServiceImp implements ReceiptService {
      * - Redis Stream 발행 (비동기 OCR 트리거)
      */
     @Override
+    @Transactional
     public UploadResult uploadReceipts(List<MultipartFile> files, String userId) {
 
         UploadResult result = new UploadResult();
         List<Long> successReceiptNos = new ArrayList<>();
-
-        int success = 0;
-        int fail = 0;
-
-        log.info("[UPLOAD] START userId={}, fileCount={}",
-                userId, (files == null ? 0 : files.size()));
 
         if (files == null || files.isEmpty()) {
             result.setSuccessReceiptNos(successReceiptNos);
@@ -63,10 +58,10 @@ public class ReceiptServiceImp implements ReceiptService {
         }
 
         try {
-            // 1️⃣ 파일 저장 (IO 전용)
+            // 1️⃣ 파일 저장
             List<String> imagePaths = saveTempFiles(files);
 
-            // 2️⃣ PENDING receipt 생성 (여기가 핵심)
+            // 2️⃣ receipt 생성 + image_path 확정
             List<Long> receiptNos = new ArrayList<>();
 
             for (String imagePath : imagePaths) {
@@ -76,39 +71,31 @@ public class ReceiptServiceImp implements ReceiptService {
                 receipt.setImagePath(imagePath);
                 receipt.setOcr_status("PENDING");
 
-                // ✅ 반드시 호출되어야 함
+                // 🔥 여기서 image_path가 DB에 확정됨
                 receiptCommandService.insertPendingReceipt(receipt);
 
-                // insert 후 r_no가 세팅돼 있어야 정상
                 receiptNos.add(receipt.getR_no());
+                successReceiptNos.add(receipt.getR_no());
             }
 
-            // 3️⃣ Redis Stream 발행 (비동기 OCR 트리거)
+            // 3️⃣ DB 확정 이후 Redis Stream 발행 (🔥 A안 핵심)
             for (int i = 0; i < receiptNos.size(); i++) {
-
-                Map<String, String> payload = new HashMap<>();
-                payload.put("userId", userId);
-                payload.put("receiptNo", receiptNos.get(i).toString());
-                payload.put("imagePath", imagePaths.get(i));
-                
-                ocrStreamProducer.publishOcrEvent(userId, imagePaths.get(i), receiptNos.get(i));
-                
-                successReceiptNos.add(receiptNos.get(i));
-                success++;
+                ocrStreamProducer.publishOcrEvent(
+                    userId,
+                    imagePaths.get(i),
+                    receiptNos.get(i)
+                );
             }
+
+            result.setSuccessCount(receiptNos.size());
+            result.setFailCount(0);
 
         } catch (Exception e) {
             log.error("[UPLOAD] FAIL userId={}", userId, e);
-            fail = (files == null ? 0 : files.size());
+            result.setFailCount(files.size());
         }
 
-        log.info("[UPLOAD] END userId={}, success={}, fail={}",
-                userId, success, fail);
-
         result.setSuccessReceiptNos(successReceiptNos);
-        result.setSuccessCount(success);
-        result.setFailCount(fail);
-
         return result;
     }
 
