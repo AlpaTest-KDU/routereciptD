@@ -5,13 +5,26 @@ console.log("📦 receipt.js LOADED");
  * ===================================================== */
 var selectedIdx = -1;
 var pollingTimer = null;
-var POLLING_INTERVAL = 2000; // 2초
+var POLLING_INTERVAL = 2000;
+
+/* =====================================================
+ * 카테고리 상수
+ * ===================================================== */
+const CATEGORY_MAP = {
+  FOOD: "음식",
+  MEDICAL: "의료",
+  CLOTHES: "의류",
+  HOME: "주거",
+  LIVING: "생활",
+  CULTURE: "문화",
+  TRAFFIC: "교통",
+  ETC: "기타"
+};
 
 /* =====================================================
  * 페이지 진입 시 초기화
  * ===================================================== */
 function initPage() {
-  console.log("🟢 initPage() CALLED");
   hideLoadingOverlay();
   renderReceiptList();
 }
@@ -23,7 +36,7 @@ if (document.readyState === "loading") {
 }
 
 /* =====================================================
- * 로딩 오버레이 제어
+ * 로딩 오버레이
  * ===================================================== */
 function showLoadingOverlay() {
   const overlay = document.getElementById("loadingOverlay");
@@ -58,13 +71,12 @@ function hideLoadingOverlay() {
 }
 
 /* =====================================================
- * 영수증 목록 렌더링
+ * 영수증 목록
  * ===================================================== */
 function renderReceiptList() {
   const list = document.getElementById("receiptList");
   if (!list) return;
 
-  // 분석 중
   if (!receipts || receipts.length === 0) {
     list.innerHTML = `
       <p class="pendingTitle">영수증을 분석 중입니다.</p>
@@ -82,7 +94,7 @@ function renderReceiptList() {
   `;
 
   receipts.forEach((r, idx) => {
-    const statusText =
+    const status =
       r.ocr_status === "DONE" ? "분석 완료" : "분석 중";
 
     html += `
@@ -90,7 +102,7 @@ function renderReceiptList() {
               class="receiptListNo"
               onclick="showReceipt(${idx})">
         ${idx + 1}번 - ${escapeHtml(r.r_place ?? "상호명 없음")}
-        <span class="status">(${statusText})</span>
+        <span class="status">(${status})</span>
       </button>
     `;
   });
@@ -111,18 +123,17 @@ function showReceipt(idx) {
     return;
   }
 
-  const place = receipt.r_place || "";
-  const date  = (receipt.r_date || "").toString().substring(0, 10);
-  const price = Number(receipt.r_price || 0);
+  document.getElementById("placeText").textContent = receipt.r_place || "";
+  document.getElementById("dateText").textContent =
+    (receipt.r_date || "").toString().substring(0, 10);
+  document.getElementById("priceText").textContent =
+    Number(receipt.r_price || 0).toLocaleString();
 
-  document.getElementById("placeText").textContent = place;
-  document.getElementById("dateText").textContent  = date;
-  document.getElementById("priceText").textContent = price.toLocaleString();
-
-  document.getElementById("rNoInput").value    = receipt.r_no || "";
-  document.getElementById("rPlaceInput").value = place;
-  document.getElementById("rDateInput").value  = date;
-  document.getElementById("rPriceInput").value = price;
+  document.getElementById("rNoInput").value = receipt.r_no;
+  document.getElementById("rPlaceInput").value = receipt.r_place || "";
+  document.getElementById("rDateInput").value =
+    (receipt.r_date || "").toString().substring(0, 10);
+  document.getElementById("rPriceInput").value = receipt.r_price || 0;
 
   renderItemsByCategory(receipt.items || []);
   document.getElementById("detailArea").style.display = "block";
@@ -130,26 +141,28 @@ function showReceipt(idx) {
 }
 
 /* =====================================================
- * 아이템 렌더링
+ * category select 생성
+ * ===================================================== */
+function renderCategorySelect(selected) {
+  let html = `<select name="item_categories">`;
+  for (const [key, label] of Object.entries(CATEGORY_MAP)) {
+    const sel = key === selected ? "selected" : "";
+    html += `<option value="${key}" ${sel}>${label}</option>`;
+  }
+  html += `</select>`;
+  return html;
+}
+
+/* =====================================================
+ * 아이템 렌더링 (⭐ 핵심 수정)
  * ===================================================== */
 function renderItemsByCategory(items) {
-  const categoryMap = {
-    FOOD: "음식",
-    MEDICAL: "의료",
-    CLOTHES: "의류",
-    HOME: "주거",
-    LIVING: "생활",
-    CULTURE: "문화",
-    TRAFFIC: "교통",
-    ETC: "기타"
-  };
-
   let html = "";
 
   if (!items.length) {
     html = "<p>아직 분석된 상품이 없습니다.</p>";
   } else {
-    for (const [key, label] of Object.entries(categoryMap)) {
+    for (const [key, label] of Object.entries(CATEGORY_MAP)) {
       const group = items.filter(it => it.item_category === key);
       if (!group.length) continue;
 
@@ -158,7 +171,7 @@ function renderItemsByCategory(items) {
       group.forEach(it => {
         html += `
           <li class="item-row" style="margin:8px 0; display:flex; gap:10px;">
-            <input type="hidden" name="item_categories" value="${key}">
+            ${renderCategorySelect(it.item_category)}
             <input type="text" name="item_names"
                    value="${escapeHtml(it.item_name ?? "")}">
             <input type="number" name="item_prices"
@@ -187,17 +200,17 @@ function removeItemRow(btn) {
 
 function recalcTotalToHidden() {
   let total = 0;
-
   document
     .querySelectorAll('#confirmForm input[name="item_prices"]')
     .forEach(p => total += Number(p.value || 0));
 
-  document.getElementById("priceText").textContent = total.toLocaleString();
+  document.getElementById("priceText").textContent =
+    total.toLocaleString();
   document.getElementById("rPriceInput").value = total;
 }
 
 /* =====================================================
- * 파일 업로드 (트리거)
+ * 파일 업로드
  * ===================================================== */
 async function submitUpload() {
   const form = document.getElementById("uploadForm");
@@ -208,14 +221,12 @@ async function submitUpload() {
     return;
   }
 
-  // ✅ 로딩 ON
   showLoadingOverlay();
 
   try {
-    const formData = new FormData(form);
     const response = await fetch(form.action, {
       method: "POST",
-      body: formData
+      body: new FormData(form)
     });
 
     if (!response.ok) {
@@ -224,13 +235,12 @@ async function submitUpload() {
       return;
     }
 
-    // 업로드 성공 → polling으로 결과 대기
     receipts = [];
     renderReceiptList();
     startPolling();
 
   } catch (e) {
-    console.error("Upload error:", e);
+    console.error(e);
     alert("오류가 발생했습니다.");
     hideLoadingOverlay();
   }
@@ -243,37 +253,27 @@ function startPolling() {
   if (pollingTimer) return;
 
   pollingTimer = setInterval(async () => {
-    try {
-      const res = await fetch("/receipt/polling");
-      if (!res.ok) return;
+    const res = await fetch("/receipt/polling");
+    if (!res.ok) return;
 
-      const data = await res.json();
-      receipts = data || [];
-      renderReceiptList();
+    receipts = await res.json();
+    renderReceiptList();
 
-      if (receipts.some(r => r.ocr_status === "DONE")) {
-        stopPolling();
-        const idx = receipts.findIndex(r => r.ocr_status === "DONE");
-        if (idx !== -1) showReceipt(idx);
-      }
-    } catch (e) {
-      console.error("polling error:", e);
+    if (receipts.some(r => r.ocr_status === "DONE")) {
+      stopPolling();
+      showReceipt(receipts.findIndex(r => r.ocr_status === "DONE"));
     }
   }, POLLING_INTERVAL);
 }
 
 function stopPolling() {
-  if (!pollingTimer) return;
-
   clearInterval(pollingTimer);
   pollingTimer = null;
-
-  // ✅ OCR 완료 시에만 로딩 OFF
   hideLoadingOverlay();
 }
 
 /* =====================================================
- * 기타 유틸
+ * 유틸
  * ===================================================== */
 function escapeHtml(str) {
   return String(str ?? "")
@@ -286,8 +286,7 @@ function escapeHtml(str) {
 
 function beforeSubmitConfirm() {
   recalcTotalToHidden();
-  const rNo = document.getElementById("rNoInput").value;
-  if (!rNo) {
+  if (!document.getElementById("rNoInput").value) {
     alert("확정할 영수증이 선택되지 않았습니다.");
     return false;
   }
