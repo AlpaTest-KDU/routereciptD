@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.routerecipt.project.dto.AiTrainingItemDTO;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.ReceiptItemDTO;
 import com.routerecipt.project.mapper.ReceiptMapper;
@@ -22,6 +23,7 @@ public class ReceiptCommandServiceImp implements ReceiptCommandService {
         LoggerFactory.getLogger(ReceiptCommandServiceImp.class);
 
     private final ReceiptMapper receiptMapper;
+    private final AiTrainingItemService aiTrainingItemService;
 
     /* =====================================================
      * 🚫 LEGACY (동기 구조 – 현재 OCR에서는 사용 안 함)
@@ -60,18 +62,53 @@ public class ReceiptCommandServiceImp implements ReceiptCommandService {
     @Override
     @Transactional
     public void confirmReceipt(
-            Long r_no,
-            String r_place,
-            LocalDate r_date,
-            Integer r_price,
-            List<String> item_names,
-            List<Integer> item_prices,
-            List<String> item_categories
+        Long r_no,
+        String r_place,
+        LocalDate r_date,
+        Integer r_price,
+        List<String> item_names,
+        List<Integer> item_prices,
+        List<String> item_categories
     ) {
+
+        // 1. 영수증 기본 정보 업데이트
         receiptMapper.updateReceiptBasic(r_no, r_place, r_date, r_price);
+
+        // 2. 기존 아이템 삭제
         receiptMapper.deleteItemsByReceiptNo(r_no);
-        receiptMapper.insertItemsBatch(r_no, item_names, item_prices, item_categories);
+
+        // 3. 확정 아이템 일괄 저장
+        receiptMapper.insertItemsBatch(
+            r_no, item_names, item_prices, item_categories
+        );
+
+        // 4. 🔥 AI 재학습 데이터 저장 (Confirm 시점)
+        for (int i = 0; i < item_names.size(); i++) {
+
+            String itemName     = item_names.get(i);
+            String finalLabel   = item_categories.get(i);
+
+            if (itemName == null || itemName.isBlank()) {
+                continue;
+            }
+
+            AiTrainingItemDTO ai = new AiTrainingItemDTO();
+            ai.setItem_text(itemName);
+
+            // ⚠️ predicted_label 은 "OCR/AI 최초 추론값"
+            // 지금 구조상 없다면 null 허용 (RULE/ETC 로 분류됨)
+            ai.setPredicted_label(null);
+            ai.setPredicted_confidence(0.0);
+            ai.setAi_source("USER_CONFIRM");
+            ai.setModel_version("v1");
+
+            // ⭐ 사용자 확정 값
+            ai.setFinal_label(finalLabel);
+
+            aiTrainingItemService.saveTrainingItem(ai);
+        }
     }
+
 
     /* =====================================================
      * 🔥 OCR 비동기 전용 (핵심)
