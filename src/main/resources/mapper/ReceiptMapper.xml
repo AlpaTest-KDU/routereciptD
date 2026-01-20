@@ -143,6 +143,7 @@
         r.r_place,
         r.r_price,
         r.r_date,
+        r.ocr_status,
         u.gender
     FROM recipt r
     JOIN user u
