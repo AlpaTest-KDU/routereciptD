@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -22,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
+@Profile("active")
 @Service
 @Slf4j
 public class OcrStreamConsumer implements Runnable {
