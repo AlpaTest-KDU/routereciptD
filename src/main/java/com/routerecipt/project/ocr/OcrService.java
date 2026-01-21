@@ -510,6 +510,8 @@ public class OcrService {
             JSONArray images = new JSONArray();
             images.put(image);
             body.put("images", images);
+            body.put("enableTableDetection", true);
+            body.put("enableReceiptDetection", true);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
