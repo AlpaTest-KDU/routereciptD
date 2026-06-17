@@ -28,6 +28,7 @@ import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.ReceiptDTO;
 import com.routerecipt.project.dto.Role;
 import com.routerecipt.project.dto.UserDTO;
+import com.routerecipt.project.entity.User;
 import com.routerecipt.project.mapper.ReceiptMapper;
 import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.redis.BloomFilter.RedisBloomService;
@@ -99,7 +100,8 @@ public class UserController {
 		LoginDetails principal = (LoginDetails) authentication.getPrincipal();
 		String loginUserId = principal.getUser().getU_id();
 		
-		UserDTO user = userServiceImp.loadUserByUsername(loginUserId);
+//		UserDTO user = userServiceImp.loadUserByUsername(loginUserId);
+		User user = userServiceImp.loadUserByUsername(loginUserId);
 
     	model.addAttribute("u_id", user.getU_id());
     	model.addAttribute("u_name", user.getU_name());

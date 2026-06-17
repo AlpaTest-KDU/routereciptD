@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.routerecipt.project.dto.ReceiptAnalysisStatsdto;
 import com.routerecipt.project.dto.UserDTO;
+import com.routerecipt.project.entity.User;
 import com.routerecipt.project.receipt.ReceiptResultService;
 import com.routerecipt.project.security.LoginDetails;
 
@@ -63,7 +64,8 @@ public class MainController {
 	@GetMapping("/user/userInfoShowPage")
 	public String userInfoShowPage(Authentication authentication, Model model) {
 		LoginDetails loginDetails = (LoginDetails) authentication.getPrincipal();
-		UserDTO user = loginDetails.getUser();
+//		UserDTO user = loginDetails.getUser();
+		User user = loginDetails.getUser();
 
         model.addAttribute("u_id", user.getU_id());
         model.addAttribute("u_name", user.getU_name());

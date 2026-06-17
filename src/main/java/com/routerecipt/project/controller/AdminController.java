@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.routerecipt.project.dto.UserDTO;
+import com.routerecipt.project.entity.User;
 import com.routerecipt.project.service.UserServiceImp;
 
 
@@ -61,7 +62,8 @@ public class AdminController {
 	@GetMapping("/userInfoSelect")
 	public String userInfoSelect(Model model, @RequestParam(value = "u_id") String u_id) {
 		// 사용자 정보 조회
-		UserDTO user = userServiceImp.UserSelectById(u_id);
+//		UserDTO user = userServiceImp.UserSelectById(u_id);
+		User user = userServiceImp.UserSelectById(u_id);
 		
 		// 조회 결과를 View에서 사용할 수 있도록 Model에 담기
 		model.addAttribute("userInfo", user);
