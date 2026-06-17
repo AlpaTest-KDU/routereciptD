@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 	Optional<String> findUserIdByEmail(@Param("email") String email);
 	
 	// 비밀번호 변경 전 본인 확인용 - 아이디 + 이메일 일치 여부
-	@Query("select (count(u) > 0) from User u where u.u_id= :uId and u.uemail= :email")
+	@Query("select (count(u) > 0) from User u where u.u_id= :uId and u.u_email= :email")
 	boolean existByIdAndEmail(@Param("uId") String uId, @Param("email") String email);
 
 }

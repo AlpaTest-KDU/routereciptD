@@ -3,6 +3,7 @@ package com.routerecipt.project.redis.BloomFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * RedisBloom 설정 클래스
@@ -20,6 +21,7 @@ public class RedisBloomConfig {
 	
 	// BloomFilterHelper Bean 등록
 	@Bean
+	@Lazy
     public BloomFilterHelper bloomFilterHelper(
             @Value("${spring.data.redis.host}") String host,
             @Value("${spring.data.redis.port}") int port

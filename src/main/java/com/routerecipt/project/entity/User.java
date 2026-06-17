@@ -52,11 +52,9 @@ public class User implements Persistable<String> {
 	@Column(name = "u_id", length = 16)
 	private String u_id;
 	
-	@Id
 	@Column(name = "u_pw", nullable = false)
 	private String u_pw;
 	
-	@Id
 	@Column(name = "u_name", nullable = false)
 	private String u_name;
 	
@@ -103,7 +101,6 @@ public class User implements Persistable<String> {
 	
 	
 	@Override
-	@Nullable
 	public String getId() {
 		return u_id;
 	}

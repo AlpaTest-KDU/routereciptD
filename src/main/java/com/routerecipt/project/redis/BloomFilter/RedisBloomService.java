@@ -1,5 +1,6 @@
 package com.routerecipt.project.redis.BloomFilter;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 
@@ -25,7 +26,7 @@ public class RedisBloomService {
     private final BloomFilterHelper bloomFilterHelper;
 
     // 생성자 주입
-    public RedisBloomService(BloomFilterHelper bloomFilterHelper) {
+    public RedisBloomService(@Lazy BloomFilterHelper bloomFilterHelper) {
         this.bloomFilterHelper = bloomFilterHelper;
     }
 

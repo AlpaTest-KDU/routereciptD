@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,7 +30,7 @@ public class RedisStreamConfig {
     private final RedisTemplate<String, String> redisTemplate;
 
     public RedisStreamConfig(
-            RedisTemplate<String, String> redisTemplate) {
+    		@Qualifier("redisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

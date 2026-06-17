@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,22 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReceiptServiceImp implements ReceiptService {
 
     private final ReceiptCommandService receiptCommandService;
     private final RedisTemplate<String, String> redisTemplate;
     private final OcrStreamProducer ocrStreamProducer;
     private final ReceiptMapper receiptMapper;
+    
+    public ReceiptServiceImp(ReceiptCommandService receiptCommandService,
+            @Qualifier("redisTemplate") RedisTemplate<String, String> redisTemplate,
+            OcrStreamProducer ocrStreamProducer,
+            ReceiptMapper receiptMapper) {
+    	this.receiptCommandService = receiptCommandService;
+    	this.redisTemplate = redisTemplate;
+    	this.ocrStreamProducer = ocrStreamProducer;
+    	this.receiptMapper = receiptMapper;
+    }
 
     @Value("${receipt.upload.temp-dir}")
     private String uploadDir;
