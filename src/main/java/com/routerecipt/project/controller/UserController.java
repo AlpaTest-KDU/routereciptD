@@ -83,7 +83,7 @@ public class UserController {
 			return "user/userSignUpPage";
 		}
 		
-		// bloom Filter 등록 (실패해도 회원가입은 성공)
+		// bloom Filter 등록
 		try {
 			bloomService.register(u.getU_id());
 		} catch (Exception e) {
